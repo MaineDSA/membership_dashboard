@@ -8,9 +8,9 @@ import numpy as np
 import glob
 
 FONT = dict(
-		size=14,
-		color="white"
-	)
+	size=14,
+	color="white"
+)
 
 memb_lists = {}
 memb_list_dates = []
@@ -50,7 +50,14 @@ app.layout = html.Div([
 	html.Div(children='Membership Lists'),
 	html.Hr(),
 	dcc.Dropdown(options=memb_list_dates, value=memb_list_dates[0], id='list_dropdown'),
-	dash_table.DataTable(data=memb_lists[memb_list_dates[0]].to_dict('records'), page_size=6, style_table={'overflowY': 'auto', 'overflowX': 'auto'}, id='membership_list'),
+	dash_table.DataTable(
+		data=memb_lists[memb_list_dates[0]].to_dict('records'),
+		sort_action="native",
+		sort_mode='multi',
+		page_size=10,
+		style_table={'overflowY': 'auto', 'overflowX': 'auto'},
+		id='membership_list'
+	),
 	html.Div(id='metrics-container', children=[
 		html.Div(id='members_lifetime', style=style_metrics),
 		html.Div(id='members_migs', style=style_metrics),
