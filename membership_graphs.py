@@ -52,8 +52,12 @@ app.layout = html.Div([
 	dcc.Dropdown(options=memb_list_dates, value=memb_list_dates[0], id='list_dropdown'),
 	dash_table.DataTable(
 		data=memb_lists[memb_list_dates[0]].to_dict('records'),
+		columns=[
+			{'name': i, 'id': i, 'deletable': True} for i in sorted(memb_lists[memb_list_dates[0]].columns)
+		],
 		sort_action="native",
 		sort_mode='multi',
+		filter_action='native',
 		page_size=10,
 		style_table={'overflowY': 'auto', 'overflowX': 'auto'},
 		id='membership_list'
