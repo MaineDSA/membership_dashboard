@@ -100,13 +100,28 @@ def createChart(df_field, df_compare_field, title:str, ylabel:str, log:bool):
 	chartdf_vc = df_field.value_counts()
 	chartdf_compare_vc = df_compare_field.value_counts()
 
-	color, color_compare = COLORS, COLORS
+	color, color_compare = [], []
+	active_labels = []
+	
 	if not df_compare_field.empty:
 		color, color_compare = COLORS[3], COLORS[8]
+		for val in chartdf_vc.index:
+			count = chartdf_vc[val]
+			compare_count = chartdf_compare_vc.get(val, 0)
+			count_delta = count - compare_count
+			if count_delta == 0:
+				active_labels.append(str(count))
+			elif count_delta > 0:
+				active_labels.append(f"{count} (+{count_delta})")
+			else:
+				active_labels.append(f"{count} ({count_delta})")
+	else:
+		color, color_compare = COLORS, COLORS
+		active_labels = [str(val) for val in chartdf_vc.values]
 
 	chart = go.Figure(data=[
 		go.Bar(name='Compare List', x=chartdf_compare_vc.index, y=chartdf_compare_vc.values, text=chartdf_compare_vc.values, marker_color=color_compare),
-		go.Bar(name='Active List', x=chartdf_vc.index, y=chartdf_vc.values, text=chartdf_vc.values, marker_color=color)
+		go.Bar(name='Active List', x=chartdf_vc.index, y=chartdf_vc.values, text=active_labels, marker_color=color)
 	])
 	if log: chart.update_yaxes(type="log")
 	chart.update_layout(title=title, yaxis_title=ylabel)
