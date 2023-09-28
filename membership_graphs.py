@@ -120,7 +120,7 @@ def update_graph(date_selected):
 	chart2 = go.Figure(data=[go.Bar(x=chart2df_vc.index, y=chart2df_vc.values, text=chart2df_vc.values, marker_color=colors2)])
 	chart2.update_layout(title='Dues (members in good standing)', yaxis_title='Members')
 
-	membersdf = df.loc[(df['membership_status'] != 'lapsed') & (df['membership_status'] != 'expired')]
+	membersdf = df.query('membership_status != "lapsed" and membership_status != "expired"')
 
 	colors3 = ['#ef4338', '#df4997', '#8a66c9', '#3989c4', '#418e9d']
 	chart3df_vc = membersdf['union_member'].value_counts()
