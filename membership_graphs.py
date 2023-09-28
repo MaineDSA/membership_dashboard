@@ -77,6 +77,22 @@ app.layout = html.Div([
 	]),
 ])
 
+def splitDataFrameList(df,target_column,separator):
+	row_accumulator = []
+
+	def splitListToRows(row, separator):
+		if type(row[target_column]) == float:
+			row[target_column] = 'unknown'
+		split_row = row[target_column].split(separator)
+		for s in split_row:
+			new_row = row.to_dict()
+			new_row[target_column] = s
+			row_accumulator.append(new_row)
+
+	df.apply(splitListToRows, axis=1, args = (separator, ))
+	new_df2 = pd.DataFrame(row_accumulator)
+	return new_df2
+
 # Add controls to build the interaction
 @callback(
 	Output(component_id='membership_list', component_property='data'),
@@ -96,7 +112,7 @@ def update_graph(date_selected):
 	df['membership_length'] = df['join_date'].apply(membership_length)
 	df['membership_status'] = np.where(df['membership_status'] == 'expired', 'lapsed', df['membership_status'].str.lower())
 	df['membership_type'] = np.where(df['xdate'] == '2099-11-01', 'lifetime', df['membership_type'].str.lower())
-	if not 'race' in df: df['race'] = 'unknown'
+	if (not 'race' in df): df['race'] = 'unknown'
 
 	lifetime = df['membership_type'].eq('lifetime').sum()
 	num1 = f'Lifetime Members: {lifetime}'
@@ -127,15 +143,16 @@ def update_graph(date_selected):
 	chart3 = go.Figure(data=[go.Bar(x=chart3df_vc.index, y=chart3df_vc.values, text=chart3df_vc.values, marker_color=colors3)])
 	chart3.update_layout(title='Union Membership (not lapsed)', yaxis_title='Members')
 
-	chart4df_vc = membersdf['race'].value_counts()
-	chart4 = go.Figure(data=[go.Bar(x=chart4df_vc.index, y=chart4df_vc.values, text=chart4df_vc.values)])
+	colors4 = ['#ef4338', '#ef3b71', '#d750a2', '#ac69c2', '#777ccf', '#4487c8', '#2b8db5', '#418e9d']
+	chart4df_vc = splitDataFrameList(membersdf, 'race', ',')['race'].value_counts()
+	chart4 = go.Figure(data=[go.Bar(x=chart4df_vc.index, y=chart4df_vc.values, text=chart4df_vc.values, marker_color=colors4)])
 	chart4.update_yaxes(type="log")
 	chart4.update_layout(title='Racial Demographics (self-reported)', yaxis_title='Members (Logarithmic)')
 
 	colors5 = ['#ef4338', '#ef3b71', '#d750a2', '#ac69c2', '#777ccf', '#4487c8', '#2b8db5', '#418e9d']
 	chart5df_vc = membersdf['membership_length'].clip(upper=8).value_counts()
 	chart5 = go.Figure(data=[go.Bar(x=chart5df_vc.index, y=chart5df_vc.values, text=chart5df_vc.values, marker_color=colors5)])
-	chart5.update_layout(title='Length of Membership (0-8yrs, not lapsed)', yaxis_title='Members')
+	chart5.update_layout(title='Length of Membership (0 - 8+yrs, not lapsed)', yaxis_title='Members')
 
 	return df.to_dict('records'), num1, num2, num3, num4, chart1, chart2, chart3, chart4, chart5
 
