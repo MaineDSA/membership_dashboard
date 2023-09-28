@@ -45,6 +45,7 @@ app.layout = html.Div([
 	html.Div(children='Membership Lists'),
 	html.Hr(),
 	dcc.Dropdown(options=memb_list_dates, value=memb_list_dates[0], id='list_dropdown'),
+	dcc.Dropdown(options=memb_list_dates, value='', id='list_compare_dropdown'),
 	dash_table.DataTable(
 		data=memb_lists[memb_list_dates[0]].to_dict('records'),
 		columns=[
@@ -72,7 +73,29 @@ app.layout = html.Div([
 	]),
 ])
 
-def multiChoiceCount(df,target_column,separator):
+def selectedData(date_selected:str):
+	df = memb_lists[date_selected] if date_selected else pd.DataFrame()
+	if date_selected:
+		df.columns = df.columns.str.lower()
+		df['membership_length'] = df['join_date'].apply(membership_length, list_date=date_selected)
+		df['membership_status'] = df['membership_status'].replace({'expired': 'lapsed'}).str.lower()
+		df['membership_type'] = np.where(df['xdate'] == '2099-11-01', 'lifetime', df['membership_type'].str.lower())
+		df['race'] = df.get('race', 'unknown')
+		df['race'] = df['race'].fillna('unknown')
+	return df
+
+def calculateMetric(df, df_compare, title:str, column:str, value:str):
+	count = df[column].eq(value).sum()
+	num = f'{title}{count}'
+	if not df_compare.empty:
+		count_compare = df_compare[column].eq(value).sum()
+		if count > count_compare:
+			return f'{num} (+{count-count_compare})'
+		elif count < count_compare:
+			return f'{num} (-{count_compare-count})'
+	return num
+	
+def multiChoiceCount(df,target_column:str,separator:str):
 	new_df = df[target_column].str.split(separator, expand=True).stack().reset_index(level=1, drop=True).to_frame(target_column).join(df.drop(target_column, axis=1))
 	return new_df
 
@@ -88,28 +111,17 @@ def multiChoiceCount(df,target_column,separator):
 	Output(component_id='union_member', component_property='figure'),
 	Output(component_id='race', component_property='figure'),
 	Output(component_id='membership_length', component_property='figure'),
-	Input(component_id='list_dropdown', component_property='value')
+	Input(component_id='list_dropdown', component_property='value'),
+	Input(component_id='list_compare_dropdown', component_property='value')
 )
-def update_graph(date_selected):
-	df = memb_lists[date_selected]
-	df.columns = df.columns.str.lower()
-	df['membership_length'] = df['join_date'].apply(membership_length, list_date=date_selected)
-	df['membership_status'] = df['membership_status'].replace({'expired': 'lapsed'}).str.lower()
-	df['membership_type'] = np.where(df['xdate'] == '2099-11-01', 'lifetime', df['membership_type'].str.lower())
-	if 'race' not in df: df['race'] = 'unknown'
-	df['race'] = df['race'].fillna('unknown')
+def update_graph(date_selected, date_compare_selected):
+	df = selectedData(date_selected)
+	df_compare = selectedData(date_compare_selected)
 
-	lifetime = df['membership_type'].eq('lifetime').sum()
-	num1 = f'Lifetime Members: {lifetime}'
-
-	migs = df['membership_status'].eq('member in good standing').sum()
-	num2 = f'Members in Good Standing: {migs}'
-
-	expiring = df['membership_status'].eq('member').sum()
-	num3 = f'Expiring Members: {expiring}'
-
-	lapsed = df['membership_status'].eq('lapsed').sum()
-	num4 = f'Lapsed Members: {lapsed}'
+	num1 = calculateMetric(df, df_compare, 'Lifetime Members: ', 'membership_type', 'lifetime')
+	num2 = calculateMetric(df, df_compare, 'Members in Good Standing: ', 'membership_status', 'member in good standing')
+	num3 = calculateMetric(df, df_compare, 'Expiring Members: ', 'membership_status', 'member')
+	num4 = calculateMetric(df, df_compare, 'Lapsed Members: ', 'membership_status', 'lapsed')
 
 	colors1 = ['#ef4338', '#8a66c9', '#418e9d']
 	chart1df_vc = df['membership_status'].value_counts()
