@@ -97,6 +97,7 @@ def update_graph(date_selected):
 	df['membership_status'] = df['membership_status'].replace({'expired': 'lapsed'}).str.lower()
 	df['membership_type'] = np.where(df['xdate'] == '2099-11-01', 'lifetime', df['membership_type'].str.lower())
 	if 'race' not in df: df['race'] = 'unknown'
+	df['race'] = df['race'].fillna('unknown')
 
 	lifetime = df['membership_type'].eq('lifetime').sum()
 	num1 = f'Lifetime Members: {lifetime}'
