@@ -77,21 +77,9 @@ app.layout = html.Div([
 	]),
 ])
 
-def splitDataFrameList(df,target_column,separator):
-	row_accumulator = []
-
-	def splitListToRows(row, separator):
-		if type(row[target_column]) == float:
-			row[target_column] = 'unknown'
-		split_row = row[target_column].split(separator)
-		for s in split_row:
-			new_row = row.to_dict()
-			new_row[target_column] = s
-			row_accumulator.append(new_row)
-
-	df.apply(splitListToRows, axis=1, args = (separator, ))
-	new_df2 = pd.DataFrame(row_accumulator)
-	return new_df2
+def multiChoiceCount(df,target_column,separator):
+	new_df = df[target_column].str.split(separator, expand=True).stack().reset_index(level=1, drop=True).to_frame(target_column).join(df.drop(target_column, axis=1))
+	return new_df
 
 # Add controls to build the interaction
 @callback(
@@ -144,7 +132,7 @@ def update_graph(date_selected):
 	chart3.update_layout(title='Union Membership (not lapsed)', yaxis_title='Members')
 
 	colors4 = ['#ef4338', '#ef3b71', '#d750a2', '#ac69c2', '#777ccf', '#4487c8', '#2b8db5', '#418e9d']
-	chart4df_vc = splitDataFrameList(membersdf, 'race', ',')['race'].value_counts()
+	chart4df_vc = multiChoiceCount(membersdf, 'race', ',')['race'].value_counts()
 	chart4 = go.Figure(data=[go.Bar(x=chart4df_vc.index, y=chart4df_vc.values, text=chart4df_vc.values, marker_color=colors4)])
 	chart4.update_yaxes(type="log")
 	chart4.update_layout(title='Racial Demographics (self-reported)', yaxis_title='Members (Logarithmic)')
