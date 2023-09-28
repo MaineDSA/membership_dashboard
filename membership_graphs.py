@@ -7,11 +7,6 @@ import plotly.graph_objects as go
 import numpy as np
 import glob
 
-FONT = dict(
-	size=14,
-	color="white"
-)
-
 memb_lists = {}
 memb_list_dates = []
 
