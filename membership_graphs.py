@@ -48,7 +48,7 @@ app.layout = html.Div([
 	dash_table.DataTable(
 		data=memb_lists[memb_list_dates[0]].to_dict('records'),
 		columns=[
-			{'name': i, 'id': i, 'deletable': True} for i in sorted(memb_lists[memb_list_dates[0]].columns)
+			{'name': i, 'id': i, 'deletable': True} for i in memb_lists[memb_list_dates[0]].columns
 		],
 		sort_action="native",
 		sort_mode='multi',
