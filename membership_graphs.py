@@ -92,6 +92,7 @@ def multiChoiceCount(df,target_column,separator):
 )
 def update_graph(date_selected):
 	df = memb_lists[date_selected]
+	df.columns = df.columns.str.lower()
 	df['membership_length'] = df['join_date'].apply(membership_length)
 	df['membership_status'] = np.where(df['membership_status'] == 'expired', 'lapsed', df['membership_status'].str.lower())
 	df['membership_type'] = np.where(df['xdate'] == '2099-11-01', 'lifetime', df['membership_type'].str.lower())
