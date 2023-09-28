@@ -94,10 +94,26 @@ def calculateMetric(df, df_compare, title:str, column:str, value:str):
 		elif count < count_compare:
 			return f'{num} (-{count_compare-count})'
 	return num
+
+COLORS = ['#f7ce63', '#f3aa79', '#f0959e', '#ee8cb5', '#c693be', '#937dc0', '#5fa3d9', '#00b2e2', '#54bcbb', '#69bca8', '#8dc05a', '#f9e442']
+def createChart(df_field, df_compare_field, title:str, ylabel:str, log:bool):
+	chartdf_vc = df_field.value_counts()
+	chartdf_compare_vc = df_compare_field.value_counts()
+
+	color, color_compare = COLORS, COLORS
+	if not df_compare_field.empty:
+		color, color_compare = COLORS[3], COLORS[8]
+
+	chart = go.Figure(data=[
+		go.Bar(name='Compare List', x=chartdf_compare_vc.index, y=chartdf_compare_vc.values, text=chartdf_compare_vc.values, marker_color=color_compare),
+		go.Bar(name='Active List', x=chartdf_vc.index, y=chartdf_vc.values, text=chartdf_vc.values, marker_color=color)
+	])
+	if log: chart.update_yaxes(type="log")
+	chart.update_layout(title=title, yaxis_title=ylabel)
+	return chart
 	
 def multiChoiceCount(df,target_column:str,separator:str):
-	new_df = df[target_column].str.split(separator, expand=True).stack().reset_index(level=1, drop=True).to_frame(target_column).join(df.drop(target_column, axis=1))
-	return new_df
+	return df[target_column].str.split(separator, expand=True).stack().reset_index(level=1, drop=True).to_frame(target_column).join(df.drop(target_column, axis=1))
 
 # Add controls to build the interaction
 @callback(
@@ -123,33 +139,48 @@ def update_graph(date_selected, date_compare_selected):
 	num3 = calculateMetric(df, df_compare, 'Expiring Members: ', 'membership_status', 'member')
 	num4 = calculateMetric(df, df_compare, 'Lapsed Members: ', 'membership_status', 'lapsed')
 
-	colors1 = ['#ef4338', '#8a66c9', '#418e9d']
-	chart1df_vc = df['membership_status'].value_counts()
-	chart1 = go.Figure(data=[go.Bar(x=chart1df_vc.index, y=chart1df_vc.values, text=chart1df_vc.values, marker_color=colors1)])
-	chart1.update_layout(title='Membership Counts (all-time)', yaxis_title='Members')
+	chart1 = createChart(
+		df['membership_status'] if 'membership_status' in df else pd.DataFrame(),
+		df_compare['membership_status'] if 'membership_status' in df_compare else pd.DataFrame(),
+		'Membership Counts (all-time)',
+		'Members',
+		False
+	)
 
-	colors2 = ['#ef4338', '#df4997', '#8a66c9', '#3989c4', '#418e9d']
-	chart2df_vc = df.loc[df['membership_status'] == 'member in good standing']['membership_type'].value_counts()
-	chart2 = go.Figure(data=[go.Bar(x=chart2df_vc.index, y=chart2df_vc.values, text=chart2df_vc.values, marker_color=colors2)])
-	chart2.update_layout(title='Dues (members in good standing)', yaxis_title='Members')
+	chart2 = createChart(
+		df.loc[df['membership_status'] == 'member in good standing']['membership_type'] if 'membership_status' in df else pd.DataFrame(),
+		df_compare.loc[df_compare['membership_status'] == 'member in good standing']['membership_type'] if 'membership_status' in df_compare else pd.DataFrame(),
+		'Dues (members in good standing)',
+		'Members (Logarithmic)',
+		True
+	)
 
 	membersdf = df.query('membership_status != "lapsed" and membership_status != "expired"')
+	membersdf_compare = df_compare.query('membership_status != "lapsed" and membership_status != "expired"') if 'membership_status' in df_compare else pd.DataFrame()
 
-	colors3 = ['#ef4338', '#df4997', '#8a66c9', '#3989c4', '#418e9d']
-	chart3df_vc = membersdf['union_member'].value_counts()
-	chart3 = go.Figure(data=[go.Bar(x=chart3df_vc.index, y=chart3df_vc.values, text=chart3df_vc.values, marker_color=colors3)])
-	chart3.update_layout(title='Union Membership (not lapsed)', yaxis_title='Members')
+	chart3 = createChart(
+		membersdf['union_member'] if 'union_member' in df else pd.DataFrame(),
+		membersdf_compare['union_member'] if 'union_member' in df_compare else pd.DataFrame(),
+		'Union Membership (not lapsed)',
+		'Members (Logarithmic)',
+		True
+	)
 
-	colors4 = ['#ef4338', '#ef3b71', '#d750a2', '#ac69c2', '#777ccf', '#4487c8', '#2b8db5', '#418e9d']
-	chart4df_vc = multiChoiceCount(membersdf, 'race', ',')['race'].value_counts()
-	chart4 = go.Figure(data=[go.Bar(x=chart4df_vc.index, y=chart4df_vc.values, text=chart4df_vc.values, marker_color=colors4)])
-	chart4.update_yaxes(type="log")
-	chart4.update_layout(title='Racial Demographics (self-reported)', yaxis_title='Members (Logarithmic)')
+	chart4 = createChart(
+		multiChoiceCount(membersdf, 'race', ',')['race'] if 'race' in df else pd.DataFrame(),
+		multiChoiceCount(membersdf_compare, 'race', ',')['race'] if 'race' in membersdf_compare else pd.DataFrame(),
+		'Racial Demographics (self-reported)',
+		'Members (Logarithmic)',
+		True
+	)
 
-	colors5 = ['#ef4338', '#ef3b71', '#d750a2', '#ac69c2', '#777ccf', '#4487c8', '#2b8db5', '#418e9d']
-	chart5df_vc = membersdf['membership_length'].clip(upper=8).value_counts()
-	chart5 = go.Figure(data=[go.Bar(x=chart5df_vc.index, y=chart5df_vc.values, text=chart5df_vc.values, marker_color=colors5)])
-	chart5.update_layout(title='Length of Membership (0 - 8+yrs, not lapsed)', yaxis_title='Members')
+	chart5 = createChart(
+		membersdf['membership_length'].clip(upper=8) if 'membership_length' in df else pd.DataFrame(),
+		membersdf_compare['membership_length'].clip(upper=8) if 'membership_length' in membersdf_compare else pd.DataFrame(),
+		'Length of Membership (0 - 8+yrs, not lapsed)',
+		'Members',
+		False
+	)
 
 	return df.to_dict('records'), num1, num2, num3, num4, chart1, chart2, chart3, chart4, chart5
 
