@@ -29,8 +29,8 @@ def scan_all_membership_lists(directory:str):
 
 scan_all_membership_lists('maine_membership_list')
 
-def membership_length(date:str):
-	return (pd.to_datetime(datetime.date.today()) - pd.to_datetime(date, format='%Y-%m-%d')) // datetime.timedelta(days=365)
+def membership_length(date:str, **kwargs):
+	return (pd.to_datetime(kwargs['list_date'], format='ISO8601') - pd.to_datetime(date, format='ISO8601')) // datetime.timedelta(days=365)
 
 # Initialize the app
 app = Dash(__name__)
@@ -93,7 +93,7 @@ def multiChoiceCount(df,target_column,separator):
 def update_graph(date_selected):
 	df = memb_lists[date_selected]
 	df.columns = df.columns.str.lower()
-	df['membership_length'] = df['join_date'].apply(membership_length)
+	df['membership_length'] = df['join_date'].apply(membership_length, list_date=date_selected)
 	df['membership_status'] = df['membership_status'].replace({'expired': 'lapsed'}).str.lower()
 	df['membership_type'] = np.where(df['xdate'] == '2099-11-01', 'lifetime', df['membership_type'].str.lower())
 	if 'race' not in df: df['race'] = 'unknown'
