@@ -7,8 +7,11 @@ import plotly.graph_objects as go
 import numpy as np
 import glob
 
-memb_lists = {}
 memb_list_dates = []
+memb_lists = {}
+
+def membership_length(date:str, **kwargs):
+	return (pd.to_datetime(kwargs['list_date']) - pd.to_datetime(date)) // datetime.timedelta(days=365)
 
 def scan_membership_list(directory: str, filename: str):
 	print(f'Scanning {filename} for membership list.')
@@ -20,6 +23,16 @@ def scan_membership_list(directory: str, filename: str):
 		with memb_list_zip.open(f'{directory}.csv') as memb_list:
 			date_formatted = date_from_name.isoformat()
 			memb_lists[date_formatted] = pd.read_csv(memb_list, header=0)
+			memb_lists[date_formatted].columns = memb_lists[date_formatted].columns.str.lower()
+			memb_lists[date_formatted]['membership_length'] = memb_lists[date_formatted]['join_date'].apply(membership_length, list_date=date_formatted)
+			if not 'membership_status' in memb_lists[date_formatted]: memb_lists[date_formatted]['membership_status'] = np.where(memb_lists[date_formatted]['memb_status'] == 'M', 'member in good standing', 'n/a')
+			memb_lists[date_formatted]['membership_status'] = memb_lists[date_formatted]['membership_status'].replace({'expired': 'lapsed'}).str.lower()
+			memb_lists[date_formatted]['membership_type'] = np.where(memb_lists[date_formatted]['xdate'] == '2099-11-01', 'lifetime', memb_lists[date_formatted]['membership_type'].str.lower())
+			memb_lists[date_formatted]['membership_type'] = memb_lists[date_formatted]['membership_type'].replace({'annual': 'yearly'}).str.lower()
+			if not 'union_member' in memb_lists[date_formatted]: memb_lists[date_formatted]['union_member'] = 'unknown'
+			memb_lists[date_formatted]['union_member'] = memb_lists[date_formatted]['union_member'].replace({'No': 'No, not a union member'}).str.lower()
+			memb_lists[date_formatted]['race'] = memb_lists[date_formatted].get('race', 'unknown')
+			memb_lists[date_formatted]['race'] = memb_lists[date_formatted]['race'].fillna('unknown')
 			memb_list_dates.append(date_formatted)
 
 def scan_all_membership_lists(directory:str):
@@ -27,12 +40,8 @@ def scan_all_membership_lists(directory:str):
 	files = sorted(glob.glob(os.path.join(directory, '*.zip')), reverse=True)
 	[scan_membership_list(directory, os.path.basename(filepath)) for filepath in files]
 
-scan_all_membership_lists('maine_membership_list')
-
-def membership_length(date:str, **kwargs):
-	return (pd.to_datetime(kwargs['list_date']) - pd.to_datetime(date)) // datetime.timedelta(days=365)
-
 # Initialize the app
+scan_all_membership_lists('maine_membership_list')
 app = Dash(__name__)
 
 style_metrics = {'display': 'inline-block', 'width': '25%', 'text-align': 'center', 'padding-top': '3em', 'padding-bottom': '1em'}
@@ -75,16 +84,6 @@ app.layout = html.Div([
 
 def selectedData(date_selected:str):
 	df = memb_lists[date_selected] if date_selected else pd.DataFrame()
-	if date_selected:
-		df.columns = df.columns.str.lower()
-		df['membership_length'] = df['join_date'].apply(membership_length, list_date=date_selected)
-		if not 'membership_status' in df: df['membership_status'] = np.where(df['memb_status'] == 'M', 'member in good standing', 'n/a')
-		df['membership_status'] = df['membership_status'].replace({'expired': 'lapsed'}).str.lower()
-		df['membership_type'] = np.where(df['xdate'] == '2099-11-01', 'lifetime', df['membership_type'].str.lower())
-		df['membership_type'] = df['membership_type'].replace({'annual': 'yearly'}).str.lower()
-		df['union_member'] = df['union_member'].replace({'No': 'No, not a union member'}).str.lower()
-		df['race'] = df.get('race', 'unknown')
-		df['race'] = df['race'].fillna('unknown')
 	return df
 
 def calculateMetric(df, df_compare, title:str, column:str, value:str):
