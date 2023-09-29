@@ -89,14 +89,14 @@ def selectedData(date_selected:str):
 
 def calculateMetric(df, df_compare, title:str, column:str, value:str):
 	count = df[column].eq(value).sum()
-	num = f'{title}{count}'
+	number_string = f'{title}{count}'
 	if not df_compare.empty:
 		count_compare = df_compare[column].eq(value).sum()
 		if count > count_compare:
-			return f'{num} (+{count-count_compare})'
+			return f'{number_string} (+{count-count_compare})'
 		elif count < count_compare:
-			return f'{num} (-{count_compare-count})'
-	return num
+			return f'{number_string} (-{count_compare-count})'
+	return number_string
 
 COLORS = ['#f7ce63', '#f3aa79', '#f0959e', '#ee8cb5', '#c693be', '#937dc0', '#5fa3d9', '#00b2e2', '#54bcbb', '#69bca8', '#8dc05a', '#f9e442']
 def createChart(df_field, df_compare_field, title:str, ylabel:str, log:bool):
