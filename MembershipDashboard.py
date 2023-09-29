@@ -169,13 +169,14 @@ def multiChoiceCount(df,target_column:str,separator:str):
 def update_graph(date_selected, date_compare_selected):
 	timelinedf = pd.DataFrame.from_dict(memb_lists_metrics, orient='index')
 	timeline = go.Figure([
-		go.Scatter(name='Members in Good Standing', x=timelinedf.index, y=timelinedf['migs'], mode='lines', marker_color=COLORS[0]),
-		go.Scatter(name='Members', x=timelinedf.index, y=timelinedf['member'], mode='lines', marker_color=COLORS[1]),
-		go.Scatter(name='Lapsed Members', x=timelinedf.index, y=timelinedf['lapsed'], mode='lines', marker_color=COLORS[2]),
-		go.Scatter(name='Monthly Dues Payers', x=timelinedf.index, y=timelinedf['monthly'], mode='lines', marker_color=COLORS[3]),
-		go.Scatter(name='Yearly Dues Payers', x=timelinedf.index, y=timelinedf['yearly'], mode='lines', marker_color=COLORS[4]),
-		go.Scatter(name='Income-Based Dues Payers', x=timelinedf.index, y=timelinedf['solidarity_dues'], mode='lines', marker_color=COLORS[5]),
+		go.Scatter(name='Members in Good Standing', x=timelinedf.index, y=timelinedf['migs'], mode='lines', marker_color=COLORS[3]),
+		go.Scatter(name='Members', x=timelinedf.index, y=timelinedf['member'], mode='lines', marker_color=COLORS[4]),
+		go.Scatter(name='Lapsed Members', x=timelinedf.index, y=timelinedf['lapsed'], mode='lines', marker_color=COLORS[5], visible='legendonly'),
+		go.Scatter(name='Monthly Dues Payers', x=timelinedf.index, y=timelinedf['monthly'], mode='lines', marker_color=COLORS[6]),
+		go.Scatter(name='Yearly Dues Payers', x=timelinedf.index, y=timelinedf['yearly'], mode='lines', marker_color=COLORS[7]),
+		go.Scatter(name='Income-Based Dues Payers', x=timelinedf.index, y=timelinedf['solidarity_dues'], mode='lines', marker_color=COLORS[8]),
 	])
+	timeline.update_layout(title='Membership Trends', yaxis_title='Members')
 
 	df = selectedData(date_selected)
 	df_compare = selectedData(date_compare_selected)
