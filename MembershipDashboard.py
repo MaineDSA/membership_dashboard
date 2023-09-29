@@ -9,6 +9,7 @@ import glob
 
 memb_list_dates = []
 memb_lists = {}
+memb_lists_metrics = {}
 
 def membership_length(date:str, **kwargs):
 	return (pd.to_datetime(kwargs['list_date']) - pd.to_datetime(date)) // datetime.timedelta(days=365)
@@ -22,6 +23,7 @@ def scan_membership_list(directory: str, filename: str):
 	with zipfile.ZipFile(os.path.join(directory, filename)) as memb_list_zip:
 		with memb_list_zip.open(f'{directory}.csv') as memb_list:
 			date_formatted = date_from_name.isoformat()
+
 			memb_lists[date_formatted] = pd.read_csv(memb_list, header=0)
 			memb_lists[date_formatted].columns = memb_lists[date_formatted].columns.str.lower()
 			memb_lists[date_formatted]['membership_length'] = memb_lists[date_formatted]['join_date'].apply(membership_length, list_date=date_formatted)
@@ -33,7 +35,17 @@ def scan_membership_list(directory: str, filename: str):
 			memb_lists[date_formatted]['union_member'] = memb_lists[date_formatted]['union_member'].replace({'No': 'No, not a union member'}).str.lower()
 			memb_lists[date_formatted]['race'] = memb_lists[date_formatted].get('race', 'unknown')
 			memb_lists[date_formatted]['race'] = memb_lists[date_formatted]['race'].fillna('unknown')
+
 			memb_list_dates.append(date_formatted)
+
+			memb_lists_metrics[date_formatted] = {
+				'migs':memb_lists[date_formatted]['membership_status'].eq('member in good standing').sum(),
+				'member':memb_lists[date_formatted]['membership_status'].eq('member').sum(),
+				'lapsed':memb_lists[date_formatted]['membership_status'].eq('lapsed').sum(),
+				'solidarity_dues':memb_lists[date_formatted]['membership_type'].eq('income-based').sum(),
+				'monthly':memb_lists[date_formatted]['membership_type'].eq('monthly').sum(),
+				'yearly':memb_lists[date_formatted]['membership_type'].eq('yearly').sum(),
+			}
 
 def scan_all_membership_lists(directory:str):
 	print(f'Scanning {directory} for zipped membership lists.')
@@ -45,6 +57,7 @@ scan_all_membership_lists('maine_membership_list')
 app = Dash(__name__)
 
 style_metrics = {'display': 'inline-block', 'width': '25%', 'text-align': 'center', 'padding-top': '3em', 'padding-bottom': '1em'}
+style_graphs_1 = {'display': 'inline-block', 'width': '100%'}
 style_graphs_2 = {'display': 'inline-block', 'width': '50%'}
 style_graphs_3 = {'display': 'inline-block', 'width': '33.33%'}
 style_graphs_4 = {'display': 'inline-block', 'width': '25%'}
@@ -53,6 +66,9 @@ style_graphs_4 = {'display': 'inline-block', 'width': '25%'}
 app.layout = html.Div([
 	html.Div(children='Membership Lists'),
 	html.Hr(),
+	html.Div(id='timeline-container', children=[
+		dcc.Graph(figure={}, id='membership_timeline', style=style_graphs_1),
+	]),
 	dcc.Dropdown(options=memb_list_dates, value=memb_list_dates[0], id='list_dropdown'),
 	dcc.Dropdown(options=memb_list_dates, value='', id='list_compare_dropdown'),
 	dash_table.DataTable(
@@ -136,6 +152,7 @@ def multiChoiceCount(df,target_column:str,separator:str):
 
 # Add controls to build the interaction
 @callback(
+	Output(component_id='membership_timeline', component_property='figure'),
 	Output(component_id='membership_list', component_property='data'),
 	Output(component_id='members_lifetime', component_property='children'),
 	Output(component_id='members_migs', component_property='children'),
@@ -150,6 +167,16 @@ def multiChoiceCount(df,target_column:str,separator:str):
 	Input(component_id='list_compare_dropdown', component_property='value')
 )
 def update_graph(date_selected, date_compare_selected):
+	timelinedf = pd.DataFrame.from_dict(memb_lists_metrics, orient='index')
+	timeline = go.Figure([
+		go.Scatter(name='Members in Good Standing', x=timelinedf.index, y=timelinedf['migs'], mode='lines', marker_color=COLORS[0]),
+		go.Scatter(name='Members', x=timelinedf.index, y=timelinedf['member'], mode='lines', marker_color=COLORS[1]),
+		go.Scatter(name='Lapsed Members', x=timelinedf.index, y=timelinedf['lapsed'], mode='lines', marker_color=COLORS[2]),
+		go.Scatter(name='Monthly Dues Payers', x=timelinedf.index, y=timelinedf['monthly'], mode='lines', marker_color=COLORS[3]),
+		go.Scatter(name='Yearly Dues Payers', x=timelinedf.index, y=timelinedf['yearly'], mode='lines', marker_color=COLORS[4]),
+		go.Scatter(name='Income-Based Dues Payers', x=timelinedf.index, y=timelinedf['solidarity_dues'], mode='lines', marker_color=COLORS[5]),
+	])
+
 	df = selectedData(date_selected)
 	df_compare = selectedData(date_compare_selected)
 
@@ -201,7 +228,7 @@ def update_graph(date_selected, date_compare_selected):
 		False
 	)
 
-	return df.to_dict('records'), num1, num2, num3, num4, chart1, chart2, chart3, chart4, chart5
+	return timeline, df.to_dict('records'), num1, num2, num3, num4, chart1, chart2, chart3, chart4, chart5
 
 # Run the app
 if __name__ == '__main__':
