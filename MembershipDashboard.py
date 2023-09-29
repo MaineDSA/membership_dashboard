@@ -30,7 +30,7 @@ def scan_all_membership_lists(directory:str):
 scan_all_membership_lists('maine_membership_list')
 
 def membership_length(date:str, **kwargs):
-	return (pd.to_datetime(kwargs['list_date'], format='ISO8601') - pd.to_datetime(date, format='ISO8601')) // datetime.timedelta(days=365)
+	return (pd.to_datetime(kwargs['list_date']) - pd.to_datetime(date)) // datetime.timedelta(days=365)
 
 # Initialize the app
 app = Dash(__name__)
@@ -78,8 +78,11 @@ def selectedData(date_selected:str):
 	if date_selected:
 		df.columns = df.columns.str.lower()
 		df['membership_length'] = df['join_date'].apply(membership_length, list_date=date_selected)
+		if not 'membership_status' in df: df['membership_status'] = np.where(df['memb_status'] == 'M', 'member in good standing', 'n/a')
 		df['membership_status'] = df['membership_status'].replace({'expired': 'lapsed'}).str.lower()
 		df['membership_type'] = np.where(df['xdate'] == '2099-11-01', 'lifetime', df['membership_type'].str.lower())
+		df['membership_type'] = df['membership_type'].replace({'annual': 'yearly'}).str.lower()
+		df['union_member'] = df['union_member'].replace({'No': 'No, not a union member'}).str.lower()
 		df['race'] = df.get('race', 'unknown')
 		df['race'] = df['race'].fillna('unknown')
 	return df
@@ -123,7 +126,9 @@ def createChart(df_field, df_compare_field, title:str, ylabel:str, log:bool):
 		go.Bar(name='Compare List', x=chartdf_compare_vc.index, y=chartdf_compare_vc.values, text=chartdf_compare_vc.values, marker_color=color_compare),
 		go.Bar(name='Active List', x=chartdf_vc.index, y=chartdf_vc.values, text=active_labels, marker_color=color)
 	])
-	if log: chart.update_yaxes(type="log")
+	if log:
+		chart.update_yaxes(type="log")
+		ylabel = ylabel + ' (Logarithmic)'
 	chart.update_layout(title=title, yaxis_title=ylabel)
 	return chart
 	
