@@ -171,7 +171,7 @@ def update_graph(date_selected, date_compare_selected):
 		df.loc[df['membership_status'] == 'member in good standing']['membership_type'] if 'membership_status' in df else pd.DataFrame(),
 		df_compare.loc[df_compare['membership_status'] == 'member in good standing']['membership_type'] if 'membership_status' in df_compare else pd.DataFrame(),
 		'Dues (members in good standing)',
-		'Members (Logarithmic)',
+		'Members',
 		True
 	)
 
@@ -182,7 +182,7 @@ def update_graph(date_selected, date_compare_selected):
 		membersdf['union_member'] if 'union_member' in df else pd.DataFrame(),
 		membersdf_compare['union_member'] if 'union_member' in df_compare else pd.DataFrame(),
 		'Union Membership (not lapsed)',
-		'Members (Logarithmic)',
+		'Members',
 		True
 	)
 
@@ -190,7 +190,7 @@ def update_graph(date_selected, date_compare_selected):
 		multiChoiceCount(membersdf, 'race', ',')['race'] if 'race' in df else pd.DataFrame(),
 		multiChoiceCount(membersdf_compare, 'race', ',')['race'] if 'race' in membersdf_compare else pd.DataFrame(),
 		'Racial Demographics (self-reported)',
-		'Members (Logarithmic)',
+		'Members',
 		True
 	)
 
