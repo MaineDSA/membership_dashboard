@@ -77,7 +77,7 @@ app.layout = html.Div([
 			{'name': i, 'id': i, 'deletable': True} for i in memb_lists[memb_list_dates[0]].columns
 		],
 		sort_action="native",
-		sort_mode='multi',
+		sort_by=[{'column_id': 'last_name', 'direction': 'asc'},{'column_id': 'first_name', 'direction': 'asc'}],
 		filter_action='native',
 		filter_options={'case': 'insensitive'},
 		export_format='csv',
