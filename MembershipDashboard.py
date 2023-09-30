@@ -51,9 +51,11 @@ def scan_all_membership_lists(directory:str):
 	[scan_membership_list(directory, os.path.basename(filepath)) for filepath in files]
 
 # Initialize the app
+#scan_membership_list('maine_membership_list', os.path.basename(sorted(glob.glob(os.path.join('maine_membership_list', '*.zip')), reverse=True)[0]))
 scan_all_membership_lists('maine_membership_list')
 app = Dash(__name__)
 
+style_timeline = {'display': 'inline-block', 'width': '100%', 'padding-left': '-1em', 'padding-right': '-1em', 'padding-bottom': '-1em'}
 style_metrics = {'display': 'inline-block', 'width': '25%', 'text-align': 'center', 'padding-top': '3em', 'padding-bottom': '1em'}
 style_graphs_1 = {'display': 'inline-block', 'width': '100%'}
 style_graphs_2 = {'display': 'inline-block', 'width': '50%'}
@@ -65,7 +67,7 @@ app.layout = html.Div([
 	html.Div(children='Membership Lists'),
 	html.Hr(),
 	html.Div(id='timeline-container', children=[
-		dcc.Graph(figure={}, id='membership_timeline', style=style_graphs_1),
+		dcc.Graph(figure={}, id='membership_timeline', style=style_timeline),
 	]),
 	dcc.Dropdown(options=memb_list_dates, value=memb_list_dates[0], id='list_dropdown'),
 	dcc.Dropdown(options=memb_list_dates, value='', id='list_compare_dropdown'),
@@ -78,7 +80,7 @@ app.layout = html.Div([
 		sort_mode='multi',
 		filter_action='native',
 		page_size=10,
-		style_table={'overflowY': 'auto', 'overflowX': 'auto'},
+		style_table={'overflowY': 'auto', 'overflowX': 'auto', 'padding-left': '-.5em'},
 		id='membership_list'
 	),
 	html.Div(id='metrics-container', children=[
@@ -168,9 +170,9 @@ def update_graph(date_selected, date_compare_selected):
 		go.Scatter(name='Members in Good Standing', x=timelinedf.index, y=timelinedf['migs'], mode='lines', marker_color=COLORS[3]),
 		go.Scatter(name='Members', x=timelinedf.index, y=timelinedf['member'], mode='lines', marker_color=COLORS[4]),
 		go.Scatter(name='Lapsed Members', x=timelinedf.index, y=timelinedf['lapsed'], mode='lines', marker_color=COLORS[5], visible='legendonly'),
-		go.Scatter(name='Monthly Dues Payers', x=timelinedf.index, y=timelinedf['monthly'], mode='lines', marker_color=COLORS[6]),
-		go.Scatter(name='Yearly Dues Payers', x=timelinedf.index, y=timelinedf['yearly'], mode='lines', marker_color=COLORS[7]),
-		go.Scatter(name='Income-Based Dues Payers', x=timelinedf.index, y=timelinedf['solidarity_dues'], mode='lines', marker_color=COLORS[8]),
+		go.Scatter(name='Monthly Dues Payers', x=timelinedf.index, y=timelinedf['monthly'], mode='lines', marker_color=COLORS[6], visible='legendonly'),
+		go.Scatter(name='Yearly Dues Payers', x=timelinedf.index, y=timelinedf['yearly'], mode='lines', marker_color=COLORS[7], visible='legendonly'),
+		go.Scatter(name='Income-Based Dues Payers', x=timelinedf.index, y=timelinedf['solidarity_dues'], mode='lines', marker_color=COLORS[8], visible='legendonly'),
 	])
 	timeline.update_layout(title='Membership Trends', yaxis_title='Members')
 
