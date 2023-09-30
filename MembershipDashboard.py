@@ -162,15 +162,13 @@ def update_timeline(selected_columns):
 				if not value in selected_metrics[selected_column]: selected_metrics[selected_column][value] = {}
 				selected_metrics[selected_column][value][date] = memb_lists_metrics[selected_column][date][value]
 		for column in selected_metrics:
-			valcount = 0
-			for value in selected_metrics[column]:
-				valcount = valcount + 1
+			for count, value in enumerate(selected_metrics[column]):
 				timeline.add_trace(go.Scatter(
 					name=value,
 					x=list(selected_metrics[column][value].keys()),
 					y=list(selected_metrics[column][value].values()),
 					mode='lines',
-					marker_color=COLORS[valcount]
+					marker_color=COLORS[count % len(COLORS)]
 				))
 	timeline.update_layout(title='Membership Trends Timeline', yaxis_title='Members')
 
