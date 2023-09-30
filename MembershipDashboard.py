@@ -79,6 +79,7 @@ app.layout = html.Div([
 		sort_action="native",
 		sort_mode='multi',
 		filter_action='native',
+		filter_options={'case': 'insensitive'},
 		export_format='csv',
 		page_size=10,
 		style_table={'overflowY': 'auto', 'overflowX': 'auto', 'padding-left': '-.5em'},
