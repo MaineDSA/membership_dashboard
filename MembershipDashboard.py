@@ -35,6 +35,7 @@ def scan_membership_list(filename: str, filepath: str):
 			if not 'union_member' in memb_lists[date_formatted]: memb_lists[date_formatted]['union_member'] = 'unknown'
 			memb_lists[date_formatted]['union_member'] = memb_lists[date_formatted]['union_member'].replace({0: 'No, not a union member', 1: 'Yes'}).str.lower()
 			memb_lists[date_formatted]['race'] = memb_lists[date_formatted].get('race', 'unknown')
+			memb_lists[date_formatted]['race'] = memb_lists[date_formatted]['race'].fillna('unknown')
 
 			memb_list_dates.append(date_formatted)
 
