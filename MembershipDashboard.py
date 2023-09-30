@@ -1,22 +1,21 @@
 import os
-import zipfile
-import pandas as pd
-import datetime
+import glob
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import plotly.graph_objects as go
 import numpy as np
-import glob
+import zipfile
+import pandas as pd
 
 memb_list_dates = []
 memb_lists = {}
 memb_lists_metrics = {}
 
 def membership_length(date:str, **kwargs):
-	return (pd.to_datetime(kwargs['list_date']) - pd.to_datetime(date)) // datetime.timedelta(days=365)
+	return (pd.to_datetime(kwargs['list_date']) - pd.to_datetime(date)) // pd.Timedelta(days=365)
 
 def scan_membership_list(directory: str, filename: str):
 	print(f'Scanning {filename} for membership list.')
-	date_from_name = datetime.datetime.strptime(os.path.splitext(filename)[0].split('_')[3], '%Y%m%d').date()
+	date_from_name = pd.to_datetime(os.path.splitext(filename)[0].split('_')[3], format='%Y%m%d').date()
 	if not date_from_name:
 		print('No date detected. Skipping file.')
 		return
@@ -34,17 +33,16 @@ def scan_membership_list(directory: str, filename: str):
 			if not 'union_member' in memb_lists[date_formatted]: memb_lists[date_formatted]['union_member'] = 'unknown'
 			memb_lists[date_formatted]['union_member'] = memb_lists[date_formatted]['union_member'].replace({0: 'No, not a union member'}).replace({1: 'Yes'}).str.lower()
 			memb_lists[date_formatted]['race'] = memb_lists[date_formatted].get('race', 'unknown')
-			memb_lists[date_formatted]['race'] = memb_lists[date_formatted]['race'].fillna('unknown')
 
 			memb_list_dates.append(date_formatted)
 
 			memb_lists_metrics[date_formatted] = {
-				'migs':memb_lists[date_formatted]['membership_status'].eq('member in good standing').sum(),
-				'member':memb_lists[date_formatted]['membership_status'].eq('member').sum(),
-				'lapsed':memb_lists[date_formatted]['membership_status'].eq('lapsed').sum(),
-				'solidarity_dues':memb_lists[date_formatted]['membership_type'].eq('income-based').sum(),
-				'monthly':memb_lists[date_formatted]['membership_type'].eq('monthly').sum(),
-				'yearly':memb_lists[date_formatted]['membership_type'].eq('yearly').sum(),
+				'migs': memb_lists[date_formatted]['membership_status'].eq('member in good standing').sum(),
+				'member': memb_lists[date_formatted]['membership_status'].eq('member').sum(),
+				'lapsed': memb_lists[date_formatted]['membership_status'].eq('lapsed').sum(),
+				'solidarity_dues': memb_lists[date_formatted]['membership_type'].eq('income-based').sum(),
+				'monthly': memb_lists[date_formatted]['membership_type'].eq('monthly').sum(),
+				'yearly': memb_lists[date_formatted]['membership_type'].eq('yearly').sum(),
 			}
 
 def scan_all_membership_lists(directory:str):
@@ -107,10 +105,11 @@ def calculateMetric(df, df_compare, title:str, column:str, value:str):
 	number_string = f'{title}{count}'
 	if not df_compare.empty:
 		count_compare = df_compare[column].eq(value).sum()
-		if count > count_compare:
-			return f'{number_string} (+{count-count_compare})'
-		elif count < count_compare:
-			return f'{number_string} (-{count_compare-count})'
+		count_delta = count - count_compare
+		if count_delta > 0:
+			return f'{number_string} (+{count_delta})'
+		elif count_delta < 0:
+			return f'{number_string} ({count_delta})'
 	return number_string
 
 COLORS = ['#f7ce63', '#f3aa79', '#f0959e', '#ee8cb5', '#c693be', '#937dc0', '#5fa3d9', '#00b2e2', '#54bcbb', '#69bca8', '#8dc05a', '#f9e442']
@@ -118,8 +117,8 @@ def createChart(df_field, df_compare_field, title:str, ylabel:str, log:bool):
 	chartdf_vc = df_field.value_counts()
 	chartdf_compare_vc = df_compare_field.value_counts()
 
-	color, color_compare = [], []
-	active_labels = []
+	color, color_compare = COLORS, COLORS
+	active_labels = [str(val) for val in chartdf_vc.values]
 	
 	if not df_compare_field.empty:
 		color, color_compare = COLORS[3], COLORS[8]
@@ -133,9 +132,6 @@ def createChart(df_field, df_compare_field, title:str, ylabel:str, log:bool):
 				active_labels.append(f"{count} (+{count_delta})")
 			else:
 				active_labels.append(f"{count} ({count_delta})")
-	else:
-		color, color_compare = COLORS, COLORS
-		active_labels = [str(val) for val in chartdf_vc.values]
 
 	chart = go.Figure(data=[
 		go.Bar(name='Compare List', x=chartdf_compare_vc.index, y=chartdf_compare_vc.values, text=chartdf_compare_vc.values, marker_color=color_compare),
