@@ -8,7 +8,6 @@ import pandas as pd
 
 MEMB_LIST_NAME = 'maine_membership_list'
 
-memb_list_dates = []
 memb_lists = {}
 memb_lists_metrics = {}
 
@@ -37,8 +36,6 @@ def scan_membership_list(filename: str, filepath: str):
 			memb_lists[date_formatted]['race'] = memb_lists[date_formatted].get('race', 'unknown')
 			memb_lists[date_formatted]['race'] = memb_lists[date_formatted]['race'].fillna('unknown')
 
-			memb_list_dates.append(date_formatted)
-
 			for column in memb_lists[date_formatted].columns:
 				if not column in memb_lists_metrics: memb_lists_metrics[column] = {}
 				memb_lists_metrics[column][date_formatted] = memb_lists[date_formatted][column].value_counts()
@@ -66,12 +63,12 @@ app.layout = html.Div([
 	html.Div(id='timeline-container', children=[
 		dcc.Graph(figure={}, id='membership_timeline', style=style_timeline),
 	]),
-	dcc.Dropdown(options=memb_list_dates, value=memb_list_dates[0], id='list_dropdown'),
-	dcc.Dropdown(options=memb_list_dates, value='', id='list_compare_dropdown'),
+	dcc.Dropdown(options=list(memb_lists.keys()), value=list(memb_lists.keys())[0], id='list_dropdown'),
+	dcc.Dropdown(options=list(memb_lists.keys()), value='', id='list_compare_dropdown'),
 	dash_table.DataTable(
-		data=memb_lists[memb_list_dates[0]].to_dict('records'),
+		data=memb_lists[list(memb_lists.keys())[0]].to_dict('records'),
 		columns=[
-			{'name': i, 'id': i, 'selectable': True} for i in memb_lists[memb_list_dates[0]].columns
+			{'name': i, 'id': i, 'selectable': True} for i in memb_lists[list(memb_lists.keys())[0]].columns
 		],
 		sort_action="native",
 		sort_by=[{'column_id': 'last_name', 'direction': 'asc'},{'column_id': 'first_name', 'direction': 'asc'}],
