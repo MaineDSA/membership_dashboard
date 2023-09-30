@@ -36,14 +36,9 @@ def scan_membership_list(directory: str, filename: str):
 
 			memb_list_dates.append(date_formatted)
 
-			memb_lists_metrics[date_formatted] = {
-				'migs': memb_lists[date_formatted]['membership_status'].eq('member in good standing').sum(),
-				'member': memb_lists[date_formatted]['membership_status'].eq('member').sum(),
-				'lapsed': memb_lists[date_formatted]['membership_status'].eq('lapsed').sum(),
-				'solidarity_dues': memb_lists[date_formatted]['membership_type'].eq('income-based').sum(),
-				'monthly': memb_lists[date_formatted]['membership_type'].eq('monthly').sum(),
-				'yearly': memb_lists[date_formatted]['membership_type'].eq('yearly').sum(),
-			}
+			for column in memb_lists[date_formatted].columns:
+				if not column in memb_lists_metrics: memb_lists_metrics[column] = {}
+				memb_lists_metrics[column][date_formatted] = memb_lists[date_formatted][column].value_counts()
 
 def scan_all_membership_lists(directory:str):
 	print(f'Scanning {directory} for zipped membership lists.')
@@ -152,9 +147,35 @@ def createChart(df_field, df_compare_field, title:str, ylabel:str, log:bool):
 def multiChoiceCount(df,target_column:str,separator:str):
 	return df[target_column].str.split(separator, expand=True).stack().reset_index(level=1, drop=True).to_frame(target_column).join(df.drop(target_column, axis=1))
 
-# Add controls to build the interaction
 @callback(
 	Output(component_id='membership_timeline', component_property='figure'),
+	Input(component_id='membership_list', component_property='selected_columns'),
+)
+def update_timeline(selected_columns):
+	timeline = go.Figure()
+	selected_metrics = {}
+	for selected_column in selected_columns:
+		selected_metrics[selected_column] = {}
+		for date in memb_lists_metrics[selected_column]:
+			for value in memb_lists_metrics[selected_column][date].keys():
+				if not value in selected_metrics[selected_column]: selected_metrics[selected_column][value] = {}
+				selected_metrics[selected_column][value][date] = memb_lists_metrics[selected_column][date][value]
+		for column in selected_metrics:
+			valcount = 0
+			for value in selected_metrics[column]:
+				valcount = valcount + 1
+				timeline.add_trace(go.Scatter(
+					name=value,
+					x=list(selected_metrics[column][value].keys()),
+					y=list(selected_metrics[column][value].values()),
+					mode='lines',
+					marker_color=COLORS[valcount]
+				))
+	timeline.update_layout(title='Membership Trends Timeline', yaxis_title='Members')
+
+	return timeline
+
+@callback(
 	Output(component_id='membership_list', component_property='data'),
 	Output(component_id='members_lifetime', component_property='children'),
 	Output(component_id='members_migs', component_property='children'),
@@ -169,17 +190,6 @@ def multiChoiceCount(df,target_column:str,separator:str):
 	Input(component_id='list_compare_dropdown', component_property='value')
 )
 def update_graph(date_selected, date_compare_selected):
-	timelinedf = pd.DataFrame.from_dict(memb_lists_metrics, orient='index')
-	timeline = go.Figure([
-		go.Scatter(name='Members in Good Standing', x=timelinedf.index, y=timelinedf['migs'], mode='lines', marker_color=COLORS[3]),
-		go.Scatter(name='Members', x=timelinedf.index, y=timelinedf['member'], mode='lines', marker_color=COLORS[4]),
-		go.Scatter(name='Lapsed Members', x=timelinedf.index, y=timelinedf['lapsed'], mode='lines', marker_color=COLORS[5], visible='legendonly'),
-		go.Scatter(name='Monthly Dues Payers', x=timelinedf.index, y=timelinedf['monthly'], mode='lines', marker_color=COLORS[6], visible='legendonly'),
-		go.Scatter(name='Yearly Dues Payers', x=timelinedf.index, y=timelinedf['yearly'], mode='lines', marker_color=COLORS[7], visible='legendonly'),
-		go.Scatter(name='Income-Based Dues Payers', x=timelinedf.index, y=timelinedf['solidarity_dues'], mode='lines', marker_color=COLORS[8], visible='legendonly'),
-	])
-	timeline.update_layout(title='Membership Trends', yaxis_title='Members')
-
 	df = selectedData(date_selected)
 	df_compare = selectedData(date_compare_selected)
 
@@ -231,7 +241,7 @@ def update_graph(date_selected, date_compare_selected):
 		False
 	)
 
-	return timeline, df.to_dict('records'), num1, num2, num3, num4, chart1, chart2, chart3, chart4, chart5
+	return df.to_dict('records'), num1, num2, num3, num4, chart1, chart2, chart3, chart4, chart5
 
 # Run the app
 if __name__ == '__main__':
