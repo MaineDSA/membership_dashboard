@@ -1,7 +1,8 @@
-# Inputs and Outputs
-*_membership_list/*
-*.zip
+# Inputs, Outputs, Private Data
 research/*
+*_membership_list*/*
+*.zip
+*.pkl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
