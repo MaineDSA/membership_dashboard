@@ -113,7 +113,7 @@ def calculateMetric(df, df_compare, title:str, column:str, value:str):
 			return f'{number_string} ({count_delta})'
 	return number_string
 
-COLORS = ['#f7ce63', '#f3aa79', '#f0959e', '#ee8cb5', '#c693be', '#937dc0', '#5fa3d9', '#00b2e2', '#54bcbb', '#69bca8', '#8dc05a', '#f9e442']
+COLORS = ['#ee8cb5', '#c693be', '#937dc0', '#5fa3d9', '#00b2e2', '#54bcbb', '#69bca8', '#8dc05a', '#f9e442', '#f7ce63', '#f3aa79', '#f0959e']
 def createChart(df_field, df_compare_field, title:str, ylabel:str, log:bool):
 	chartdf_vc = df_field.value_counts()
 	chartdf_compare_vc = df_compare_field.value_counts()
@@ -122,7 +122,7 @@ def createChart(df_field, df_compare_field, title:str, ylabel:str, log:bool):
 	active_labels = [str(val) for val in chartdf_vc.values]
 	
 	if not df_compare_field.empty:
-		color, color_compare = COLORS[3], COLORS[8]
+		color, color_compare = COLORS[0], COLORS[5]
 		for val in chartdf_vc.index:
 			count = chartdf_vc[val]
 			compare_count = chartdf_compare_vc.get(val, 0)
