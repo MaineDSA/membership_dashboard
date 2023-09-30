@@ -6,6 +6,8 @@ import numpy as np
 import zipfile
 import pandas as pd
 
+MEMB_LIST_NAME = 'maine_membership_list'
+
 memb_list_dates = []
 memb_lists = {}
 memb_lists_metrics = {}
@@ -13,14 +15,14 @@ memb_lists_metrics = {}
 def membership_length(date:str, **kwargs):
 	return (pd.to_datetime(kwargs['list_date']) - pd.to_datetime(date)) // pd.Timedelta(days=365)
 
-def scan_membership_list(directory: str, filename: str):
+def scan_membership_list(filename: str, filepath: str):
 	print(f'Scanning {filename} for membership list.')
 	date_from_name = pd.to_datetime(os.path.splitext(filename)[0].split('_')[3], format='%Y%m%d').date()
 	if not date_from_name:
 		print('No date detected. Skipping file.')
 		return
-	with zipfile.ZipFile(os.path.join(directory, filename)) as memb_list_zip:
-		with memb_list_zip.open(f'{directory}.csv') as memb_list:
+	with zipfile.ZipFile(filepath) as memb_list_zip:
+		with memb_list_zip.open(f'{MEMB_LIST_NAME}.csv') as memb_list:
 			date_formatted = date_from_name.isoformat()
 
 			memb_lists[date_formatted] = pd.read_csv(memb_list, header=0)
@@ -42,12 +44,11 @@ def scan_membership_list(directory: str, filename: str):
 
 def scan_all_membership_lists(directory:str):
 	print(f'Scanning {directory} for zipped membership lists.')
-	files = sorted(glob.glob(os.path.join(directory, '*.zip')), reverse=True)
-	[scan_membership_list(directory, os.path.basename(filepath)) for filepath in files]
+	files = sorted(glob.glob(os.path.join(directory, '**/*.zip'), recursive=True), reverse=True)
+	[scan_membership_list(os.path.basename(file), os.path.abspath(file)) for file in files]
 
 # Initialize the app
-#scan_membership_list('maine_membership_list', os.path.basename(sorted(glob.glob(os.path.join('maine_membership_list', '*.zip')), reverse=True)[0]))
-scan_all_membership_lists('maine_membership_list')
+scan_all_membership_lists(MEMB_LIST_NAME)
 app = Dash(__name__)
 
 style_timeline = {'display': 'inline-block', 'width': '100%', 'padding-left': '-1em', 'padding-right': '-1em', 'padding-bottom': '-1em'}
