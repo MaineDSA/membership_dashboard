@@ -43,7 +43,10 @@ def scan_membership_list(filename: str, filepath: str):
 def scan_all_membership_lists(directory:str):
 	print(f'Scanning {directory} for zipped membership lists.')
 	files = sorted(glob.glob(os.path.join(directory, '**/*.zip'), recursive=True), reverse=True)
-	[scan_membership_list(os.path.basename(file), os.path.abspath(file)) for file in files]
+	for count, file in enumerate(files):
+		scan_membership_list(os.path.basename(file), os.path.abspath(file))
+		#if count > 25: break
+	#[scan_membership_list(os.path.basename(file), os.path.abspath(file)) for file in files]
 
 # Initialize the app
 scan_all_membership_lists(MEMB_LIST_NAME)
