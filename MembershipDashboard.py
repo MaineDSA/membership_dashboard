@@ -32,7 +32,7 @@ def scan_membership_list(filename: str, filepath: str):
 			memb_lists[date_formatted]['membership_type'] = np.where(memb_lists[date_formatted]['xdate'] == '2099-11-01', 'lifetime', memb_lists[date_formatted]['membership_type'].str.lower())
 			memb_lists[date_formatted]['membership_type'] = memb_lists[date_formatted]['membership_type'].replace({'annual': 'yearly'}).str.lower()
 			if not 'union_member' in memb_lists[date_formatted]: memb_lists[date_formatted]['union_member'] = 'unknown'
-			memb_lists[date_formatted]['union_member'] = memb_lists[date_formatted]['union_member'].replace({0: 'No, not a union member', 1: 'Yes'}).str.lower()
+			memb_lists[date_formatted]['union_member'] = memb_lists[date_formatted]['union_member'].replace({'No': 'no, not a union member', 0: 'No, not a union member', 'Yes': 'Yes, current union member', 1: 'Yes, current union member'}).str.lower()
 			memb_lists[date_formatted]['race'] = memb_lists[date_formatted].get('race', 'unknown')
 			memb_lists[date_formatted]['race'] = memb_lists[date_formatted]['race'].fillna('unknown')
 
