@@ -1,10 +1,10 @@
 import os
 import glob
-from dash import Dash, html, dash_table, dcc, callback, Output, Input
-import plotly.graph_objects as go
 import numpy as np
 import zipfile
 import pandas as pd
+from dash import Dash, html, dash_table, dcc, callback, Output, Input
+import plotly.graph_objects as go
 
 MEMB_LIST_NAME = 'maine_membership_list'
 
