@@ -7,14 +7,16 @@ from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import plotly.graph_objects as go
 
 MEMB_LIST_NAME = 'maine_membership_list'
+COLORS = ['#ee8cb5', '#c693be', '#937dc0', '#5fa3d9', '#00b2e2', '#54bcbb', '#69bca8', '#8dc05a', '#f9e442', '#f7ce63', '#f3aa79', '#f0959e']
 
 memb_lists = {}
 memb_lists_metrics = {}
 
-def membership_length(date:str, **kwargs):
-	return (pd.to_datetime(kwargs['list_date']) - pd.to_datetime(date)) // pd.Timedelta(days=365)
-
 def scan_membership_list(filename: str, filepath: str):
+
+	def membership_length(date:str, **kwargs):
+		return (pd.to_datetime(kwargs['list_date']) - pd.to_datetime(date)) // pd.Timedelta(days=365)
+
 	print(f'Scanning {filename} for membership list.')
 	date_from_name = pd.to_datetime(os.path.splitext(filename)[0].split('_')[3], format='%Y%m%d').date()
 	if not date_from_name:
@@ -99,56 +101,6 @@ app.layout = html.Div([
 	]),
 ])
 
-def selectedData(date_selected:str):
-	df = memb_lists[date_selected] if date_selected else pd.DataFrame()
-	return df
-
-def calculateMetric(df, df_compare, title:str, column:str, value:str):
-	count = df[column].eq(value).sum()
-	number_string = f'{title}{count}'
-	if not df_compare.empty:
-		count_compare = df_compare[column].eq(value).sum()
-		count_delta = count - count_compare
-		if count_delta > 0:
-			return f'{number_string} (+{count_delta})'
-		elif count_delta < 0:
-			return f'{number_string} ({count_delta})'
-	return number_string
-
-COLORS = ['#ee8cb5', '#c693be', '#937dc0', '#5fa3d9', '#00b2e2', '#54bcbb', '#69bca8', '#8dc05a', '#f9e442', '#f7ce63', '#f3aa79', '#f0959e']
-def createChart(df_field, df_compare_field, title:str, ylabel:str, log:bool):
-	chartdf_vc = df_field.value_counts()
-	chartdf_compare_vc = df_compare_field.value_counts()
-
-	color, color_compare = COLORS, COLORS
-	active_labels = [str(val) for val in chartdf_vc.values]
-	
-	if not df_compare_field.empty:
-		color, color_compare = COLORS[0], COLORS[5]
-		for val in chartdf_vc.index:
-			count = chartdf_vc[val]
-			compare_count = chartdf_compare_vc.get(val, 0)
-			count_delta = count - compare_count
-			if count_delta == 0:
-				active_labels.append(str(count))
-			elif count_delta > 0:
-				active_labels.append(f"{count} (+{count_delta})")
-			else:
-				active_labels.append(f"{count} ({count_delta})")
-
-	chart = go.Figure(data=[
-		go.Bar(name='Compare List', x=chartdf_compare_vc.index, y=chartdf_compare_vc.values, text=chartdf_compare_vc.values, marker_color=color_compare),
-		go.Bar(name='Active List', x=chartdf_vc.index, y=chartdf_vc.values, text=active_labels, marker_color=color)
-	])
-	if log:
-		chart.update_yaxes(type="log")
-		ylabel = ylabel + ' (Logarithmic)'
-	chart.update_layout(title=title, yaxis_title=ylabel)
-	return chart
-	
-def multiChoiceCount(df,target_column:str,separator:str):
-	return df[target_column].str.split(separator, expand=True).stack().reset_index(level=1, drop=True).to_frame(target_column).join(df.drop(target_column, axis=1))
-
 @callback(
 	Output(component_id='membership_timeline', component_property='figure'),
 	Input(component_id='membership_list', component_property='selected_columns'),
@@ -176,29 +128,30 @@ def update_timeline(selected_columns):
 
 	return timeline
 
-def nearest(items, pivot):
-	if pivot in items:
-		return pivot
-	else:
-		return min(items, key=lambda x: abs(x - pivot))
-
 @callback(
 	Output(component_id='list_dropdown', component_property='value'),
 	Output(component_id='list_compare_dropdown', component_property='value'),
 	Input(component_id='membership_timeline', component_property='relayoutData'),
 )
-def drag_select(relayoutData):
+def drag_select(relayoutData:dict):
+
+	def nearest(items, pivot):
+		if pivot in items:
+			return pivot
+		else:
+			return min(items, key=lambda x: abs(x - pivot))
+
 	date_active = list(memb_lists.keys())[0]
 	date_compare = ''
-	if type(relayoutData) == dict:
-		startdate = pd.to_datetime(relayoutData.get('xaxis.range[1]', None))
-		enddate = pd.to_datetime(relayoutData.get('xaxis.range[0]', None))
+	if isinstance(relayoutData, dict):
+		startdate = relayoutData.get('xaxis.range[1]', None)
+		enddate = relayoutData.get('xaxis.range[0]', None)
 		datedf = pd.DataFrame(memb_lists.keys())
 		datedf['datetime'] = pd.to_datetime(datedf[0])
-		if startdate != None:
-			date_active = np.datetime_as_string(nearest(datedf['datetime'].values, startdate), unit='D')
-		if enddate != None:
-			date_compare = np.datetime_as_string(nearest(datedf['datetime'].values, enddate), unit='D')
+		if startdate is not None:
+			date_active = np.datetime_as_string(nearest(datedf['datetime'].values, pd.to_datetime(startdate)), unit='D')
+		if enddate is not None:
+			date_compare = np.datetime_as_string(nearest(datedf['datetime'].values, pd.to_datetime(enddate)), unit='D')
 
 	return date_active, date_compare
 
@@ -217,13 +170,55 @@ def drag_select(relayoutData):
 	Input(component_id='list_compare_dropdown', component_property='value')
 )
 def update_graph(date_selected, date_compare_selected):
+
+	def selectedData(date_selected:str):
+		return memb_lists[date_selected] if date_selected else pd.DataFrame()
+
 	df = selectedData(date_selected)
 	df_compare = selectedData(date_compare_selected)
+
+	def calculateMetric(df, df_compare, title:str, column:str, value:str):
+		count = df[column].eq(value).sum()
+		number_string = f'{title}{count}'
+		if not df_compare.empty:
+			count_compare = df_compare[column].eq(value).sum()
+			count_delta = count - count_compare
+			if count_delta > 0:
+				return f'{number_string} (+{count_delta})'
+			elif count_delta < 0:
+				return f'{number_string} ({count_delta})'
+		return number_string
 
 	num1 = calculateMetric(df, df_compare, 'Lifetime Members: ', 'membership_type', 'lifetime')
 	num2 = calculateMetric(df, df_compare, 'Members in Good Standing: ', 'membership_status', 'member in good standing')
 	num3 = calculateMetric(df, df_compare, 'Expiring Members: ', 'membership_status', 'member')
 	num4 = calculateMetric(df, df_compare, 'Lapsed Members: ', 'membership_status', 'lapsed')
+
+	def createChart(df_field, df_compare_field, title:str, ylabel:str, log:bool):
+		chartdf_vc = df_field.value_counts()
+		chartdf_compare_vc = df_compare_field.value_counts()
+
+		color, color_compare = COLORS, COLORS
+		active_labels = [str(val) for val in chartdf_vc.values]
+		
+		if not df_compare_field.empty:
+			color, color_compare = COLORS[0], COLORS[5]
+			active_labels = [
+				f"{count} (+{count - chartdf_compare_vc.get(val, 0)})"
+				if count - chartdf_compare_vc.get(val, 0) > 0
+				else f"{count} ({count - chartdf_compare_vc.get(val, 0)})"
+				for val, count in zip(chartdf_vc.index, chartdf_vc.values)
+			]
+
+		chart = go.Figure(data=[
+			go.Bar(name='Compare List', x=chartdf_compare_vc.index, y=chartdf_compare_vc.values, text=chartdf_compare_vc.values, marker_color=color_compare),
+			go.Bar(name='Active List', x=chartdf_vc.index, y=chartdf_vc.values, text=active_labels, marker_color=color)
+		])
+		if log:
+			chart.update_yaxes(type="log")
+			ylabel = ylabel + ' (Logarithmic)'
+		chart.update_layout(title=title, yaxis_title=ylabel)
+		return chart
 
 	chart1 = createChart(
 		df['membership_status'] if 'membership_status' in df else pd.DataFrame(),
@@ -251,6 +246,9 @@ def update_graph(date_selected, date_compare_selected):
 		'Members',
 		True
 	)
+	
+	def multiChoiceCount(df,target_column:str,separator:str):
+		return df[target_column].str.split(separator, expand=True).stack().reset_index(level=1, drop=True).to_frame(target_column).join(df.drop(target_column, axis=1))
 
 	chart4 = createChart(
 		multiChoiceCount(membersdf, 'race', ',')['race'] if 'race' in df else pd.DataFrame(),
