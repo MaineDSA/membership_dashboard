@@ -176,6 +176,32 @@ def update_timeline(selected_columns):
 
 	return timeline
 
+def nearest(items, pivot):
+	if pivot in items:
+		return pivot
+	else:
+		return min(items, key=lambda x: abs(x - pivot))
+
+@callback(
+	Output(component_id='list_dropdown', component_property='value'),
+	Output(component_id='list_compare_dropdown', component_property='value'),
+	Input(component_id='membership_timeline', component_property='relayoutData'),
+)
+def drag_select(relayoutData):
+	date_active = list(memb_lists.keys())[0]
+	date_compare = ''
+	if type(relayoutData) == dict:
+		startdate = pd.to_datetime(relayoutData.get('xaxis.range[1]', None))
+		enddate = pd.to_datetime(relayoutData.get('xaxis.range[0]', None))
+		datedf = pd.DataFrame(memb_lists.keys())
+		datedf['datetime'] = pd.to_datetime(datedf[0])
+		if startdate != None:
+			date_active = np.datetime_as_string(nearest(datedf['datetime'].values, startdate), unit='D')
+		if enddate != None:
+			date_compare = np.datetime_as_string(nearest(datedf['datetime'].values, enddate), unit='D')
+
+	return date_active, date_compare
+
 @callback(
 	Output(component_id='membership_list', component_property='data'),
 	Output(component_id='members_lifetime', component_property='children'),
