@@ -38,7 +38,7 @@ def scan_membership_list(filename: str, filepath: str):
 
 			for column in memb_lists[date_formatted].columns:
 				if not column in memb_lists_metrics: memb_lists_metrics[column] = {}
-				memb_lists_metrics[column][date_formatted] = memb_lists[date_formatted][column].value_counts()
+				memb_lists_metrics[column][date_formatted] = memb_lists[date_formatted][column]
 
 def scan_all_membership_lists(directory:str):
 	print(f'Scanning {directory} for zipped membership lists.')
@@ -159,9 +159,10 @@ def update_timeline(selected_columns):
 	for selected_column in selected_columns:
 		selected_metrics[selected_column] = {}
 		for date in memb_lists_metrics[selected_column]:
-			for value in memb_lists_metrics[selected_column][date].keys():
+			value_counts = memb_lists_metrics[selected_column][date].value_counts()
+			for value in value_counts.keys():
 				if not value in selected_metrics[selected_column]: selected_metrics[selected_column][value] = {}
-				selected_metrics[selected_column][value][date] = memb_lists_metrics[selected_column][date][value]
+				selected_metrics[selected_column][value][date] = value_counts[value]
 		for column in selected_metrics:
 			for count, value in enumerate(selected_metrics[column]):
 				timeline.add_trace(go.Scatter(
