@@ -26,8 +26,9 @@ python <path-to-python-file>
 
 The dashboard provides the following features:
 
-- Dropdown menu to select the membership list date you want to view.
-- Table displaying the selected membership list, a few rows at a time.
+- Timeline showing long-term trends. Choose what is shown by selecting columns in table.
+- Dropdown menus to select an active membership list and another to compare against.
+- Table displaying the active membership list with the option to export a CSV.
 - Metrics showing the number of lifetime members, members in good standing, expiring members, and lapsed members.
 - Graphs displaying membership counts, dues, union membership, racial demographics, and length of membership.
 
