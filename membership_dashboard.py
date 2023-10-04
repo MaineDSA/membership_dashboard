@@ -29,12 +29,14 @@ memb_lists_metrics = {}
 
 
 def membership_length(date: str, **kwargs):
-    return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(
+    """Return an integer representing how many years between the supplied dates."""
+	return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(
         days=365
     )
 
 
 def fill_empties(date_formatted, column, default):
+    """Fill any empty values in the specified column with the supplied default value."""
     if not column in memb_lists[date_formatted]:
         memb_lists[date_formatted][column] = default
     memb_lists[date_formatted][column] = memb_lists[date_formatted][column].fillna(
@@ -43,6 +45,7 @@ def fill_empties(date_formatted, column, default):
 
 
 def data_fixes(date_formatted):
+    """Standardize data, taking into account changes in membership list format."""
     memb_lists[date_formatted].columns = memb_lists[date_formatted].columns.str.lower()
     if not "actionkit_id" in memb_lists[date_formatted]:
         memb_lists[date_formatted]["actionkit_id"] = memb_lists[date_formatted]["ak_id"]
@@ -119,6 +122,7 @@ def data_fixes(date_formatted):
 
 
 def scan_membership_list(filename: str, filepath: str):
+    """Scan the requested membership list and add data to memb_lists and memb_lists_metrics."""
     print(f"Scanning {filename} for membership list.")
     date_from_name = pd.to_datetime(
         os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
@@ -143,6 +147,7 @@ def scan_membership_list(filename: str, filepath: str):
 
 
 def scan_all_membership_lists(directory: str):
+    """Scan all zip files in the supplied directory and call scan_membership_list on each."""
     print(f"Scanning {directory} for zipped membership lists.")
     files = sorted(
         glob.glob(os.path.join(directory, "**/*.zip"), recursive=True), reverse=True
@@ -385,8 +390,9 @@ graphs = html.Div(
 )
 
 
-def selected_data(date_selected: str):
-    return memb_lists[date_selected] if date_selected else pd.DataFrame()
+def selected_data(child: str):
+    """Return a pandas dataframe, either empty or containing a membership list."""
+    return memb_lists[child] if child else pd.DataFrame()
 
 ##
 ## Pages
@@ -397,6 +403,7 @@ def selected_data(date_selected: str):
     Input(component_id="timeline_columns", component_property="value"),
 )
 def update_timeline(selected_columns):
+    """Update the timeline plotting selected columns."""
     timeline_figure = go.Figure()
     selected_metrics = {}
     for selected_column in selected_columns:
@@ -429,6 +436,7 @@ def update_timeline(selected_columns):
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
 def update_list(date_selected, date_compare_selected):
+    """Update the list shown based on the selected membership list date."""
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
 
@@ -444,6 +452,7 @@ def update_list(date_selected, date_compare_selected):
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
 def update_metrics(date_selected, date_compare_selected):
+    """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
 
@@ -478,6 +487,7 @@ def update_metrics(date_selected, date_compare_selected):
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
 def update_graph(date_selected, date_compare_selected):
+    """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
 
@@ -579,6 +589,7 @@ def update_graph(date_selected, date_compare_selected):
     )
 
     def multiple_choice(df, target_column: str, separator: str):
+    """Split a character-separated list string into an iterable object."""
         return (
             df[target_column]
             .str.split(separator, expand=True)
@@ -608,6 +619,7 @@ def update_graph(date_selected, date_compare_selected):
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
+    """Display the correct page based on the user's navigation path."""
     if pathname == "/":
         return timeline
     elif pathname == "/list":
@@ -635,6 +647,7 @@ def render_page_content(pathname):
     [State("sidebar", "className")],
 )
 def toggle_classname(n, classname):
+    """Assign CSS class to sidebar based on whether it's collapsed or expanded."""
     if n and classname == "":
         return "collapsed"
     return ""
@@ -646,6 +659,7 @@ def toggle_classname(n, classname):
     [State("collapse", "is_open")],
 )
 def toggle_collapse(n, is_open):
+    """Handle expanding/collapsing the sidebar when the button is clicked."""
     if n:
         return not is_open
     return is_open
