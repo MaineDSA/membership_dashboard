@@ -3,8 +3,10 @@ import glob
 import numpy as np
 import zipfile
 import pandas as pd
-from dash import Dash, html, dash_table, dcc, callback, Output, Input
+from dash import Dash, html, dash_table, dcc, callback, Output, Input, State
 import plotly.graph_objects as go
+import dash_bootstrap_components as dbc
+from dash_bootstrap_templates import load_figure_template
 
 MEMB_LIST_NAME = 'maine_membership_list'
 COLORS = ['#ee8cb5', '#c693be', '#937dc0', '#5fa3d9', '#00b2e2', '#54bcbb', '#69bca8', '#8dc05a', '#f9e442', '#f7ce63', '#f3aa79', '#f0959e']
@@ -12,31 +14,34 @@ COLORS = ['#ee8cb5', '#c693be', '#937dc0', '#5fa3d9', '#00b2e2', '#54bcbb', '#69
 memb_lists = {}
 memb_lists_metrics = {}
 
+def membership_length(date:str, **kwargs):
+	return (pd.to_datetime(kwargs['list_date']) - pd.to_datetime(date)) // pd.Timedelta(days=365)
+
+def data_fixes(date_formatted):
+	memb_lists[date_formatted].columns = memb_lists[date_formatted].columns.str.lower()
+	memb_lists[date_formatted]['membership_length'] = memb_lists[date_formatted]['join_date'].apply(membership_length, list_date=date_formatted)
+	if not 'membership_status' in memb_lists[date_formatted]: memb_lists[date_formatted]['membership_status'] = np.where(memb_lists[date_formatted]['memb_status'] == 'M', 'member in good standing', 'n/a')
+	memb_lists[date_formatted]['membership_status'] = memb_lists[date_formatted]['membership_status'].replace({'expired': 'lapsed'}).str.lower()
+	memb_lists[date_formatted]['membership_type'] = np.where(memb_lists[date_formatted]['xdate'] == '2099-11-01', 'lifetime', memb_lists[date_formatted]['membership_type'].str.lower())
+	memb_lists[date_formatted]['membership_type'] = memb_lists[date_formatted]['membership_type'].replace({'annual': 'yearly'}).str.lower()
+	if not 'union_member' in memb_lists[date_formatted]: memb_lists[date_formatted]['union_member'] = 'unknown'
+	memb_lists[date_formatted]['union_member'] = memb_lists[date_formatted]['union_member'].replace({'No': 'no, not a union member', 0: 'No, not a union member', 'Yes': 'Yes, current union member', 1: 'Yes, current union member'}).str.lower()
+	memb_lists[date_formatted]['race'] = memb_lists[date_formatted].get('race', 'unknown')
+	memb_lists[date_formatted]['race'] = memb_lists[date_formatted]['race'].fillna('unknown')
+
 def scan_membership_list(filename: str, filepath: str):
-
-	def membership_length(date:str, **kwargs):
-		return (pd.to_datetime(kwargs['list_date']) - pd.to_datetime(date)) // pd.Timedelta(days=365)
-
 	print(f'Scanning {filename} for membership list.')
 	date_from_name = pd.to_datetime(os.path.splitext(filename)[0].split('_')[3], format='%Y%m%d').date()
 	if not date_from_name:
 		print('No date detected. Skipping file.')
 		return
+
 	with zipfile.ZipFile(filepath) as memb_list_zip:
 		with memb_list_zip.open(f'{MEMB_LIST_NAME}.csv') as memb_list:
 			date_formatted = date_from_name.isoformat()
 
 			memb_lists[date_formatted] = pd.read_csv(memb_list, header=0)
-			memb_lists[date_formatted].columns = memb_lists[date_formatted].columns.str.lower()
-			memb_lists[date_formatted]['membership_length'] = memb_lists[date_formatted]['join_date'].apply(membership_length, list_date=date_formatted)
-			if not 'membership_status' in memb_lists[date_formatted]: memb_lists[date_formatted]['membership_status'] = np.where(memb_lists[date_formatted]['memb_status'] == 'M', 'member in good standing', 'n/a')
-			memb_lists[date_formatted]['membership_status'] = memb_lists[date_formatted]['membership_status'].replace({'expired': 'lapsed'}).str.lower()
-			memb_lists[date_formatted]['membership_type'] = np.where(memb_lists[date_formatted]['xdate'] == '2099-11-01', 'lifetime', memb_lists[date_formatted]['membership_type'].str.lower())
-			memb_lists[date_formatted]['membership_type'] = memb_lists[date_formatted]['membership_type'].replace({'annual': 'yearly'}).str.lower()
-			if not 'union_member' in memb_lists[date_formatted]: memb_lists[date_formatted]['union_member'] = 'unknown'
-			memb_lists[date_formatted]['union_member'] = memb_lists[date_formatted]['union_member'].replace({'No': 'no, not a union member', 0: 'No, not a union member', 'Yes': 'Yes, current union member', 1: 'Yes, current union member'}).str.lower()
-			memb_lists[date_formatted]['race'] = memb_lists[date_formatted].get('race', 'unknown')
-			memb_lists[date_formatted]['race'] = memb_lists[date_formatted]['race'].fillna('unknown')
+			data_fixes(date_formatted)
 
 			for column in memb_lists[date_formatted].columns:
 				if not column in memb_lists_metrics: memb_lists_metrics[column] = {}
@@ -47,29 +52,123 @@ def scan_all_membership_lists(directory:str):
 	files = sorted(glob.glob(os.path.join(directory, '**/*.zip'), recursive=True), reverse=True)
 	for count, file in enumerate(files):
 		scan_membership_list(os.path.basename(file), os.path.abspath(file))
-		#if count > 25: break
+		if count > 10: break
 	#[scan_membership_list(os.path.basename(file), os.path.abspath(file)) for file in files]
 
 # Initialize the app
 scan_all_membership_lists(MEMB_LIST_NAME)
-app = Dash(__name__)
+app = Dash(
+    external_stylesheets=[dbc.themes.DARKLY],
+    # these meta_tags ensure content is scaled correctly on different devices
+    # see: https://www.w3schools.com/css/css_rwd_viewport.asp for more
+    meta_tags=[
+        {"name": "viewport", "content": "width=device-width, initial-scale=1"}
+    ],
+	suppress_callback_exceptions=True
+)
+load_figure_template(["darkly"])
 
-style_timeline = {'display': 'inline-block', 'width': '100%', 'padding-left': '-1em', 'padding-right': '-1em', 'padding-bottom': '-1em'}
-style_metrics = {'display': 'inline-block', 'width': '25%', 'text-align': 'center', 'padding-top': '3em', 'padding-bottom': '1em'}
-style_graphs_1 = {'display': 'inline-block', 'width': '100%'}
-style_graphs_2 = {'display': 'inline-block', 'width': '50%'}
-style_graphs_3 = {'display': 'inline-block', 'width': '33.33%'}
-style_graphs_4 = {'display': 'inline-block', 'width': '25%'}
+# we use the Row and Col components to construct the sidebar header
+# it consists of a title, and a toggle, the latter is hidden on large screens
+sidebar_header = dbc.Row(
+    [
+        dbc.Col(html.H2("Maine DSA", className="display-4")),
+        dbc.Col(
+            [
+                dbc.Button(
+                    # use the Bootstrap navbar-toggler classes to style
+                    html.Span(className="navbar-toggler-icon"),
+                    className="navbar-toggler",
+                    # the navbar-toggler classes don't set color
+                    style={
+                        "color": "rgba(0,0,0,.5)",
+                        "border-color": "rgba(0,0,0,.1)",
+                    },
+                    id="navbar-toggle",
+                ),
+                dbc.Button(
+                    # use the Bootstrap navbar-toggler classes to style
+                    html.Span(className="navbar-toggler-icon"),
+                    className="navbar-toggler",
+                    # the navbar-toggler classes don't set color
+                    style={
+                        "color": "rgba(0,0,0,.5)",
+                        "border-color": "rgba(0,0,0,.1)",
+                    },
+                    id="sidebar-toggle",
+                ),
+            ],
+            # the column containing the toggle will be only as wide as the
+            # toggle, resulting in the toggle being right aligned
+            width="auto",
+            # vertically align the toggle in the center
+            align="center",
+        ),
+    ]
+)
 
-# App layout
-app.layout = html.Div([
-	html.Div(children='Membership Lists'),
-	html.Hr(),
-	html.Div(id='timeline-container', children=[
-		dcc.Graph(figure={}, id='membership_timeline', style=style_timeline),
-	]),
-	dcc.Dropdown(options=list(memb_lists.keys()), value=list(memb_lists.keys())[0], id='list_dropdown'),
-	dcc.Dropdown(options=list(memb_lists.keys()), value='', id='list_compare_dropdown'),
+sidebar = html.Div(
+    [
+        sidebar_header,
+        # we wrap the horizontal rule and short blurb in a div that can be
+        # hidden on a small screen
+        html.Div(
+            [
+                html.Hr(),
+                html.P("Membership Dasboard", className="lead"),
+            ],
+            id="blurb",
+        ),
+		dcc.Dropdown(options=list(memb_lists.keys()), value=list(memb_lists.keys())[0], id='list_dropdown', className="dash-bootstrap"),
+        html.Div(
+            [
+                html.P("Active List"),
+            ],
+            id="list_dropdown_label",
+        ),
+		dcc.Dropdown(options=list(memb_lists.keys()), value='', id='list_compare_dropdown', className="dash-bootstrap"),
+        html.Div(
+            [
+                html.P("Compare To"),
+            ],
+            id="list_compare_dropdown_label",
+        ),
+        # use the Collapse component to animate hiding / revealing links
+        dbc.Collapse(
+            dbc.Nav(
+                [
+                    dbc.NavLink("Timeline", href="/", active="exact"),
+                    dbc.NavLink("List", href="/list", active="exact"),
+                    dbc.NavLink("Metrics", href="/metrics", active="exact"),
+                    dbc.NavLink("Graphs", href="/graphs", active="exact"),
+                    dbc.NavLink("Map", href="/map", active="exact"),
+                ],
+                vertical=True,
+                pills=True,
+            ),
+            id="collapse",
+        ),
+    ],
+    id="sidebar",
+)
+
+content = html.Div(id="page-content")
+
+app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
+
+timeline = html.Div(id='timeline-container', children=[
+	dcc.Dropdown(options=list(memb_lists_metrics.keys()), value=['membership_status'], multi=True, id='timeline_columns', className="dash-bootstrap"),
+	dcc.Graph(figure={}, id='membership_timeline', className="dash-bootstrap", style={
+		'display': 'inline-block',
+		'width': '100%',
+		'padding-left': '-1em',
+		'padding-right': '-1em',
+		'padding-bottom': '-1em'
+		}
+	),
+])
+
+member_list_page = html.Div(id='list-container', className="dbc", children=[
 	dash_table.DataTable(
 		data=memb_lists[list(memb_lists.keys())[0]].to_dict('records'),
 		columns=[
@@ -77,33 +176,96 @@ app.layout = html.Div([
 		],
 		sort_action="native",
 		sort_by=[{'column_id': 'last_name', 'direction': 'asc'},{'column_id': 'first_name', 'direction': 'asc'}],
-		column_selectable='multi',
-		selected_columns=['membership_status'],
 		filter_action='native',
 		filter_options={'case': 'insensitive'},
 		export_format='csv',
-		page_size=10,
+		page_size=20,
 		style_table={'overflowY': 'auto', 'overflowX': 'auto', 'padding-left': '-.5em'},
-		id='membership_list'
+		id='membership_list',
 	),
-	html.Div(id='metrics-container', children=[
-		html.Div(id='members_lifetime', style=style_metrics),
-		html.Div(id='members_migs', style=style_metrics),
-		html.Div(id='members_expiring', style=style_metrics),
-		html.Div(id='members_lapsed', style=style_metrics),
-	]),
-	html.Div(id='graphs-container', children=[
-		dcc.Graph(figure={}, id='membership_status', style=style_graphs_3),
-		dcc.Graph(figure={}, id='membership_type', style=style_graphs_3),
-		dcc.Graph(figure={}, id='union_member', style=style_graphs_3),
-		dcc.Graph(figure={}, id='race', style=style_graphs_2),
-		dcc.Graph(figure={}, id='membership_length', style=style_graphs_2),
-	]),
 ])
+
+lapsed_jumbotron = dbc.Col(
+    html.Div(
+        [
+            html.H3("Lapsed Members", className="display-8"),
+            html.Hr(className="my-2"),
+            html.P("0", id='members_lapsed'),
+        ],
+        className="h-100 p-5 text-white bg-dark rounded-3",
+    ),
+    md=6,
+)
+
+expiring_jumbotron = dbc.Col(
+    html.Div(
+        [
+            html.H3("Expiring Members", className="display-8"),
+            html.Hr(className="my-2"),
+            html.P("0", id='members_expiring'),
+        ],
+        className="h-100 p-5 text-white bg-dark rounded-3",
+    ),
+    md=6,
+)
+
+migs_jumbotron = dbc.Col(
+    html.Div(
+        [
+            html.H3("Members in Good Standing", className="display-8"),
+            html.Hr(className="my-2"),
+            html.P("0", id='members_migs'),
+        ],
+        className="h-100 p-5 text-white bg-dark rounded-3",
+    ),
+    md=6,
+)
+
+const_jumbotron = dbc.Col(
+    html.Div(
+        [
+            html.H3("Constitutional Members", className="display-8"),
+            html.Hr(className="my-2"),
+            html.P("0", id='members_constitutional'),
+        ],
+        className="h-100 p-5 text-white bg-dark rounded-3",
+    ),
+    md=6,
+)
+
+metrics = dbc.Col(
+		[
+			dbc.Row(
+				[const_jumbotron, migs_jumbotron],
+				className="align-items-md-stretch"
+			),
+			dbc.Row(
+				[expiring_jumbotron, lapsed_jumbotron],
+				className="align-items-md-stretch"
+			),
+		], className="d-grid gap-4"
+	)
+
+	
+style_graphs_2 = {'display': 'inline-block', 'width': '50%'}
+style_graphs_3 = {'display': 'inline-block', 'width': '33.33%'}
+
+graphs = html.Div(id='graphs-container', children=[
+	dcc.Graph(figure={}, id='membership_status', className="dash-bootstrap", style=style_graphs_3),
+	dcc.Graph(figure={}, id='membership_type', className="dash-bootstrap", style=style_graphs_3),
+	dcc.Graph(figure={}, id='union_member', className="dash-bootstrap", style=style_graphs_3),
+	dcc.Graph(figure={}, id='membership_length', className="dash-bootstrap", style=style_graphs_2),
+	dcc.Graph(figure={}, id='race', className="dash-bootstrap", style=style_graphs_2),
+])
+
+def selectedData(date_selected:str):
+	return memb_lists[date_selected] if date_selected else pd.DataFrame()
+
+## Pages
 
 @callback(
 	Output(component_id='membership_timeline', component_property='figure'),
-	Input(component_id='membership_list', component_property='selected_columns'),
+	Input(component_id='timeline_columns', component_property='value'),
 )
 def update_timeline(selected_columns):
 	timeline = go.Figure()
@@ -129,70 +291,58 @@ def update_timeline(selected_columns):
 	return timeline
 
 @callback(
-	Output(component_id='list_dropdown', component_property='value'),
-	Output(component_id='list_compare_dropdown', component_property='value'),
-	Input(component_id='membership_timeline', component_property='relayoutData'),
-)
-def drag_select(relayoutData:dict):
-
-	def nearest(items, pivot):
-		if pivot in items:
-			return pivot
-		else:
-			return min(items, key=lambda x: abs(x - pivot))
-
-	date_active = list(memb_lists.keys())[0]
-	date_compare = ''
-	if isinstance(relayoutData, dict):
-		startdate = relayoutData.get('xaxis.range[1]', None)
-		enddate = relayoutData.get('xaxis.range[0]', None)
-		datedf = pd.DataFrame(memb_lists.keys())
-		datedf['datetime'] = pd.to_datetime(datedf[0])
-		if startdate is not None:
-			date_active = np.datetime_as_string(nearest(datedf['datetime'].values, pd.to_datetime(startdate)), unit='D')
-		if enddate is not None:
-			date_compare = np.datetime_as_string(nearest(datedf['datetime'].values, pd.to_datetime(enddate)), unit='D')
-
-	return date_active, date_compare
-
-@callback(
 	Output(component_id='membership_list', component_property='data'),
-	Output(component_id='members_lifetime', component_property='children'),
-	Output(component_id='members_migs', component_property='children'),
-	Output(component_id='members_expiring', component_property='children'),
-	Output(component_id='members_lapsed', component_property='children'),
-	Output(component_id='membership_status', component_property='figure'),
-	Output(component_id='membership_type', component_property='figure'),
-	Output(component_id='union_member', component_property='figure'),
-	Output(component_id='race', component_property='figure'),
-	Output(component_id='membership_length', component_property='figure'),
 	Input(component_id='list_dropdown', component_property='value'),
 	Input(component_id='list_compare_dropdown', component_property='value')
 )
-def update_graph(date_selected, date_compare_selected):
-
-	def selectedData(date_selected:str):
-		return memb_lists[date_selected] if date_selected else pd.DataFrame()
-
+def update_list(date_selected, date_compare_selected):
 	df = selectedData(date_selected)
 	df_compare = selectedData(date_compare_selected)
 
-	def calculateMetric(df, df_compare, title:str, column:str, value:str):
+	return df.to_dict('records')
+
+@callback(
+	Output(component_id='members_constitutional', component_property='children'),
+	Output(component_id='members_migs', component_property='children'),
+	Output(component_id='members_expiring', component_property='children'),
+	Output(component_id='members_lapsed', component_property='children'),
+	Input(component_id='list_dropdown', component_property='value'),
+	Input(component_id='list_compare_dropdown', component_property='value')
+)
+def update_metrics(date_selected, date_compare_selected):
+	df = selectedData(date_selected)
+	df_compare = selectedData(date_compare_selected)
+
+	def calculateMetric(df, df_compare, column:str, value:str):
 		count = df[column].eq(value).sum()
-		number_string = f'{title}{count}'
 		if not df_compare.empty:
 			count_compare = df_compare[column].eq(value).sum()
 			count_delta = count - count_compare
 			if count_delta > 0:
-				return f'{number_string} (+{count_delta})'
+				return f'{count} (+{count_delta})'
 			elif count_delta < 0:
-				return f'{number_string} ({count_delta})'
-		return number_string
+				return f'{count} ({count_delta})'
+		return f'{count}'
 
-	num1 = calculateMetric(df, df_compare, 'Lifetime Members: ', 'membership_type', 'lifetime')
-	num2 = calculateMetric(df, df_compare, 'Members in Good Standing: ', 'membership_status', 'member in good standing')
-	num3 = calculateMetric(df, df_compare, 'Expiring Members: ', 'membership_status', 'member')
-	num4 = calculateMetric(df, df_compare, 'Lapsed Members: ', 'membership_status', 'lapsed')
+	num1 = calculateMetric(df, df_compare, 'membership_type', 'lifetime')
+	num2 = calculateMetric(df, df_compare, 'membership_status', 'member in good standing')
+	num3 = calculateMetric(df, df_compare, 'membership_status', 'member')
+	num4 = calculateMetric(df, df_compare, 'membership_status', 'lapsed')
+
+	return num1, num2, num3, num4
+
+@callback(
+	Output(component_id='membership_status', component_property='figure'),
+	Output(component_id='membership_type', component_property='figure'),
+	Output(component_id='union_member', component_property='figure'),
+	Output(component_id='membership_length', component_property='figure'),
+	Output(component_id='race', component_property='figure'),
+	Input(component_id='list_dropdown', component_property='value'),
+	Input(component_id='list_compare_dropdown', component_property='value')
+)
+def update_graph(date_selected, date_compare_selected):
+	df = selectedData(date_selected)
+	df_compare = selectedData(date_compare_selected)
 
 	def createChart(df_field, df_compare_field, title:str, ylabel:str, log:bool):
 		chartdf_vc = df_field.value_counts()
@@ -246,11 +396,19 @@ def update_graph(date_selected, date_compare_selected):
 		'Members',
 		True
 	)
+
+	chart4 = createChart(
+		membersdf['membership_length'].clip(upper=8) if 'membership_length' in df else pd.DataFrame(),
+		membersdf_compare['membership_length'].clip(upper=8) if 'membership_length' in membersdf_compare else pd.DataFrame(),
+		'Length of Membership (0 - 8+yrs, not lapsed)',
+		'Members',
+		False
+	)
 	
 	def multiChoiceCount(df,target_column:str,separator:str):
 		return df[target_column].str.split(separator, expand=True).stack().reset_index(level=1, drop=True).to_frame(target_column).join(df.drop(target_column, axis=1))
 
-	chart4 = createChart(
+	chart5 = createChart(
 		multiChoiceCount(membersdf, 'race', ',')['race'] if 'race' in df else pd.DataFrame(),
 		multiChoiceCount(membersdf_compare, 'race', ',')['race'] if 'race' in membersdf_compare else pd.DataFrame(),
 		'Racial Demographics (self-reported)',
@@ -258,16 +416,54 @@ def update_graph(date_selected, date_compare_selected):
 		True
 	)
 
-	chart5 = createChart(
-		membersdf['membership_length'].clip(upper=8) if 'membership_length' in df else pd.DataFrame(),
-		membersdf_compare['membership_length'].clip(upper=8) if 'membership_length' in membersdf_compare else pd.DataFrame(),
-		'Length of Membership (0 - 8+yrs, not lapsed)',
-		'Members',
-		False
-	)
+	return chart1, chart2, chart3, chart4, chart5
 
-	return df.to_dict('records'), num1, num2, num3, num4, chart1, chart2, chart3, chart4, chart5
+## Sidebar
 
-# Run the app
-if __name__ == '__main__':
-	app.run(debug=True)
+@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
+def render_page_content(pathname):
+    if pathname == "/":
+        return timeline
+    elif pathname == "/list":
+        return member_list_page
+    elif pathname == "/metrics":
+        return metrics
+    elif pathname == "/graphs":
+        return graphs
+    elif pathname == "/map":
+        return html.P("Oh cool, this is page 4!")
+    # If the user tries to reach a different page, return a 404 message
+    return html.Div(
+        [
+            html.H1("404: Not found", className="text-danger"),
+            html.Hr(),
+            html.P(f"The pathname {pathname} was not recognised..."),
+        ],
+        className="p-3 bg-light rounded-3",
+    )
+
+
+@app.callback(
+    Output("sidebar", "className"),
+    [Input("sidebar-toggle", "n_clicks")],
+    [State("sidebar", "className")],
+)
+def toggle_classname(n, classname):
+    if n and classname == "":
+        return "collapsed"
+    return ""
+
+
+@app.callback(
+    Output("collapse", "is_open"),
+    [Input("navbar-toggle", "n_clicks")],
+    [State("collapse", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+
+if __name__ == "__main__":
+    app.run_server(debug=True)
