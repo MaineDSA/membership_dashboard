@@ -422,8 +422,8 @@ def update_timeline(selected_columns):
                 timeline_figure.add_trace(
                     go.Scatter(
                         name=value,
-                        x=list(selected_metrics[name][value].keys()),
-                        y=list(selected_metrics[name][value].values()),
+                        x=list(metric[value].keys()),
+                        y=list(metric[value].values()),
                         mode="lines",
                         marker_color=COLORS[count % len(COLORS)],
                     )
