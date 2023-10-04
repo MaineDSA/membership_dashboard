@@ -11,6 +11,7 @@ import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 
 TESTMODE = False
+"""If set to true, a limited number of lists will be read and the interface will be run in Debug mode."""
 
 MEMB_LIST_NAME = "maine_membership_list"
 COLORS = [
@@ -346,14 +347,14 @@ def create_jumbotron(title, index):
     )
 
 
-const_jumbotron = create_jumbotron("Constitutional Members", "members_constitutional")
+lifetime_jumbotron = create_jumbotron("Lifetime Members", "members_lifetime")
 migs_jumbotron = create_jumbotron("Members in Good Standing", "members_migs")
 expiring_jumbotron = create_jumbotron("Expiring Members", "members_expiring")
 lapsed_jumbotron = create_jumbotron("Lapsed Members", "members_lapsed")
 
 metrics = dbc.Col(
     [
-        dbc.Row([const_jumbotron, migs_jumbotron], className="align-items-md-stretch"),
+        dbc.Row([lifetime_jumbotron, migs_jumbotron], className="align-items-md-stretch"),
         dbc.Row(
             [expiring_jumbotron, lapsed_jumbotron], className="align-items-md-stretch"
         ),
@@ -453,7 +454,7 @@ def update_list(date_selected:str, date_compare_selected:str):
 
 
 @callback(
-    Output(component_id="members_constitutional", component_property="children"),
+    Output(component_id="members_lifetime", component_property="children"),
     Output(component_id="members_migs", component_property="children"),
     Output(component_id="members_expiring", component_property="children"),
     Output(component_id="members_lapsed", component_property="children"),
