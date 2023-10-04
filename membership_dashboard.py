@@ -397,7 +397,7 @@ def selected_data(date_selected: str):
     Input(component_id="timeline_columns", component_property="value"),
 )
 def update_timeline(selected_columns):
-    timeline = go.Figure()
+    timeline_figure = go.Figure()
     selected_metrics = {}
     for selected_column in selected_columns:
         selected_metrics[selected_column] = {}
@@ -409,7 +409,7 @@ def update_timeline(selected_columns):
                 selected_metrics[selected_column][value][date] = value_counts[value]
         for column in selected_metrics:
             for count, value in enumerate(selected_metrics[column]):
-                timeline.add_trace(
+                timeline_figure.add_trace(
                     go.Scatter(
                         name=value,
                         x=list(selected_metrics[column][value].keys()),
@@ -418,9 +418,9 @@ def update_timeline(selected_columns):
                         marker_color=COLORS[count % len(COLORS)],
                     )
                 )
-    timeline.update_layout(title="Membership Trends Timeline", yaxis_title="Members")
+    timeline_figure.update_layout(title="Membership Trends Timeline", yaxis_title="Members")
 
-    return timeline
+    return timeline_figure
 
 
 @callback(
