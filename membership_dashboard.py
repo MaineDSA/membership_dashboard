@@ -128,16 +128,16 @@ def data_fixes(date_formatted):
 
 def scan_membership_list(filename: str, filepath: str):
     """Scan the requested membership list and add data to memb_lists and memb_lists_metrics."""
-    print(f"Scanning {filename} for membership list.")
     date_from_name = pd.to_datetime(
         os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
     ).date()
     if not date_from_name:
-        print("No date detected. Skipping file.")
+        print(f"No date detected in name of {filename}. Skipping file.")
         return
 
     with zipfile.ZipFile(filepath) as memb_list_zip:
         with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv") as memb_list:
+            print(f"Loading data from {MEMB_LIST_NAME}.csv in {filename}.")
             date_formatted = date_from_name.isoformat()
 
             memb_lists[date_formatted] = pd.read_csv(memb_list, header=0)
