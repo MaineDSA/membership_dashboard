@@ -640,7 +640,7 @@ def render_page_content(pathname):
     if pathname == "/graphs":
         return graphs
     if pathname == "/map":
-        return html.P("Implementation of the map is dependent on caching of membership list data in pickle (not yet implemented). Otherwise there will be too many API requests.")
+        return html.P("Implementation of a map is planned: https://github.com/MaineDSA/MembershipDashboard/issues/8.")
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
         [
