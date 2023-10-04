@@ -467,7 +467,7 @@ def update_metrics(date_selected, date_compare_selected):
             count_delta = count - count_compare
             if count_delta > 0:
                 return f"{count} (+{count_delta})"
-            elif count_delta < 0:
+            if count_delta < 0:
                 return f"{count} ({count_delta})"
         return f"{count}"
 
@@ -627,13 +627,13 @@ def render_page_content(pathname):
     """Display the correct page based on the user's navigation path."""
     if pathname == "/":
         return timeline
-    elif pathname == "/list":
+    if pathname == "/list":
         return member_list_page
-    elif pathname == "/metrics":
+    if pathname == "/metrics":
         return metrics
-    elif pathname == "/graphs":
+    if pathname == "/graphs":
         return graphs
-    elif pathname == "/map":
+    if pathname == "/map":
         return html.P("Oh cool, this is page 4!")
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
