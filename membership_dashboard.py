@@ -30,8 +30,9 @@ COLORS = [
 ]
 
 memb_lists = {}
+"""Contains data organized as column:value pairs within a dict of membership list dates."""
 memb_lists_metrics = {}
-
+"""Contains data organized as date:value pairs within a dict of original columns names."""
 
 def membership_length(date: str, **kwargs):
     """Return an integer representing how many years between the supplied dates."""
@@ -39,10 +40,9 @@ def membership_length(date: str, **kwargs):
         days=365
     )
 
-
 def fill_empties(date_formatted, column, default):
     """Fill any empty values in the specified column with the supplied default value."""
-    if not column in memb_lists[date_formatted]:
+    if column not in memb_lists[date_formatted]:
         memb_lists[date_formatted][column] = default
     memb_lists[date_formatted][column] = memb_lists[date_formatted][column].fillna(
         default
@@ -52,15 +52,20 @@ def fill_empties(date_formatted, column, default):
 def data_fixes(date_formatted):
     """Standardize data, taking into account changes in membership list format."""
     memb_lists[date_formatted].columns = memb_lists[date_formatted].columns.str.lower()
-    if not "actionkit_id" in memb_lists[date_formatted]:
-        memb_lists[date_formatted]["actionkit_id"] = memb_lists[date_formatted]["ak_id"]
-    if not "actionkit_id" in memb_lists[date_formatted]:
-        memb_lists[date_formatted]["actionkit_id"] = memb_lists[date_formatted]["akid"]
+    columns_to_fill = {
+        'actionkit_id':'akid',
+        'actionkit_id':'ak_id',
+        'city':'billing_city',
+        'accommodations':'accomodations'
+    }
+    for new, old in columns_to_fill.items():
+        if (new not in memb_lists[date_formatted]) & (old in memb_lists[date_formatted]):
+            memb_lists[date_formatted][new] = memb_lists[date_formatted][old]
     memb_lists[date_formatted].set_index("actionkit_id")
     memb_lists[date_formatted]["membership_length"] = memb_lists[date_formatted][
         "join_date"
     ].apply(membership_length, list_date=date_formatted)
-    if not "membership_status" in memb_lists[date_formatted]:
+    if "membership_status" not in memb_lists[date_formatted]:
         memb_lists[date_formatted]["membership_status"] = np.where(
             memb_lists[date_formatted]["memb_status"] == "M",
             "member in good standing",
@@ -99,18 +104,6 @@ def data_fixes(date_formatted):
             }
         )
         .str.lower()
-    )
-    fill_empties(date_formatted, "accomodations", "no")
-    memb_lists[date_formatted]["accomodations"] = (
-        memb_lists[date_formatted]["accomodations"]
-        .str.lower()
-        .replace(
-            {
-                "n/a": None,
-                "no.": None,
-                "no": None,
-            }
-        )
     )
     fill_empties(date_formatted, "accommodations", "no")
     memb_lists[date_formatted]["accommodations"] = (
