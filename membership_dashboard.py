@@ -176,7 +176,10 @@ load_figure_template(["darkly"])
 # it consists of a title, and a toggle, the latter is hidden on large screens
 sidebar_header = dbc.Row(
     [
-        dbc.Col(html.H2("Maine DSA", className="display-4")),
+        dbc.Col(html.Img(
+			src=r'https://www.mainedsa.org/wp-content/uploads/2023/07/Maine-DSA-Moose-with-Rose-Logo.svg',
+			alt='Red Maine DSA logo of a moose holding a rose in its mouth under the text Maine DSA'
+		)),
         dbc.Col(
             [
                 dbc.Button(
@@ -634,7 +637,7 @@ def render_page_content(pathname):
     if pathname == "/graphs":
         return graphs
     if pathname == "/map":
-        return html.P("Oh cool, this is page 4!")
+        return html.P("Implementation of the map is dependent on caching of membership list data in pickle (not yet implemented). Otherwise there will be too many API requests.")
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
         [
