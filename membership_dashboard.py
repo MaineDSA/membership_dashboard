@@ -1,7 +1,7 @@
 import os
 import glob
-import numpy as np
 import zipfile
+import numpy as np
 import pandas as pd
 from dash import Dash, html, dash_table, dcc, callback, Output, Input, State
 import plotly.graph_objects as go
@@ -385,12 +385,12 @@ graphs = html.Div(
 )
 
 
-def selectedData(date_selected: str):
+def selected_data(date_selected: str):
     return memb_lists[date_selected] if date_selected else pd.DataFrame()
 
-
+##
 ## Pages
-
+##
 
 @callback(
     Output(component_id="membership_timeline", component_property="figure"),
@@ -429,8 +429,8 @@ def update_timeline(selected_columns):
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
 def update_list(date_selected, date_compare_selected):
-    df = selectedData(date_selected)
-    df_compare = selectedData(date_compare_selected)
+    df = selected_data(date_selected)
+    df_compare = selected_data(date_compare_selected)
 
     return df.to_dict("records")
 
@@ -444,10 +444,10 @@ def update_list(date_selected, date_compare_selected):
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
 def update_metrics(date_selected, date_compare_selected):
-    df = selectedData(date_selected)
-    df_compare = selectedData(date_compare_selected)
+    df = selected_data(date_selected)
+    df_compare = selected_data(date_compare_selected)
 
-    def calculateMetric(df, df_compare, column: str, value: str):
+    def calculate_metric(df, df_compare, column: str, value: str):
         count = df[column].eq(value).sum()
         if not df_compare.empty:
             count_compare = df_compare[column].eq(value).sum()
@@ -458,12 +458,12 @@ def update_metrics(date_selected, date_compare_selected):
                 return f"{count} ({count_delta})"
         return f"{count}"
 
-    num1 = calculateMetric(df, df_compare, "membership_type", "lifetime")
-    num2 = calculateMetric(
+    num1 = calculate_metric(df, df_compare, "membership_type", "lifetime")
+    num2 = calculate_metric(
         df, df_compare, "membership_status", "member in good standing"
     )
-    num3 = calculateMetric(df, df_compare, "membership_status", "member")
-    num4 = calculateMetric(df, df_compare, "membership_status", "lapsed")
+    num3 = calculate_metric(df, df_compare, "membership_status", "member")
+    num4 = calculate_metric(df, df_compare, "membership_status", "lapsed")
 
     return num1, num2, num3, num4
 
@@ -478,10 +478,10 @@ def update_metrics(date_selected, date_compare_selected):
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
 def update_graph(date_selected, date_compare_selected):
-    df = selectedData(date_selected)
-    df_compare = selectedData(date_compare_selected)
+    df = selected_data(date_selected)
+    df_compare = selected_data(date_compare_selected)
 
-    def createChart(df_field, df_compare_field, title: str, ylabel: str, log: bool):
+    def create_chart(df_field, df_compare_field, title: str, ylabel: str, log: bool):
         chartdf_vc = df_field.value_counts()
         chartdf_compare_vc = df_compare_field.value_counts()
 
@@ -521,7 +521,7 @@ def update_graph(date_selected, date_compare_selected):
         chart.update_layout(title=title, yaxis_title=ylabel)
         return chart
 
-    chart1 = createChart(
+    chart1 = create_chart(
         df["membership_status"] if "membership_status" in df else pd.DataFrame(),
         df_compare["membership_status"]
         if "membership_status" in df_compare
@@ -531,7 +531,7 @@ def update_graph(date_selected, date_compare_selected):
         False,
     )
 
-    chart2 = createChart(
+    chart2 = create_chart(
         df.loc[df["membership_status"] == "member in good standing"]["membership_type"]
         if "membership_status" in df
         else pd.DataFrame(),
@@ -556,7 +556,7 @@ def update_graph(date_selected, date_compare_selected):
         else pd.DataFrame()
     )
 
-    chart3 = createChart(
+    chart3 = create_chart(
         membersdf["union_member"] if "union_member" in df else pd.DataFrame(),
         membersdf_compare["union_member"]
         if "union_member" in df_compare
@@ -566,7 +566,7 @@ def update_graph(date_selected, date_compare_selected):
         True,
     )
 
-    chart4 = createChart(
+    chart4 = create_chart(
         membersdf["membership_length"].clip(upper=8)
         if "membership_length" in df
         else pd.DataFrame(),
@@ -578,7 +578,7 @@ def update_graph(date_selected, date_compare_selected):
         False,
     )
 
-    def multiChoiceCount(df, target_column: str, separator: str):
+    def multiple_choice(df, target_column: str, separator: str):
         return (
             df[target_column]
             .str.split(separator, expand=True)
@@ -588,11 +588,11 @@ def update_graph(date_selected, date_compare_selected):
             .join(df.drop(target_column, axis=1))
         )
 
-    chart5 = createChart(
-        multiChoiceCount(membersdf, "race", ",")["race"]
+    chart5 = create_chart(
+        multiple_choice(membersdf, "race", ",")["race"]
         if "race" in df
         else pd.DataFrame(),
-        multiChoiceCount(membersdf_compare, "race", ",")["race"]
+        multiple_choice(membersdf_compare, "race", ",")["race"]
         if "race" in membersdf_compare
         else pd.DataFrame(),
         "Racial Demographics (self-reported)",
@@ -602,9 +602,9 @@ def update_graph(date_selected, date_compare_selected):
 
     return chart1, chart2, chart3, chart4, chart5
 
-
+##
 ## Sidebar
-
+##
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
