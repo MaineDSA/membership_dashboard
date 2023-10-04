@@ -417,13 +417,13 @@ def update_timeline(selected_columns):
                 if not value in selected_metrics[selected_column]:
                     selected_metrics[selected_column][value] = {}
                 selected_metrics[selected_column][value][date] = count
-        for column in selected_metrics:
-            for count, value in enumerate(selected_metrics[column]):
+        for name, metric in selected_metrics.items():
+            for count, value in enumerate(metric):
                 timeline_figure.add_trace(
                     go.Scatter(
                         name=value,
-                        x=list(selected_metrics[column][value].keys()),
-                        y=list(selected_metrics[column][value].values()),
+                        x=list(selected_metrics[name][value].keys()),
+                        y=list(selected_metrics[name][value].values()),
                         mode="lines",
                         marker_color=COLORS[count % len(COLORS)],
                     )
