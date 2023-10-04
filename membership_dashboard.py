@@ -30,7 +30,7 @@ memb_lists_metrics = {}
 
 def membership_length(date: str, **kwargs):
     """Return an integer representing how many years between the supplied dates."""
-	return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(
+    return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(
         days=365
     )
 
@@ -324,6 +324,7 @@ member_list_page = html.Div(
 
 
 def create_jumbotron(title, index):
+    """Set up html data to show a jumbotron with title and value for metrics page."""
     return dbc.Col(
         html.Div(
             [
@@ -457,6 +458,7 @@ def update_metrics(date_selected, date_compare_selected):
     df_compare = selected_data(date_compare_selected)
 
     def calculate_metric(df, df_compare, column: str, value: str):
+        """Construct string showing value and change (if comparison data is provided)."""
         count = df[column].eq(value).sum()
         if not df_compare.empty:
             count_compare = df_compare[column].eq(value).sum()
@@ -492,6 +494,7 @@ def update_graph(date_selected, date_compare_selected):
     df_compare = selected_data(date_compare_selected)
 
     def create_chart(df_field, df_compare_field, title: str, ylabel: str, log: bool):
+        """Set up html data to show a chart of 1-2 dataframes."""
         chartdf_vc = df_field.value_counts()
         chartdf_compare_vc = df_compare_field.value_counts()
 
@@ -589,7 +592,7 @@ def update_graph(date_selected, date_compare_selected):
     )
 
     def multiple_choice(df, target_column: str, separator: str):
-    """Split a character-separated list string into an iterable object."""
+        """Split a character-separated list string into an iterable object."""
         return (
             df[target_column]
             .str.split(separator, expand=True)
