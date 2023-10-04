@@ -17,17 +17,45 @@ memb_lists_metrics = {}
 def membership_length(date:str, **kwargs):
 	return (pd.to_datetime(kwargs['list_date']) - pd.to_datetime(date)) // pd.Timedelta(days=365)
 
+def fill_empties(date_formatted, column, default):
+	if not column in memb_lists[date_formatted]: memb_lists[date_formatted][column] = default
+	memb_lists[date_formatted][column] = memb_lists[date_formatted][column].fillna(default)
+
 def data_fixes(date_formatted):
 	memb_lists[date_formatted].columns = memb_lists[date_formatted].columns.str.lower()
+	if not 'actionkit_id' in memb_lists[date_formatted]: memb_lists[date_formatted]['actionkit_id'] = memb_lists[date_formatted]['ak_id']
+	if not 'actionkit_id' in memb_lists[date_formatted]: memb_lists[date_formatted]['actionkit_id'] = memb_lists[date_formatted]['akid']
+	memb_lists[date_formatted].set_index('actionkit_id')
 	memb_lists[date_formatted]['membership_length'] = memb_lists[date_formatted]['join_date'].apply(membership_length, list_date=date_formatted)
 	if not 'membership_status' in memb_lists[date_formatted]: memb_lists[date_formatted]['membership_status'] = np.where(memb_lists[date_formatted]['memb_status'] == 'M', 'member in good standing', 'n/a')
 	memb_lists[date_formatted]['membership_status'] = memb_lists[date_formatted]['membership_status'].replace({'expired': 'lapsed'}).str.lower()
 	memb_lists[date_formatted]['membership_type'] = np.where(memb_lists[date_formatted]['xdate'] == '2099-11-01', 'lifetime', memb_lists[date_formatted]['membership_type'].str.lower())
 	memb_lists[date_formatted]['membership_type'] = memb_lists[date_formatted]['membership_type'].replace({'annual': 'yearly'}).str.lower()
-	if not 'union_member' in memb_lists[date_formatted]: memb_lists[date_formatted]['union_member'] = 'unknown'
-	memb_lists[date_formatted]['union_member'] = memb_lists[date_formatted]['union_member'].replace({'No': 'no, not a union member', 0: 'No, not a union member', 'Yes': 'Yes, current union member', 1: 'Yes, current union member'}).str.lower()
-	memb_lists[date_formatted]['race'] = memb_lists[date_formatted].get('race', 'unknown')
-	memb_lists[date_formatted]['race'] = memb_lists[date_formatted]['race'].fillna('unknown')
+	fill_empties(date_formatted, 'do_not_call', False)
+	fill_empties(date_formatted, 'p2ptext_optout', False)
+	fill_empties(date_formatted, 'race', 'unknown')
+	fill_empties(date_formatted, 'union_member', 'unknown')
+	memb_lists[date_formatted]['union_member'] = memb_lists[date_formatted]['union_member'].replace({
+		0: 'No',
+		1: 'Yes',
+		'Yes, retired union member': 'Yes, retired',
+		'Yes, current union member': 'Yes, current',
+		'Currently organizing my workplace': 'No, organizing',
+		'No, but former union member': 'No, former',
+		'No, not a union member': 'No'
+	}).str.lower()
+	fill_empties(date_formatted, 'accomodations', 'no')
+	memb_lists[date_formatted]['accomodations'] = memb_lists[date_formatted]['accomodations'].str.lower().replace({
+		'n/a': None,
+		'no.': None,
+		'no': None,
+	})
+	fill_empties(date_formatted, 'accommodations', 'no')
+	memb_lists[date_formatted]['accommodations'] = memb_lists[date_formatted]['accommodations'].str.lower().replace({
+		'n/a': None,
+		'no.': None,
+		'no': None,
+	})
 
 def scan_membership_list(filename: str, filepath: str):
 	print(f'Scanning {filename} for membership list.')
