@@ -1,3 +1,5 @@
+"""Parse membership lists and construct a membership dashboard showing various graphs and metrics to illustrate changes over time."""
+
 import os
 import glob
 import zipfile
