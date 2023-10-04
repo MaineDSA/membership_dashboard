@@ -413,10 +413,10 @@ def update_timeline(selected_columns):
         selected_metrics[selected_column] = {}
         for date in memb_lists_metrics[selected_column]:
             value_counts = memb_lists_metrics[selected_column][date].value_counts()
-            for value in value_counts.keys():
+            for value, count in value_counts.items():
                 if not value in selected_metrics[selected_column]:
                     selected_metrics[selected_column][value] = {}
-                selected_metrics[selected_column][value][date] = value_counts[value]
+                selected_metrics[selected_column][value][date] = count
         for column in selected_metrics:
             for count, value in enumerate(selected_metrics[column]):
                 timeline_figure.add_trace(
