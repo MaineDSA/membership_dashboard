@@ -58,12 +58,12 @@ def scan_all_membership_lists(directory:str):
 # Initialize the app
 scan_all_membership_lists(MEMB_LIST_NAME)
 app = Dash(
-    external_stylesheets=[dbc.themes.DARKLY],
-    # these meta_tags ensure content is scaled correctly on different devices
-    # see: https://www.w3schools.com/css/css_rwd_viewport.asp for more
-    meta_tags=[
-        {"name": "viewport", "content": "width=device-width, initial-scale=1"}
-    ],
+	external_stylesheets=[dbc.themes.DARKLY],
+	# these meta_tags ensure content is scaled correctly on different devices
+	# see: https://www.w3schools.com/css/css_rwd_viewport.asp for more
+	meta_tags=[
+		{"name": "viewport", "content": "width=device-width, initial-scale=1"}
+	],
 	suppress_callback_exceptions=True
 )
 load_figure_template(["darkly"])
@@ -71,85 +71,85 @@ load_figure_template(["darkly"])
 # we use the Row and Col components to construct the sidebar header
 # it consists of a title, and a toggle, the latter is hidden on large screens
 sidebar_header = dbc.Row(
-    [
-        dbc.Col(html.H2("Maine DSA", className="display-4")),
-        dbc.Col(
-            [
-                dbc.Button(
-                    # use the Bootstrap navbar-toggler classes to style
-                    html.Span(className="navbar-toggler-icon"),
-                    className="navbar-toggler",
-                    # the navbar-toggler classes don't set color
-                    style={
-                        "color": "rgba(0,0,0,.5)",
-                        "border-color": "rgba(0,0,0,.1)",
-                    },
-                    id="navbar-toggle",
-                ),
-                dbc.Button(
-                    # use the Bootstrap navbar-toggler classes to style
-                    html.Span(className="navbar-toggler-icon"),
-                    className="navbar-toggler",
-                    # the navbar-toggler classes don't set color
-                    style={
-                        "color": "rgba(0,0,0,.5)",
-                        "border-color": "rgba(0,0,0,.1)",
-                    },
-                    id="sidebar-toggle",
-                ),
-            ],
-            # the column containing the toggle will be only as wide as the
-            # toggle, resulting in the toggle being right aligned
-            width="auto",
-            # vertically align the toggle in the center
-            align="center",
-        ),
-    ]
+	[
+		dbc.Col(html.H2("Maine DSA", className="display-4")),
+		dbc.Col(
+			[
+				dbc.Button(
+					# use the Bootstrap navbar-toggler classes to style
+					html.Span(className="navbar-toggler-icon"),
+					className="navbar-toggler",
+					# the navbar-toggler classes don't set color
+					style={
+						"color": "rgba(0,0,0,.5)",
+						"border-color": "rgba(0,0,0,.1)",
+					},
+					id="navbar-toggle",
+				),
+				dbc.Button(
+					# use the Bootstrap navbar-toggler classes to style
+					html.Span(className="navbar-toggler-icon"),
+					className="navbar-toggler",
+					# the navbar-toggler classes don't set color
+					style={
+						"color": "rgba(0,0,0,.5)",
+						"border-color": "rgba(0,0,0,.1)",
+					},
+					id="sidebar-toggle",
+				),
+			],
+			# the column containing the toggle will be only as wide as the
+			# toggle, resulting in the toggle being right aligned
+			width="auto",
+			# vertically align the toggle in the center
+			align="center",
+		),
+	]
 )
 
 sidebar = html.Div(
-    [
-        sidebar_header,
-        # we wrap the horizontal rule and short blurb in a div that can be
-        # hidden on a small screen
-        html.Div(
-            [
-                html.Hr(),
-                html.P("Membership Dasboard", className="lead"),
-            ],
-            id="blurb",
-        ),
+	[
+		sidebar_header,
+		# we wrap the horizontal rule and short blurb in a div that can be
+		# hidden on a small screen
+		html.Div(
+			[
+				html.Hr(),
+				html.P("Membership Dasboard", className="lead"),
+			],
+			id="blurb",
+		),
 		dcc.Dropdown(options=list(memb_lists.keys()), value=list(memb_lists.keys())[0], id='list_dropdown', className="dash-bootstrap"),
-        html.Div(
-            [
-                html.P("Active List"),
-            ],
-            id="list_dropdown_label",
-        ),
+		html.Div(
+			[
+				html.P("Active List"),
+			],
+			id="list_dropdown_label",
+		),
 		dcc.Dropdown(options=list(memb_lists.keys()), value='', id='list_compare_dropdown', className="dash-bootstrap"),
-        html.Div(
-            [
-                html.P("Compare To"),
-            ],
-            id="list_compare_dropdown_label",
-        ),
-        # use the Collapse component to animate hiding / revealing links
-        dbc.Collapse(
-            dbc.Nav(
-                [
-                    dbc.NavLink("Timeline", href="/", active="exact"),
-                    dbc.NavLink("List", href="/list", active="exact"),
-                    dbc.NavLink("Metrics", href="/metrics", active="exact"),
-                    dbc.NavLink("Graphs", href="/graphs", active="exact"),
-                    dbc.NavLink("Map", href="/map", active="exact"),
-                ],
-                vertical=True,
-                pills=True,
-            ),
-            id="collapse",
-        ),
-    ],
-    id="sidebar",
+		html.Div(
+			[
+				html.P("Compare To"),
+			],
+			id="list_compare_dropdown_label",
+		),
+		# use the Collapse component to animate hiding / revealing links
+		dbc.Collapse(
+			dbc.Nav(
+				[
+					dbc.NavLink("Timeline", href="/", active="exact"),
+					dbc.NavLink("List", href="/list", active="exact"),
+					dbc.NavLink("Metrics", href="/metrics", active="exact"),
+					dbc.NavLink("Graphs", href="/graphs", active="exact"),
+					dbc.NavLink("Map", href="/map", active="exact"),
+				],
+				vertical=True,
+				pills=True,
+			),
+			id="collapse",
+		),
+	],
+	id="sidebar",
 )
 
 content = html.Div(id="page-content")
@@ -185,66 +185,36 @@ member_list_page = html.Div(id='list-container', className="dbc", children=[
 	),
 ])
 
-lapsed_jumbotron = dbc.Col(
-    html.Div(
-        [
-            html.H3("Lapsed Members", className="display-8"),
-            html.Hr(className="my-2"),
-            html.P("0", id='members_lapsed'),
-        ],
-        className="h-100 p-5 text-white bg-dark rounded-3",
-    ),
-    md=6,
-)
+def create_jumbotron(title, id):
+  return dbc.Col(
+	html.Div(
+	  [
+		html.H3(title, className="display-8"),
+		html.Hr(className="my-2"),
+		html.P("0", id=id),
+	  ],
+	  className="h-100 p-5 text-white bg-dark rounded-3",
+	),
+	md=6,
+  )
 
-expiring_jumbotron = dbc.Col(
-    html.Div(
-        [
-            html.H3("Expiring Members", className="display-8"),
-            html.Hr(className="my-2"),
-            html.P("0", id='members_expiring'),
-        ],
-        className="h-100 p-5 text-white bg-dark rounded-3",
-    ),
-    md=6,
-)
-
-migs_jumbotron = dbc.Col(
-    html.Div(
-        [
-            html.H3("Members in Good Standing", className="display-8"),
-            html.Hr(className="my-2"),
-            html.P("0", id='members_migs'),
-        ],
-        className="h-100 p-5 text-white bg-dark rounded-3",
-    ),
-    md=6,
-)
-
-const_jumbotron = dbc.Col(
-    html.Div(
-        [
-            html.H3("Constitutional Members", className="display-8"),
-            html.Hr(className="my-2"),
-            html.P("0", id='members_constitutional'),
-        ],
-        className="h-100 p-5 text-white bg-dark rounded-3",
-    ),
-    md=6,
-)
+const_jumbotron = create_jumbotron("Constitutional Members", "members_constitutional")
+migs_jumbotron = create_jumbotron("Members in Good Standing", "members_migs")
+expiring_jumbotron = create_jumbotron("Expiring Members", "members_expiring")
+lapsed_jumbotron = create_jumbotron("Lapsed Members", "members_lapsed")
 
 metrics = dbc.Col(
-		[
-			dbc.Row(
-				[const_jumbotron, migs_jumbotron],
-				className="align-items-md-stretch"
-			),
-			dbc.Row(
-				[expiring_jumbotron, lapsed_jumbotron],
-				className="align-items-md-stretch"
-			),
-		], className="d-grid gap-4"
-	)
+	[
+		dbc.Row(
+			[const_jumbotron, migs_jumbotron],
+			className="align-items-md-stretch"
+		),
+		dbc.Row(
+			[expiring_jumbotron, lapsed_jumbotron],
+			className="align-items-md-stretch"
+		),
+	], className="d-grid gap-4"
+)
 
 	
 style_graphs_2 = {'display': 'inline-block', 'width': '50%'}
@@ -422,48 +392,48 @@ def update_graph(date_selected, date_compare_selected):
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
-    if pathname == "/":
-        return timeline
-    elif pathname == "/list":
-        return member_list_page
-    elif pathname == "/metrics":
-        return metrics
-    elif pathname == "/graphs":
-        return graphs
-    elif pathname == "/map":
-        return html.P("Oh cool, this is page 4!")
-    # If the user tries to reach a different page, return a 404 message
-    return html.Div(
-        [
-            html.H1("404: Not found", className="text-danger"),
-            html.Hr(),
-            html.P(f"The pathname {pathname} was not recognised..."),
-        ],
-        className="p-3 bg-light rounded-3",
-    )
+	if pathname == "/":
+		return timeline
+	elif pathname == "/list":
+		return member_list_page
+	elif pathname == "/metrics":
+		return metrics
+	elif pathname == "/graphs":
+		return graphs
+	elif pathname == "/map":
+		return html.P("Oh cool, this is page 4!")
+	# If the user tries to reach a different page, return a 404 message
+	return html.Div(
+		[
+			html.H1("404: Not found", className="text-danger"),
+			html.Hr(),
+			html.P(f"The pathname {pathname} was not recognised..."),
+		],
+		className="p-3 bg-light rounded-3",
+	)
 
 
 @app.callback(
-    Output("sidebar", "className"),
-    [Input("sidebar-toggle", "n_clicks")],
-    [State("sidebar", "className")],
+	Output("sidebar", "className"),
+	[Input("sidebar-toggle", "n_clicks")],
+	[State("sidebar", "className")],
 )
 def toggle_classname(n, classname):
-    if n and classname == "":
-        return "collapsed"
-    return ""
+	if n and classname == "":
+		return "collapsed"
+	return ""
 
 
 @app.callback(
-    Output("collapse", "is_open"),
-    [Input("navbar-toggle", "n_clicks")],
-    [State("collapse", "is_open")],
+	Output("collapse", "is_open"),
+	[Input("navbar-toggle", "n_clicks")],
+	[State("collapse", "is_open")],
 )
 def toggle_collapse(n, is_open):
-    if n:
-        return not is_open
-    return is_open
+	if n:
+		return not is_open
+	return is_open
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+	app.run_server(debug=True)
