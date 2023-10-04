@@ -464,7 +464,7 @@ def update_list(date_selected:str, date_compare_selected:str):
 def update_metrics(date_selected:str, date_compare_selected:str):
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
-        return
+        return '', '', '', ''
 
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
@@ -504,7 +504,7 @@ def update_graph(date_selected, date_compare_selected):
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
 
     if not date_selected:
-        return
+        return go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure()
 
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
