@@ -411,7 +411,7 @@ def selected_data(child: str):
     Output(component_id="membership_timeline", component_property="figure"),
     Input(component_id="timeline_columns", component_property="value"),
 )
-def update_timeline(selected_columns):
+def update_timeline(selected_columns:list):
     """Update the timeline plotting selected columns."""
     timeline_figure = go.Figure()
     selected_metrics = {}
@@ -444,7 +444,7 @@ def update_timeline(selected_columns):
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
-def update_list(date_selected, date_compare_selected):
+def update_list(date_selected:str, date_compare_selected:str):
     """Update the list shown based on the selected membership list date."""
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
@@ -460,8 +460,11 @@ def update_list(date_selected, date_compare_selected):
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
-def update_metrics(date_selected, date_compare_selected):
+def update_metrics(date_selected:str, date_compare_selected:str):
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
+    if not date_selected:
+        return
+
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
 
@@ -498,6 +501,10 @@ def update_metrics(date_selected, date_compare_selected):
 )
 def update_graph(date_selected, date_compare_selected):
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
+
+    if not date_selected:
+        return
+
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
 
