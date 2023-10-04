@@ -8,7 +8,7 @@ It uses the Dash framework for creating web-based data visualizations.
 To run this code, you'll need to have Python installed on your machine. You'll also need to install the required packages by running the following command:
 
 ```shell
-pip install dash pandas plotly numpy
+pip install dash dash-bootstrap-components dash_bootstrap_templates pandas plotly numpy
 ```
 
 ## Usage
@@ -26,11 +26,11 @@ python <path-to-python-file>
 
 The dashboard provides the following features:
 
-- Timeline showing long-term trends. Choose what is shown by selecting columns in table.
-- Dropdown menus to select an active membership list and another to compare against.
-- Table displaying the active membership list with the option to export a CSV.
-- Metrics showing the number of lifetime members, members in good standing, expiring members, and lapsed members.
-- Graphs displaying membership counts, dues, union membership, racial demographics, and length of membership.
+- Dropdown menus in sidebar to select an active membership list and another to compare against.
+- Timeline graph showing long-term trends across all loaded lists. Choose what is shown by selecting columns from the dropdown list.
+- List table displaying the active membership list with the option to export a CSV.
+- Metrics showing the number of constitutional members, members in good standing, expiring members, and lapsed members.
+- Graphs displaying membership counts, dues, union membership, length of membership, and racial demographics.
 
 ## Notes
 
