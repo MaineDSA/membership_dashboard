@@ -160,9 +160,8 @@ def scan_all_membership_lists(directory: str):
         for count, file in enumerate(files):
             scan_membership_list(os.path.basename(file), os.path.abspath(file))
             if count > 10:
-                break
-    else:
-        [scan_membership_list(os.path.basename(file), os.path.abspath(file)) for file in files]
+                return
+    [scan_membership_list(os.path.basename(file), os.path.abspath(file)) for file in files]
 
 
 # Initialize the app
