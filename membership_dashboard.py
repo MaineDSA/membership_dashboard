@@ -10,6 +10,8 @@ import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 
+TESTMODE = False
+
 MEMB_LIST_NAME = "maine_membership_list"
 COLORS = [
     "#ee8cb5",
@@ -154,11 +156,13 @@ def scan_all_membership_lists(directory: str):
     files = sorted(
         glob.glob(os.path.join(directory, "**/*.zip"), recursive=True), reverse=True
     )
-    for count, file in enumerate(files):
-        scan_membership_list(os.path.basename(file), os.path.abspath(file))
-        if count > 10:
-            break
-    # [scan_membership_list(os.path.basename(file), os.path.abspath(file)) for file in files]
+    if TESTMODE:
+        for count, file in enumerate(files):
+            scan_membership_list(os.path.basename(file), os.path.abspath(file))
+            if count > 10:
+                break
+    else:
+        [scan_membership_list(os.path.basename(file), os.path.abspath(file)) for file in files]
 
 
 # Initialize the app
@@ -177,9 +181,9 @@ load_figure_template(["darkly"])
 sidebar_header = dbc.Row(
     [
         dbc.Col(html.Img(
-			src=r'https://www.mainedsa.org/wp-content/uploads/2023/07/Maine-DSA-Moose-with-Rose-Logo.svg',
-			alt='Red Maine DSA logo of a moose holding a rose in its mouth under the text Maine DSA'
-		)),
+            src=r'https://www.mainedsa.org/wp-content/uploads/2023/07/Maine-DSA-Moose-with-Rose-Logo.svg',
+            alt='Red Maine DSA logo of a moose holding a rose in its mouth under the text Maine DSA'
+        )),
         dbc.Col(
             [
                 dbc.Button(
@@ -674,4 +678,4 @@ def toggle_collapse(n, is_open):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=TESTMODE)
