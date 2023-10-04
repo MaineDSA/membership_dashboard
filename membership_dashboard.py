@@ -318,13 +318,13 @@ member_list_page = html.Div(
 )
 
 
-def create_jumbotron(title, id):
+def create_jumbotron(title, index):
     return dbc.Col(
         html.Div(
             [
                 html.H3(title, className="display-8"),
                 html.Hr(className="my-2"),
-                html.P("0", id=id),
+                html.P("0", id=index),
             ],
             className="h-100 p-5 text-white bg-dark rounded-3",
         ),
