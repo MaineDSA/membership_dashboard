@@ -34,11 +34,13 @@ memb_lists = {}
 memb_lists_metrics = {}
 """Contains data organized as date:value pairs within a dict of original columns names."""
 
+
 def membership_length(date: str, **kwargs):
     """Return an integer representing how many years between the supplied dates."""
     return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(
         days=365
     )
+
 
 def fill_empties(date_formatted, column, default):
     """Fill any empty values in the specified column with the supplied default value."""
@@ -53,13 +55,15 @@ def data_fixes(date_formatted):
     """Standardize data, taking into account changes in membership list format."""
     memb_lists[date_formatted].columns = memb_lists[date_formatted].columns.str.lower()
     columns_to_fill = {
-        'actionkit_id':'akid',
-        'actionkit_id':'ak_id',
-        'city':'billing_city',
-        'accommodations':'accomodations'
+        "akid": "actionkit_id",
+        "ak_id": "actionkit_id",
+        "billing_city": "city",
+        "accomodations": "accommodations",
     }
-    for new, old in columns_to_fill.items():
-        if (new not in memb_lists[date_formatted]) & (old in memb_lists[date_formatted]):
+    for old, new in columns_to_fill.items():
+        if (new not in memb_lists[date_formatted]) & (
+            old in memb_lists[date_formatted]
+        ):
             memb_lists[date_formatted][new] = memb_lists[date_formatted][old]
     memb_lists[date_formatted].set_index("actionkit_id")
     memb_lists[date_formatted]["membership_length"] = memb_lists[date_formatted][
@@ -155,7 +159,8 @@ def scan_all_membership_lists(directory: str):
             scan_membership_list(os.path.basename(file), os.path.abspath(file))
             if count > 10:
                 return
-    [scan_membership_list(os.path.basename(file), os.path.abspath(file)) for file in files]
+    for file in files:
+        scan_membership_list(os.path.basename(file), os.path.abspath(file))
 
 
 # Initialize the app
@@ -173,10 +178,12 @@ load_figure_template(["darkly"])
 # it consists of a title, and a toggle, the latter is hidden on large screens
 sidebar_header = dbc.Row(
     [
-        dbc.Col(html.Img(
-            src=r'https://www.mainedsa.org/wp-content/uploads/2023/07/Maine-DSA-Moose-with-Rose-Logo.svg',
-            alt='Red Maine DSA logo of a moose holding a rose in its mouth under the text Maine DSA'
-        )),
+        dbc.Col(
+            html.Img(
+                src=r"https://www.mainedsa.org/wp-content/uploads/2023/07/Maine-DSA-Moose-with-Rose-Logo.svg",
+                alt="Red Maine DSA logo of a moose holding a rose in its mouth under the text Maine DSA",
+            )
+        ),
         dbc.Col(
             [
                 dbc.Button(
@@ -347,7 +354,9 @@ lapsed_jumbotron = create_jumbotron("Lapsed Members", "members_lapsed")
 
 metrics = dbc.Col(
     [
-        dbc.Row([lifetime_jumbotron, migs_jumbotron], className="align-items-md-stretch"),
+        dbc.Row(
+            [lifetime_jumbotron, migs_jumbotron], className="align-items-md-stretch"
+        ),
         dbc.Row(
             [expiring_jumbotron, lapsed_jumbotron], className="align-items-md-stretch"
         ),
@@ -397,15 +406,17 @@ def selected_data(child: str):
     """Return a pandas dataframe, either empty or containing a membership list."""
     return memb_lists[child] if child else pd.DataFrame()
 
+
 ##
 ## Pages
 ##
+
 
 @callback(
     Output(component_id="membership_timeline", component_property="figure"),
     Input(component_id="timeline_columns", component_property="value"),
 )
-def update_timeline(selected_columns:list):
+def update_timeline(selected_columns: list):
     """Update the timeline plotting selected columns."""
     timeline_figure = go.Figure()
     selected_metrics = {}
@@ -428,7 +439,9 @@ def update_timeline(selected_columns:list):
                         marker_color=COLORS[count % len(COLORS)],
                     )
                 )
-    timeline_figure.update_layout(title="Membership Trends Timeline", yaxis_title="Members")
+    timeline_figure.update_layout(
+        title="Membership Trends Timeline", yaxis_title="Members"
+    )
 
     return timeline_figure
 
@@ -438,7 +451,7 @@ def update_timeline(selected_columns:list):
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
-def update_list(date_selected:str, date_compare_selected:str):
+def update_list(date_selected: str, date_compare_selected: str):
     """Update the list shown based on the selected membership list date."""
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
@@ -454,10 +467,10 @@ def update_list(date_selected:str, date_compare_selected:str):
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
-def update_metrics(date_selected:str, date_compare_selected:str):
+def update_metrics(date_selected: str, date_compare_selected: str):
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
-        return '', '', '', ''
+        return "", "", "", ""
 
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
@@ -625,9 +638,11 @@ def update_graph(date_selected, date_compare_selected):
 
     return chart1, chart2, chart3, chart4, chart5
 
+
 ##
 ## Sidebar
 ##
+
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
@@ -641,7 +656,9 @@ def render_page_content(pathname):
     if pathname == "/graphs":
         return graphs
     if pathname == "/map":
-        return html.P("Implementation of a map is planned: https://github.com/MaineDSA/MembershipDashboard/issues/8.")
+        return html.P(
+            "Implementation of a map is planned: https://github.com/MaineDSA/MembershipDashboard/issues/8."
+        )
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
         [
