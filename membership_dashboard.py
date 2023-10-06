@@ -331,24 +331,6 @@ member_list_page = html.Div(
                 "overflowX": "auto",
                 "padding-left": "-.5em",
             },
-            style_data_conditional=[
-                {
-                    'if': {
-                        'filter_query': "{comparelist} == 'active'",
-                        'column_id': 'comparelist'
-                    },
-                    'backgroundColor': 'dodgerblue',
-                    'color': 'white'
-                },
-                {
-                    'if': {
-                        'filter_query': "{comparelist} == 'compare'",
-                        'column_id': 'comparelist'
-                    },
-                    'backgroundColor': 'tomato',
-                    'color': 'white'
-                },
-            ],
             id="membership_list",
         ),
     ],
