@@ -28,7 +28,7 @@ The dashboard provides the following features:
 
 - Dropdown menus in sidebar to select an active membership list and another to compare against.
 - Timeline graph showing long-term trends across all loaded lists. Choose what is shown by selecting columns from the dropdown list.
-- List table displaying the active membership list with the option to export a CSV.
+- List table displaying the active membership list with the option to export a CSV. If a compare list is selected, only the rows that changed are shown.
 - Metrics showing the number of constitutional members, members in good standing, expiring members, and lapsed members.
 - Graphs displaying membership counts, dues, union membership, length of membership, and racial demographics.
 
