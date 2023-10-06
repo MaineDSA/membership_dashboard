@@ -351,6 +351,7 @@ lifetime_jumbotron = create_jumbotron("Lifetime Members", "members_lifetime")
 migs_jumbotron = create_jumbotron("Members in Good Standing", "members_migs")
 expiring_jumbotron = create_jumbotron("Expiring Members", "members_expiring")
 lapsed_jumbotron = create_jumbotron("Lapsed Members", "members_lapsed")
+retention_jumbotron = create_jumbotron("Retention Rate", "metric_retention")
 
 metrics = dbc.Col(
     [
@@ -359,6 +360,9 @@ metrics = dbc.Col(
         ),
         dbc.Row(
             [expiring_jumbotron, lapsed_jumbotron], className="align-items-md-stretch"
+        ),
+        dbc.Row(
+            [retention_jumbotron], className="align-items-md-stretch"
         ),
     ],
     className="d-grid gap-4",
@@ -464,6 +468,7 @@ def update_list(date_selected: str, date_compare_selected: str):
     Output(component_id="members_migs", component_property="children"),
     Output(component_id="members_expiring", component_property="children"),
     Output(component_id="members_lapsed", component_property="children"),
+    Output(component_id="metric_retention", component_property="children"),
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
@@ -487,14 +492,30 @@ def update_metrics(date_selected: str, date_compare_selected: str):
                 return f"{count} ({count_delta})"
         return f"{count}"
 
+    def calculate_retention_rate(df, df_compare):
+        """Construct string showing retention rate and change vs another date (if comparison data is provided)."""
+        migs = df['membership_status'].eq('member in good standing').sum()
+        constitutional = df['membership_status'].eq('member').sum()
+        rate = (migs / (constitutional + migs)) * 100
+        if not df_compare.empty:
+            compare_migs = df_compare['membership_status'].eq('member in good standing').sum()
+            compare_constitutional = df_compare['membership_status'].eq('member').sum()
+            rate_delta = rate - ((compare_migs / (compare_constitutional + compare_migs)) * 100)
+            if rate_delta > 0:
+                return "{:0.2f}% (+{:0.2f}%)".format(rate, rate_delta)
+            if rate_delta < 0:
+                return "{:0.2f}% ({:0.2f}%)".format(rate, rate_delta)
+        return "{:0.2f}%".format(rate)
+
     num1 = calculate_metric(df, df_compare, "membership_type", "lifetime")
     num2 = calculate_metric(
         df, df_compare, "membership_status", "member in good standing"
     )
     num3 = calculate_metric(df, df_compare, "membership_status", "member")
     num4 = calculate_metric(df, df_compare, "membership_status", "lapsed")
+    num5 = calculate_retention_rate(df, df_compare)
 
-    return num1, num2, num3, num4
+    return num1, num2, num3, num4, num5
 
 
 @callback(
