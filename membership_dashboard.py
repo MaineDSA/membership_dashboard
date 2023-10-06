@@ -331,6 +331,24 @@ member_list_page = html.Div(
                 "overflowX": "auto",
                 "padding-left": "-.5em",
             },
+            style_data_conditional=[
+                {
+                    'if': {
+                        'filter_query': "{comparelist} == 'active'",
+                        'column_id': 'comparelist'
+                    },
+                    'backgroundColor': 'dodgerblue',
+                    'color': 'white'
+                },
+                {
+                    'if': {
+                        'filter_query': "{comparelist} == 'compare'",
+                        'column_id': 'comparelist'
+                    },
+                    'backgroundColor': 'tomato',
+                    'color': 'white'
+                },
+            ],
             id="membership_list",
         ),
     ],
@@ -465,7 +483,8 @@ def update_list(date_selected: str, date_compare_selected: str):
     """Update the list shown based on the selected membership list date."""
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
-
+    if not df_compare.empty:
+        df = pd.concat([df, df_compare]).reset_index(drop=True).drop_duplicates(subset=['actionkit_id'], keep=False)
     return df.to_dict("records")
 
 
