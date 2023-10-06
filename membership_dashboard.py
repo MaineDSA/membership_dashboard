@@ -502,10 +502,10 @@ def update_metrics(date_selected: str, date_compare_selected: str):
             compare_constitutional = df_compare['membership_status'].eq('member').sum()
             rate_delta = rate - ((compare_migs / (compare_constitutional + compare_migs)) * 100)
             if rate_delta > 0:
-                return "{:0.2f}% (+{:0.2f}%)".format(rate, rate_delta)
+                return f"{rate:0.2f}% (+{rate_delta:0.2f}%)"
             if rate_delta < 0:
-                return "{:0.2f}% ({:0.2f}%)".format(rate, rate_delta)
-        return "{:0.2f}%".format(rate)
+                return f"{rate:0.2f}% ({rate_delta:0.2f}%)"
+        return f"{rate:0.2f}%"
 
     num1 = calculate_metric(df, df_compare, "membership_type", "lifetime")
     num2 = calculate_metric(
