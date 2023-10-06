@@ -3,6 +3,7 @@
 import os
 import glob
 import zipfile
+import argparse
 import numpy as np
 import pandas as pd
 from dash import Dash, html, dash_table, dcc, callback, Output, Input, State
@@ -10,8 +11,12 @@ import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 
-TESTMODE = False
-"""If set to true, a limited number of lists will be read and the interface will be run in Debug mode."""
+parser = argparse.ArgumentParser(
+                    prog='DSA Membership Dashboard',
+                    description='Parses membership lists and constructs a membership dashboard showing various graphs and metrics to illustrate changes over time.'
+                    )
+parser.add_argument("-t", "--test", action='store_true', help='Read a limited subset of the most recent lists and run dash in Debug mode')
+args = parser.parse_args()
 
 MEMB_LIST_NAME = "maine_membership_list"
 COLORS = [
@@ -154,7 +159,7 @@ def scan_all_membership_lists(directory: str):
     files = sorted(
         glob.glob(os.path.join(directory, "**/*.zip"), recursive=True), reverse=True
     )
-    if TESTMODE:
+    if args.test:
         for count, file in enumerate(files):
             scan_membership_list(os.path.basename(file), os.path.abspath(file))
             if count > 10:
@@ -424,6 +429,7 @@ def update_timeline(selected_columns: list):
     """Update the timeline plotting selected columns."""
     timeline_figure = go.Figure()
     selected_metrics = {}
+
     for selected_column in selected_columns:
         selected_metrics[selected_column] = {}
         for date in memb_lists_metrics[selected_column]:
@@ -716,4 +722,4 @@ def toggle_collapse(n, is_open):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=TESTMODE)
+    app.run_server(debug=args.test)
