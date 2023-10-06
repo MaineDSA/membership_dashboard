@@ -13,7 +13,8 @@ from dash_bootstrap_templates import load_figure_template
 
 parser = argparse.ArgumentParser(
                     prog='DSA Membership Dashboard',
-                    description='Parses membership lists and constructs a membership dashboard showing various graphs and metrics to illustrate changes over time.'
+                    description="""Parses membership lists and constructs a membership dashboard
+						showing various graphs and metrics to illustrate changes over time."""
                     )
 parser.add_argument("-t", "--test", action='store_true', help='Read a limited subset of the most recent lists and run dash in Debug mode')
 args = parser.parse_args()
