@@ -8,9 +8,9 @@ import numpy as np
 import pandas as pd
 import plotly.io as pio
 import plotly.graph_objects as go
-from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input, State
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
+from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input, State
 
 parser = argparse.ArgumentParser(
                     prog='DSA Membership Dashboard',
@@ -181,8 +181,6 @@ app = Dash(
 )
 load_figure_template(["darkly", "flatly"])
 
-# we use the Row and Col components to construct the sidebar header
-# it consists of a title, and a toggle, the latter is hidden on large screens
 sidebar_header = dbc.Row(
     [
         dbc.Col(
@@ -195,32 +193,11 @@ sidebar_header = dbc.Row(
             [
                 html.Span(
                     [
+                        #dbc.Label(className="fa fa-sun", html_for="color-mode-switch"),
                         dbc.Switch(id="color-mode-switch", value=True, className="d-inline-block ms-1", persistence=True),
                         dbc.Label(className="fa fa-moon", html_for="color-mode-switch"),
                     ]
-                ),
-                dbc.Button(
-                    # use the Bootstrap navbar-toggler classes to style
-                    html.Span(className="navbar-toggler-icon"),
-                    className="navbar-toggler",
-                    # the navbar-toggler classes don't set color
-                    style={
-                        "color": "rgba(0,0,0,.5)",
-                        "border-color": "rgba(0,0,0,.1)",
-                    },
-                    id="navbar-toggle",
-                ),
-                dbc.Button(
-                    # use the Bootstrap navbar-toggler classes to style
-                    html.Span(className="navbar-toggler-icon"),
-                    className="navbar-toggler",
-                    # the navbar-toggler classes don't set color
-                    style={
-                        "color": "rgba(0,0,0,.5)",
-                        "border-color": "rgba(0,0,0,.1)",
-                    },
-                    id="sidebar-toggle",
-                ),
+                )
             ],
             # the column containing the toggle will be only as wide as the
             # toggle, resulting in the toggle being right aligned
@@ -292,6 +269,7 @@ app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 
 timeline = html.Div(
     id="timeline-container",
+    className="dbc",
     children=[
         dcc.Dropdown(
             options=list(memb_lists_metrics.keys()),
@@ -344,76 +322,82 @@ member_list_page = html.Div(
     ],
 )
 
-
-def create_jumbotron(title, index):
-    """Set up html data to show a jumbotron with title and value for metrics page."""
-    return dbc.Col(
-        html.Div(
+metrics = html.Div(
+    id="metrics-container",
+    children=[
+        dbc.Row(
             [
-                html.H3(title, className="display-8"),
-                html.Hr(className="my-2"),
-                html.P("0", id=index),
+                dbc.Col(dcc.Graph(
+                    figure=go.Figure(),
+                    id="members_lifetime",
+                    className="dash-bootstrap",
+                ),width=6),
+                dbc.Col(dcc.Graph(
+                    figure=go.Figure(),
+                    id="members_migs",
+                    className="dash-bootstrap",
+                ),width=6),
             ],
-            className="h-100 p-5 text-white bg-dark rounded-3",
-        ),
-        md=6,
-    )
-
-
-lifetime_jumbotron = create_jumbotron("Lifetime Members", "members_lifetime")
-migs_jumbotron = create_jumbotron("Members in Good Standing", "members_migs")
-expiring_jumbotron = create_jumbotron("Expiring Members", "members_expiring")
-lapsed_jumbotron = create_jumbotron("Lapsed Members", "members_lapsed")
-retention_jumbotron = create_jumbotron("Retention Rate", "metric_retention")
-
-metrics = dbc.Col(
-    [
-        dbc.Row(
-            [lifetime_jumbotron, migs_jumbotron], className="align-items-md-stretch"
         ),
         dbc.Row(
-            [expiring_jumbotron, lapsed_jumbotron], className="align-items-md-stretch"
+            [
+                dbc.Col(dcc.Graph(
+                    figure=go.Figure(),
+                    id="members_expiring",
+                    className="dash-bootstrap",
+                ),width=6),
+                dbc.Col(dcc.Graph(
+                    figure=go.Figure(),
+                    id="members_lapsed",
+                    className="dash-bootstrap",
+                ),width=6),
+            ]
         ),
         dbc.Row(
-            [retention_jumbotron], className="align-items-md-stretch"
+            [
+                dbc.Col(dcc.Graph(
+                    figure=go.Figure(),
+                    id="metric_retention",
+                    className="dash-bootstrap",
+                ),width=6),
+            ]
         ),
     ],
-    className="d-grid gap-4",
 )
-
-
-style_graphs_2 = {"display": "inline-block", "width": "50%"}
-style_graphs_3 = {"display": "inline-block", "width": "33.33%"}
 
 graphs = html.Div(
     id="graphs-container",
     children=[
-        dcc.Graph(
-            figure={},
-            id="membership_status",
-            className="dash-bootstrap",
-            style=style_graphs_3,
+        dbc.Row(
+            [
+                dbc.Col(dcc.Graph(
+                        figure=go.Figure(),
+                        id="membership_status",
+                        className="dash-bootstrap"
+                ),width=4),
+                dbc.Col(dcc.Graph(
+                        figure=go.Figure(),
+                        id="membership_type",
+                        className="dash-bootstrap",
+                ),width=4),
+                dbc.Col(dcc.Graph(
+                        figure=go.Figure(),
+                        id="union_member",
+                        className="dash-bootstrap",
+                ),width=4),
+            ]
         ),
-        dcc.Graph(
-            figure={},
-            id="membership_type",
-            className="dash-bootstrap",
-            style=style_graphs_3,
-        ),
-        dcc.Graph(
-            figure={},
-            id="union_member",
-            className="dash-bootstrap",
-            style=style_graphs_3,
-        ),
-        dcc.Graph(
-            figure={},
-            id="membership_length",
-            className="dash-bootstrap",
-            style=style_graphs_2,
-        ),
-        dcc.Graph(
-            figure={}, id="race", className="dash-bootstrap", style=style_graphs_2
+        dbc.Row(
+            [
+                dbc.Col(dcc.Graph(
+                        figure=go.Figure(),
+                        id="membership_length",
+                        className="dash-bootstrap"
+                ),width=6),
+                dbc.Col(dcc.Graph(
+                        figure=go.Figure(), id="race", className="dash-bootstrap"
+                ),width=6),
+            ]
         ),
     ],
 )
@@ -434,7 +418,7 @@ def selected_data(child: str):
     Input(component_id="timeline_columns", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value")
 )
-def update_timeline(selected_columns: list, dark_mode: bool):
+def create_timeline(selected_columns: list, dark_mode: bool):
     """Update the timeline plotting selected columns."""
     timeline_figure = go.Figure()
     selected_metrics = {}
@@ -473,7 +457,7 @@ def update_timeline(selected_columns: list, dark_mode: bool):
     Input(component_id="list_compare_dropdown", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value")
 )
-def update_list(date_selected: str, date_compare_selected: str, dark_mode:bool):
+def create_list(date_selected: str, date_compare_selected: str, dark_mode:bool):
     """Update the list shown based on the selected membership list date."""
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
@@ -482,59 +466,134 @@ def update_list(date_selected: str, date_compare_selected: str, dark_mode:bool):
     return df.to_dict("records")
 
 
+def calculate_metric(df, df_compare, plan: list, dark_mode:bool):
+    column, value, title = plan
+    """Construct string showing value and change (if comparison data is provided)."""
+    count = df[column].eq(value).sum()
+
+    indicator = go.Indicator(
+        mode = "number",
+        value = count,
+    )
+
+    if not df_compare.empty:
+        count_compare = df_compare[column].eq(value).sum()
+        indicator = go.Indicator(
+            mode = "number+delta",
+            value = count,
+            delta =  {'position': "top", 'reference': count - count_compare, 'valueformat':'.2'},
+        )
+
+    fig = go.Figure(data=indicator)
+    fig["layout"]["title"] = title
+
+    if not dark_mode:
+        fig["layout"]["template"] = pio.templates["flatly"]
+
+    return fig
+
+def calculate_retention_rate(df, df_compare, dark_mode:bool):
+    """Construct string showing retention rate and change vs another date (if comparison data is provided)."""
+    migs = df['membership_status'].eq('member in good standing').sum()
+    constitutional = df['membership_status'].eq('member').sum()
+    rate = (migs / (constitutional + migs)) * 100
+
+    indicator = go.Indicator(
+        mode = "number",
+        value = rate,
+        number = {'suffix': "%"},
+    )
+
+    if not df_compare.empty:
+        compare_migs = df_compare['membership_status'].eq('member in good standing').sum()
+        compare_constitutional = df_compare['membership_status'].eq('member').sum()
+        rate_compare = (compare_migs / (compare_constitutional + compare_migs)) * 100
+        indicator = go.Indicator(
+            mode = "number+delta",
+            value = rate,
+            delta = {'position': "top", 'reference': rate_compare, 'valueformat':'.2'},
+            number = {'suffix': "%"},
+        )
+
+    fig = go.Figure(data=indicator, layout={'title':'Retention Rate (MIGS / Constitutional)'})
+
+    if not dark_mode:
+        fig["layout"]["template"] = pio.templates["flatly"]
+
+    return fig
+
+
 @callback(
-    Output(component_id="members_lifetime", component_property="children"),
-    Output(component_id="members_migs", component_property="children"),
-    Output(component_id="members_expiring", component_property="children"),
-    Output(component_id="members_lapsed", component_property="children"),
-    Output(component_id="metric_retention", component_property="children"),
+    Output(component_id="members_lifetime", component_property="figure"),
+    Output(component_id="members_migs", component_property="figure"),
+    Output(component_id="members_expiring", component_property="figure"),
+    Output(component_id="members_lapsed", component_property="figure"),
+    Output(component_id="metric_retention", component_property="figure"),
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
+    Input(component_id="color-mode-switch", component_property="value")
 )
-def update_metrics(date_selected: str, date_compare_selected: str):
+def create_metrics(date_selected: str, date_compare_selected: str, dark_mode:bool):
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return "", "", "", ""
 
+    metrics_plan = [
+        ['membership_type', 'lifetime', 'Lifetime Members'],
+        ['membership_status', 'member in good standing', 'Members in Good Standing'],
+        ['membership_status', 'member', 'Expiring Members'],
+        ['membership_status', 'lapsed', 'Lapsed Members'],
+    ]
+
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
 
-    def calculate_metric(df, df_compare, column: str, value: str):
-        """Construct string showing value and change (if comparison data is provided)."""
-        count = df[column].eq(value).sum()
-        if not df_compare.empty:
-            count_compare = df_compare[column].eq(value).sum()
-            count_delta = count - count_compare
-            if count_delta > 0:
-                return f"{count} (+{count_delta})"
-            if count_delta < 0:
-                return f"{count} ({count_delta})"
-        return f"{count}"
+    metric_count_frames = [calculate_metric(df, df_compare, metric_plan, dark_mode) for metric_plan in metrics_plan]
+    metric_retention = calculate_retention_rate(df, df_compare, dark_mode)
 
-    def calculate_retention_rate(df, df_compare):
-        """Construct string showing retention rate and change vs another date (if comparison data is provided)."""
-        migs = df['membership_status'].eq('member in good standing').sum()
-        constitutional = df['membership_status'].eq('member').sum()
-        rate = (migs / (constitutional + migs)) * 100
-        if not df_compare.empty:
-            compare_migs = df_compare['membership_status'].eq('member in good standing').sum()
-            compare_constitutional = df_compare['membership_status'].eq('member').sum()
-            rate_delta = rate - ((compare_migs / (compare_constitutional + compare_migs)) * 100)
-            if rate_delta > 0:
-                return f"{rate:0.2f}% (+{rate_delta:0.2f}%)"
-            if rate_delta < 0:
-                return f"{rate:0.2f}% ({rate_delta:0.2f}%)"
-        return f"{rate:0.2f}%"
+    return *metric_count_frames, metric_retention
 
-    num1 = calculate_metric(df, df_compare, "membership_type", "lifetime")
-    num2 = calculate_metric(
-        df, df_compare, "membership_status", "member in good standing"
+
+def create_chart(df_field, df_compare_field, title: str, ylabel: str, log: bool):
+    """Set up html data to show a chart of 1-2 dataframes."""
+    chartdf_vc = df_field.value_counts()
+    chartdf_compare_vc = df_compare_field.value_counts()
+
+    color, color_compare = COLORS, COLORS
+    active_labels = [str(val) for val in chartdf_vc.values]
+
+    if not df_compare_field.empty:
+        color, color_compare = COLORS[0], COLORS[5]
+        active_labels = [
+            f"{count} (+{count - chartdf_compare_vc.get(val, 0)})"
+            if count - chartdf_compare_vc.get(val, 0) > 0
+            else f"{count} ({count - chartdf_compare_vc.get(val, 0)})"
+            for val, count in zip(chartdf_vc.index, chartdf_vc.values)
+        ]
+
+    chart = go.Figure(
+        data=[
+            go.Bar(
+                name="Compare List",
+                x=chartdf_compare_vc.index,
+                y=chartdf_compare_vc.values,
+                text=chartdf_compare_vc.values,
+                marker_color=color_compare,
+            ),
+            go.Bar(
+                name="Active List",
+                x=chartdf_vc.index,
+                y=chartdf_vc.values,
+                text=active_labels,
+                marker_color=color,
+            ),
+        ]
     )
-    num3 = calculate_metric(df, df_compare, "membership_status", "member")
-    num4 = calculate_metric(df, df_compare, "membership_status", "lapsed")
-    num5 = calculate_retention_rate(df, df_compare)
-
-    return num1, num2, num3, num4, num5
+    if log:
+        chart.update_yaxes(type="log")
+        ylabel = ylabel + " (Logarithmic)"
+    chart.update_layout(title=title, yaxis_title=ylabel)
+    return chart
 
 
 @callback(
@@ -547,7 +606,7 @@ def update_metrics(date_selected: str, date_compare_selected: str):
     Input(component_id="list_compare_dropdown", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value")
 )
-def update_graph(date_selected, date_compare_selected, dark_mode: bool):
+def create_graphs(date_selected, date_compare_selected, dark_mode: bool):
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
 
     if not date_selected:
@@ -555,47 +614,6 @@ def update_graph(date_selected, date_compare_selected, dark_mode: bool):
 
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
-
-    def create_chart(df_field, df_compare_field, title: str, ylabel: str, log: bool):
-        """Set up html data to show a chart of 1-2 dataframes."""
-        chartdf_vc = df_field.value_counts()
-        chartdf_compare_vc = df_compare_field.value_counts()
-
-        color, color_compare = COLORS, COLORS
-        active_labels = [str(val) for val in chartdf_vc.values]
-
-        if not df_compare_field.empty:
-            color, color_compare = COLORS[0], COLORS[5]
-            active_labels = [
-                f"{count} (+{count - chartdf_compare_vc.get(val, 0)})"
-                if count - chartdf_compare_vc.get(val, 0) > 0
-                else f"{count} ({count - chartdf_compare_vc.get(val, 0)})"
-                for val, count in zip(chartdf_vc.index, chartdf_vc.values)
-            ]
-
-        chart = go.Figure(
-            data=[
-                go.Bar(
-                    name="Compare List",
-                    x=chartdf_compare_vc.index,
-                    y=chartdf_compare_vc.values,
-                    text=chartdf_compare_vc.values,
-                    marker_color=color_compare,
-                ),
-                go.Bar(
-                    name="Active List",
-                    x=chartdf_vc.index,
-                    y=chartdf_vc.values,
-                    text=active_labels,
-                    marker_color=color,
-                ),
-            ]
-        )
-        if log:
-            chart.update_yaxes(type="log")
-            ylabel = ylabel + " (Logarithmic)"
-        chart.update_layout(title=title, yaxis_title=ylabel)
-        return chart
 
     chart1 = create_chart(
         df["membership_status"] if "membership_status" in df else pd.DataFrame(),
@@ -718,7 +736,8 @@ def render_page_content(pathname):
         return graphs
     if pathname == "/map":
         return html.P(
-            "Implementation of a map is planned: https://github.com/MaineDSA/MembershipDashboard/issues/8."
+            "Implementation of a map is planned: https://github.com/MaineDSA/MembershipDashboard/issues/8.",
+            className="dbc",
         )
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
@@ -729,30 +748,6 @@ def render_page_content(pathname):
         ],
         className="p-3 bg-light rounded-3",
     )
-
-
-@app.callback(
-    Output("sidebar", "className"),
-    [Input("sidebar-toggle", "n_clicks")],
-    [State("sidebar", "className")],
-)
-def toggle_classname(n, classname):
-    """Assign CSS class to sidebar based on whether it's collapsed or expanded."""
-    if n and classname == "":
-        return "collapsed"
-    return ""
-
-
-@app.callback(
-    Output("collapse", "is_open"),
-    [Input("navbar-toggle", "n_clicks")],
-    [State("collapse", "is_open")],
-)
-def toggle_collapse(n, is_open):
-    """Handle expanding/collapsing the sidebar when the button is clicked."""
-    if n:
-        return not is_open
-    return is_open
 
 
 if __name__ == "__main__":
