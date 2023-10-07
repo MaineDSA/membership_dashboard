@@ -172,8 +172,9 @@ def scan_all_membership_lists(directory: str):
 
 # Initialize the app
 scan_all_membership_lists(MEMB_LIST_NAME)
+dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 app = Dash(
-    external_stylesheets=[dbc.themes.DARKLY, dbc.themes.FLATLY, dbc.icons.FONT_AWESOME],
+    external_stylesheets=[dbc.themes.DARKLY, dbc.themes.FLATLY, dbc_css, dbc.icons.FONT_AWESOME],
     # these meta_tags ensure content is scaled correctly on different devices
     # see: https://www.w3schools.com/css/css_rwd_viewport.asp for more
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
@@ -187,29 +188,27 @@ sidebar_header = dbc.Row(
             html.Img(
                 src=r"https://www.mainedsa.org/wp-content/uploads/2023/07/Maine-DSA-Moose-with-Rose-Logo.svg",
                 alt="Red Maine DSA logo of a moose holding a rose in its mouth under the text Maine DSA",
-            )
+            ),
+            align="center",
         ),
         dbc.Col(
-            [
-                html.Span(
-                    [
-                        #dbc.Label(className="fa fa-sun", html_for="color-mode-switch"),
-                        dbc.Switch(id="color-mode-switch", value=True, className="d-inline-block ms-1", persistence=True),
-                        dbc.Label(className="fa fa-moon", html_for="color-mode-switch"),
-                    ]
-                )
-            ],
-            # the column containing the toggle will be only as wide as the
-            # toggle, resulting in the toggle being right aligned
+            html.Span(
+                [
+                    #dbc.Label(className="fa fa-sun", html_for="color-mode-switch"),
+                    dbc.Switch(id="color-mode-switch", value=True, className="d-inline-block ms-1", persistence=True),
+                    dbc.Label(className="fa fa-moon", html_for="color-mode-switch"),
+                ]
+            ),
             width="auto",
-            # vertically align the toggle in the center
             align="center",
         ),
     ]
 )
 
 sidebar = html.Div(
-    [
+    id="sidebar",
+    className="dash-bootstrap",
+    children=[
         sidebar_header,
         # we wrap the horizontal rule and short blurb in a div that can be
         # hidden on a small screen
@@ -224,7 +223,6 @@ sidebar = html.Div(
             options=list(memb_lists.keys()),
             value=list(memb_lists.keys())[0],
             id="list_dropdown",
-            className="dash-bootstrap",
         ),
         html.Div(
             [
@@ -236,7 +234,6 @@ sidebar = html.Div(
             options=list(memb_lists.keys()),
             value="",
             id="list_compare_dropdown",
-            className="dash-bootstrap",
         ),
         html.Div(
             [
@@ -259,29 +256,26 @@ sidebar = html.Div(
             ),
             id="collapse",
         ),
-    ],
-    id="sidebar",
+    ]
 )
 
 content = html.Div(id="page-content")
 
-app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
+app.layout = dbc.Container([dcc.Location(id="url"), sidebar, content], fluid=True, className="dbc")
 
 timeline = html.Div(
     id="timeline-container",
-    className="dbc",
+    className="dash-bootstrap",
     children=[
         dcc.Dropdown(
             options=list(memb_lists_metrics.keys()),
             value=["membership_status"],
             multi=True,
             id="timeline_columns",
-            className="dash-bootstrap",
         ),
         dcc.Graph(
             figure={},
             id="membership_timeline",
-            className="dash-bootstrap",
             style={
                 "display": "inline-block",
                 "width": "100%",
@@ -324,18 +318,17 @@ member_list_page = html.Div(
 
 metrics = html.Div(
     id="metrics-container",
+    className="dash-bootstrap",
     children=[
         dbc.Row(
             [
                 dbc.Col(dcc.Graph(
                     figure=go.Figure(),
                     id="members_lifetime",
-                    className="dash-bootstrap",
                 ),width=6),
                 dbc.Col(dcc.Graph(
                     figure=go.Figure(),
                     id="members_migs",
-                    className="dash-bootstrap",
                 ),width=6),
             ],
         ),
@@ -344,12 +337,10 @@ metrics = html.Div(
                 dbc.Col(dcc.Graph(
                     figure=go.Figure(),
                     id="members_expiring",
-                    className="dash-bootstrap",
                 ),width=6),
                 dbc.Col(dcc.Graph(
                     figure=go.Figure(),
                     id="members_lapsed",
-                    className="dash-bootstrap",
                 ),width=6),
             ]
         ),
@@ -358,7 +349,6 @@ metrics = html.Div(
                 dbc.Col(dcc.Graph(
                     figure=go.Figure(),
                     id="metric_retention",
-                    className="dash-bootstrap",
                 ),width=6),
             ]
         ),
@@ -367,23 +357,21 @@ metrics = html.Div(
 
 graphs = html.Div(
     id="graphs-container",
+    className="dash-bootstrap",
     children=[
         dbc.Row(
             [
                 dbc.Col(dcc.Graph(
                         figure=go.Figure(),
                         id="membership_status",
-                        className="dash-bootstrap"
                 ),width=4),
                 dbc.Col(dcc.Graph(
                         figure=go.Figure(),
                         id="membership_type",
-                        className="dash-bootstrap",
                 ),width=4),
                 dbc.Col(dcc.Graph(
                         figure=go.Figure(),
                         id="union_member",
-                        className="dash-bootstrap",
                 ),width=4),
             ]
         ),
@@ -392,10 +380,10 @@ graphs = html.Div(
                 dbc.Col(dcc.Graph(
                         figure=go.Figure(),
                         id="membership_length",
-                        className="dash-bootstrap"
                 ),width=6),
                 dbc.Col(dcc.Graph(
-                        figure=go.Figure(), id="race", className="dash-bootstrap"
+                        figure=go.Figure(),
+                        id="race",
                 ),width=6),
             ]
         ),
