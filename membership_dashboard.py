@@ -6,15 +6,16 @@ import zipfile
 import argparse
 import numpy as np
 import pandas as pd
-from dash import Dash, html, dash_table, dcc, callback, Output, Input, State
+import plotly.io as pio
 import plotly.graph_objects as go
+from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input, State
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 
 parser = argparse.ArgumentParser(
                     prog='DSA Membership Dashboard',
                     description="""Parses membership lists and constructs a membership dashboard
-						showing various graphs and metrics to illustrate changes over time."""
+                        showing various graphs and metrics to illustrate changes over time."""
                     )
 parser.add_argument("-t", "--test", action='store_true', help='Read a limited subset of the most recent lists and run dash in Debug mode')
 args = parser.parse_args()
@@ -172,13 +173,13 @@ def scan_all_membership_lists(directory: str):
 # Initialize the app
 scan_all_membership_lists(MEMB_LIST_NAME)
 app = Dash(
-    external_stylesheets=[dbc.themes.DARKLY],
+    external_stylesheets=[dbc.themes.DARKLY, dbc.themes.FLATLY, dbc.icons.FONT_AWESOME],
     # these meta_tags ensure content is scaled correctly on different devices
     # see: https://www.w3schools.com/css/css_rwd_viewport.asp for more
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
     suppress_callback_exceptions=True,
 )
-load_figure_template(["darkly"])
+load_figure_template(["darkly", "flatly"])
 
 # we use the Row and Col components to construct the sidebar header
 # it consists of a title, and a toggle, the latter is hidden on large screens
@@ -192,6 +193,12 @@ sidebar_header = dbc.Row(
         ),
         dbc.Col(
             [
+                html.Span(
+                    [
+                        dbc.Switch(id="color-mode-switch", value=True, className="d-inline-block ms-1", persistence=True),
+                        dbc.Label(className="fa fa-moon", html_for="color-mode-switch"),
+                    ]
+                ),
                 dbc.Button(
                     # use the Bootstrap navbar-toggler classes to style
                     html.Span(className="navbar-toggler-icon"),
@@ -425,8 +432,9 @@ def selected_data(child: str):
 @callback(
     Output(component_id="membership_timeline", component_property="figure"),
     Input(component_id="timeline_columns", component_property="value"),
+    Input(component_id="color-mode-switch", component_property="value")
 )
-def update_timeline(selected_columns: list):
+def update_timeline(selected_columns: list, dark_mode: bool):
     """Update the timeline plotting selected columns."""
     timeline_figure = go.Figure()
     selected_metrics = {}
@@ -453,6 +461,8 @@ def update_timeline(selected_columns: list):
     timeline_figure.update_layout(
         title="Membership Trends Timeline", yaxis_title="Members"
     )
+    if not dark_mode:
+        timeline_figure["layout"]["template"] = pio.templates["flatly"]
 
     return timeline_figure
 
@@ -461,8 +471,9 @@ def update_timeline(selected_columns: list):
     Output(component_id="membership_list", component_property="data"),
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
+    Input(component_id="color-mode-switch", component_property="value")
 )
-def update_list(date_selected: str, date_compare_selected: str):
+def update_list(date_selected: str, date_compare_selected: str, dark_mode:bool):
     """Update the list shown based on the selected membership list date."""
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
@@ -534,8 +545,9 @@ def update_metrics(date_selected: str, date_compare_selected: str):
     Output(component_id="race", component_property="figure"),
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
+    Input(component_id="color-mode-switch", component_property="value")
 )
-def update_graph(date_selected, date_compare_selected):
+def update_graph(date_selected, date_compare_selected, dark_mode: bool):
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
 
     if not date_selected:
@@ -665,6 +677,13 @@ def update_graph(date_selected, date_compare_selected):
         True,
     )
 
+    if not dark_mode:
+        chart1["layout"]["template"] = pio.templates["flatly"]
+        chart2["layout"]["template"] = pio.templates["flatly"]
+        chart3["layout"]["template"] = pio.templates["flatly"]
+        chart4["layout"]["template"] = pio.templates["flatly"]
+        chart5["layout"]["template"] = pio.templates["flatly"]
+
     return chart1, chart2, chart3, chart4, chart5
 
 
@@ -672,6 +691,19 @@ def update_graph(date_selected, date_compare_selected):
 ## Sidebar
 ##
 
+
+clientside_callback(
+    """
+    (switchOn) => {
+       switchOn
+         ? document.documentElement.setAttribute('data-bs-theme', 'dark')
+         : document.documentElement.setAttribute('data-bs-theme', 'light')
+       return window.dash_clientside.no_update
+    }
+    """,
+    Output("color-mode-switch", "id"),
+    Input("color-mode-switch", "value"),
+)
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
