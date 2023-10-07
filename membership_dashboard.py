@@ -53,7 +53,7 @@ def membership_length(date: str, **kwargs):
     )
 
 
-def fill_empties(date_formatted, column, default):
+def fill_empties(date_formatted: str, column: str, default):
     """Fill any empty values in the specified column with the supplied default value."""
     if column not in memb_lists[date_formatted]:
         memb_lists[date_formatted][column] = default
@@ -62,7 +62,7 @@ def fill_empties(date_formatted, column, default):
     )
 
 
-def data_fixes(date_formatted):
+def data_fixes(date_formatted: str):
     """Standardize data, taking into account changes in membership list format."""
     memb_lists[date_formatted].columns = memb_lists[date_formatted].columns.str.lower()
     columns_to_fill = {
@@ -496,7 +496,7 @@ def create_list(date_selected: str, date_compare_selected: str):
     return df.to_dict("records")
 
 
-def calculate_metric(df, df_compare, plan: list, dark_mode: bool):
+def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dark_mode: bool):
     """Construct string showing value and change (if comparison data is provided)."""
     column, value, title = plan
     count = df[column].eq(value).sum()
@@ -527,7 +527,7 @@ def calculate_metric(df, df_compare, plan: list, dark_mode: bool):
     return fig
 
 
-def calculate_retention_rate(df, df_compare, dark_mode: bool):
+def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mode: bool):
     """Construct string showing retention rate and change vs another date (if comparison data is provided)."""
     migs = df["membership_status"].eq("member in good standing").sum()
     constitutional = df["membership_status"].eq("member").sum()
@@ -596,7 +596,7 @@ def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bo
     return *metric_count_frames, metric_retention
 
 
-def create_chart(df_field, df_compare_field, title: str, ylabel: str, log: bool):
+def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: str, ylabel: str, log: bool):
     """Set up html data to show a chart of 1-2 dataframes."""
     chartdf_vc = df_field.value_counts()
     chartdf_compare_vc = df_compare_field.value_counts()
@@ -648,9 +648,8 @@ def create_chart(df_field, df_compare_field, title: str, ylabel: str, log: bool)
     Input(component_id="list_compare_dropdown", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_graphs(date_selected, date_compare_selected, dark_mode: bool):
+def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: bool):
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
-
     if not date_selected:
         return go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure()
 
@@ -714,7 +713,7 @@ def create_graphs(date_selected, date_compare_selected, dark_mode: bool):
         False,
     )
 
-    def multiple_choice(df, target_column: str, separator: str):
+    def multiple_choice(df: pd.DataFrame, target_column: str, separator: str):
         """Split a character-separated list string into an iterable object."""
         return (
             df[target_column]
@@ -767,7 +766,7 @@ clientside_callback(
 
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
-def render_page_content(pathname):
+def render_page_content(pathname: str):
     """Display the correct page based on the user's navigation path."""
     if pathname == "/":
         return timeline
