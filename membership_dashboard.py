@@ -10,14 +10,17 @@ import plotly.io as pio
 import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
-from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input, State
+from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input
 
 parser = argparse.ArgumentParser(
-                    prog='DSA Membership Dashboard',
-                    description="""Parses membership lists and constructs a membership dashboard
-                        showing various graphs and metrics to illustrate changes over time."""
-                    )
-parser.add_argument("-t", "--test", action='store_true', help='Read a limited subset of the most recent lists and run dash in Debug mode')
+    prog='DSA Membership Dashboard',
+    description='Parses membership lists and constructs a membership dashboard showing various graphs and metrics to illustrate changes over time.'
+    )
+parser.add_argument(
+    "-t", "--test",
+    action='store_true',
+    help='Read a limited subset of the most recent lists and run dash in Debug mode'
+)
 args = parser.parse_args()
 
 MEMB_LIST_NAME = "maine_membership_list"
@@ -172,9 +175,9 @@ def scan_all_membership_lists(directory: str):
 
 # Initialize the app
 scan_all_membership_lists(MEMB_LIST_NAME)
-dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
+DBC_CSS = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 app = Dash(
-    external_stylesheets=[dbc.themes.DARKLY, dbc.themes.FLATLY, dbc_css, dbc.icons.FONT_AWESOME],
+    external_stylesheets=[dbc.themes.DARKLY, dbc.themes.FLATLY, DBC_CSS, dbc.icons.FONT_AWESOME],
     # these meta_tags ensure content is scaled correctly on different devices
     # see: https://www.w3schools.com/css/css_rwd_viewport.asp for more
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
@@ -210,8 +213,7 @@ sidebar = html.Div(
     className="dash-bootstrap",
     children=[
         sidebar_header,
-        # we wrap the horizontal rule and short blurb in a div that can be
-        # hidden on a small screen
+        # we wrap the horizontal rule and short blurb in a div that can be hidden on a small screen
         html.Div(
             [
                 html.Hr(),
@@ -443,9 +445,8 @@ def create_timeline(selected_columns: list, dark_mode: bool):
     Output(component_id="membership_list", component_property="data"),
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
-    Input(component_id="color-mode-switch", component_property="value")
 )
-def create_list(date_selected: str, date_compare_selected: str, dark_mode:bool):
+def create_list(date_selected: str, date_compare_selected: str):
     """Update the list shown based on the selected membership list date."""
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
@@ -455,8 +456,8 @@ def create_list(date_selected: str, date_compare_selected: str, dark_mode:bool):
 
 
 def calculate_metric(df, df_compare, plan: list, dark_mode:bool):
-    column, value, title = plan
     """Construct string showing value and change (if comparison data is provided)."""
+    column, value, title = plan
     count = df[column].eq(value).sum()
 
     indicator = go.Indicator(
