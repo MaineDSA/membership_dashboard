@@ -65,16 +65,19 @@ def data_fixes(date_formatted):
     """Standardize data, taking into account changes in membership list format."""
     memb_lists[date_formatted].columns = memb_lists[date_formatted].columns.str.lower()
     columns_to_fill = {
+        "billing_city": "city",
         "akid": "actionkit_id",
         "ak_id": "actionkit_id",
-        "billing_city": "city",
         "accomodations": "accommodations",
+        "annual_recurring_dues_status": "yearly_dues_status",
     }
     for old, new in columns_to_fill.items():
         if (new not in memb_lists[date_formatted]) & (
             old in memb_lists[date_formatted]
         ):
             memb_lists[date_formatted][new] = memb_lists[date_formatted][old]
+            memb_lists[date_formatted] = memb_lists[date_formatted].drop(old, axis=1)
+
     memb_lists[date_formatted].set_index("actionkit_id")
     memb_lists[date_formatted]["membership_length"] = memb_lists[date_formatted][
         "join_date"
