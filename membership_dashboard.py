@@ -256,12 +256,12 @@ sidebar = html.Div(
             ),
             id="collapse",
         ),
-    ]
+    ],
 )
 
-content = html.Div(id="page-content")
+content = html.Div(id="page-content", className="dbc")
 
-app.layout = dbc.Container([dcc.Location(id="url"), sidebar, content], fluid=True, className="dbc")
+app.layout = dbc.Container([dcc.Location(id="url"), sidebar, content], fluid=True)
 
 timeline = html.Div(
     id="timeline-container",
