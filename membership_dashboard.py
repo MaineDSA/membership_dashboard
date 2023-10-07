@@ -491,7 +491,8 @@ def create_list(date_selected: str, date_compare_selected: str):
         df = (
             pd.concat([df, df_compare])
             .reset_index(drop=True)
-            .drop_duplicates(subset=["actionkit_id"], keep=False)
+            .drop_duplicates(subset=["actionkit_id", "membership_status", "membership_type"], keep=False)
+            .drop_duplicates(subset=["actionkit_id"])
         )
     return df.to_dict("records")
 
