@@ -12,6 +12,10 @@
   #page-content {
 	padding: 2rem 1rem;
   }
+
+  .nav-pills .nav-link {
+	color: var(--bs-body-color);
+  }
   
   @media (min-width: 48em) {
 	#sidebar {
