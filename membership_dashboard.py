@@ -180,13 +180,13 @@ def scan_all_membership_lists(directory: str):
 scan_all_membership_lists(MEMB_LIST_NAME)
 DBC_CSS = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 app = Dash(
-    external_stylesheets=[dbc.themes.DARKLY, dbc.themes.FLATLY, DBC_CSS, dbc.icons.FONT_AWESOME],
+    external_stylesheets=[dbc.themes.DARKLY, dbc.themes.JOURNAL, DBC_CSS, dbc.icons.FONT_AWESOME],
     # these meta_tags ensure content is scaled correctly on different devices
     # see: https://www.w3schools.com/css/css_rwd_viewport.asp for more
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
     suppress_callback_exceptions=True,
 )
-load_figure_template(["darkly", "flatly"])
+load_figure_template(["darkly", "journal"])
 
 sidebar_header = dbc.Row(
     [
@@ -213,7 +213,6 @@ sidebar_header = dbc.Row(
 
 sidebar = html.Div(
     id="sidebar",
-    className="dash-bootstrap",
     children=[
         sidebar_header,
         # we wrap the horizontal rule and short blurb in a div that can be hidden on a small screen
@@ -237,7 +236,6 @@ sidebar = html.Div(
         ),
         dcc.Dropdown(
             options=list(memb_lists.keys()),
-            value="",
             id="list_compare_dropdown",
         ),
         html.Div(
@@ -246,31 +244,27 @@ sidebar = html.Div(
             ],
             id="list_compare_dropdown_label",
         ),
-        # use the Collapse component to animate hiding / revealing links
-        dbc.Collapse(
-            dbc.Nav(
-                [
-                    dbc.NavLink("Timeline", href="/", active="exact"),
-                    dbc.NavLink("List", href="/list", active="exact"),
-                    dbc.NavLink("Metrics", href="/metrics", active="exact"),
-                    dbc.NavLink("Graphs", href="/graphs", active="exact"),
-                    dbc.NavLink("Map", href="/map", active="exact"),
-                ],
-                vertical=True,
-                pills=True,
-            ),
-            id="collapse",
+        dbc.Nav(
+            [
+                dbc.NavLink("Timeline", href="/", active="exact"),
+                dbc.NavLink("List", href="/list", active="exact"),
+                dbc.NavLink("Metrics", href="/metrics", active="exact"),
+                dbc.NavLink("Graphs", href="/graphs", active="exact"),
+                dbc.NavLink("Map", href="/map", active="exact"),
+            ],
+            id='navigation',
+            vertical=True,
+            pills=True,
         ),
     ],
 )
 
-content = html.Div(id="page-content", className="dbc")
+content = html.Div(id="page-content")
 
-app.layout = dbc.Container([dcc.Location(id="url"), sidebar, content], fluid=True)
+app.layout = dbc.Container([dcc.Location(id="url"), sidebar, content], className="dbc dbc-ag-grid", fluid=True)
 
 timeline = html.Div(
     id="timeline-container",
-    className="dash-bootstrap",
     children=[
         dcc.Dropdown(
             options=list(memb_lists_metrics.keys()),
@@ -294,7 +288,6 @@ timeline = html.Div(
 
 member_list_page = html.Div(
     id="list-container",
-    className="dbc",
     children=[
         dash_table.DataTable(
             data=memb_lists[list(memb_lists.keys())[0]].to_dict("records"),
@@ -323,7 +316,6 @@ member_list_page = html.Div(
 
 metrics = html.Div(
     id="metrics-container",
-    className="dash-bootstrap",
     children=[
         dbc.Row(
             [
@@ -362,7 +354,6 @@ metrics = html.Div(
 
 graphs = html.Div(
     id="graphs-container",
-    className="dash-bootstrap",
     children=[
         dbc.Row(
             [
@@ -439,7 +430,7 @@ def create_timeline(selected_columns: list, dark_mode: bool):
         title="Membership Trends Timeline", yaxis_title="Members"
     )
     if not dark_mode:
-        timeline_figure["layout"]["template"] = pio.templates["flatly"]
+        timeline_figure["layout"]["template"] = pio.templates["journal"]
 
     return timeline_figure
 
@@ -480,7 +471,7 @@ def calculate_metric(df, df_compare, plan: list, dark_mode:bool):
     fig["layout"]["title"] = title
 
     if not dark_mode:
-        fig["layout"]["template"] = pio.templates["flatly"]
+        fig["layout"]["template"] = pio.templates["journal"]
 
     return fig
 
@@ -510,7 +501,7 @@ def calculate_retention_rate(df, df_compare, dark_mode:bool):
     fig = go.Figure(data=indicator, layout={'title':'Retention Rate (MIGS / Constitutional)'})
 
     if not dark_mode:
-        fig["layout"]["template"] = pio.templates["flatly"]
+        fig["layout"]["template"] = pio.templates["journal"]
 
     return fig
 
@@ -688,11 +679,11 @@ def create_graphs(date_selected, date_compare_selected, dark_mode: bool):
     )
 
     if not dark_mode:
-        chart1["layout"]["template"] = pio.templates["flatly"]
-        chart2["layout"]["template"] = pio.templates["flatly"]
-        chart3["layout"]["template"] = pio.templates["flatly"]
-        chart4["layout"]["template"] = pio.templates["flatly"]
-        chart5["layout"]["template"] = pio.templates["flatly"]
+        chart1["layout"]["template"] = pio.templates["journal"]
+        chart2["layout"]["template"] = pio.templates["journal"]
+        chart3["layout"]["template"] = pio.templates["journal"]
+        chart4["layout"]["template"] = pio.templates["journal"]
+        chart5["layout"]["template"] = pio.templates["journal"]
 
     return chart1, chart2, chart3, chart4, chart5
 
@@ -715,6 +706,7 @@ clientside_callback(
     Input("color-mode-switch", "value"),
 )
 
+
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     """Display the correct page based on the user's navigation path."""
@@ -728,8 +720,7 @@ def render_page_content(pathname):
         return graphs
     if pathname == "/map":
         return html.P(
-            "Implementation of a map is planned: https://github.com/MaineDSA/MembershipDashboard/issues/8.",
-            className="dbc",
+            "Implementation of a map is planned: https://github.com/MaineDSA/MembershipDashboard/issues/8."
         )
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
