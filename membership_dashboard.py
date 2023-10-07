@@ -13,13 +13,14 @@ from dash_bootstrap_templates import load_figure_template
 from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input
 
 parser = argparse.ArgumentParser(
-    prog='DSA Membership Dashboard',
-    description='Parses membership lists and constructs a membership dashboard showing various graphs and metrics to illustrate changes over time.'
-    )
+    prog="DSA Membership Dashboard",
+    description="Parses membership lists and constructs a membership dashboard showing various graphs and metrics to illustrate changes over time.",
+)
 parser.add_argument(
-    "-t", "--test",
-    action='store_true',
-    help='Read a limited subset of the most recent lists and run dash in Debug mode'
+    "-t",
+    "--test",
+    action="store_true",
+    help="Read a limited subset of the most recent lists and run dash in Debug mode",
 )
 args = parser.parse_args()
 
@@ -180,7 +181,12 @@ def scan_all_membership_lists(directory: str):
 scan_all_membership_lists(MEMB_LIST_NAME)
 DBC_CSS = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 app = Dash(
-    external_stylesheets=[dbc.themes.DARKLY, dbc.themes.JOURNAL, DBC_CSS, dbc.icons.FONT_AWESOME],
+    external_stylesheets=[
+        dbc.themes.DARKLY,
+        dbc.themes.JOURNAL,
+        DBC_CSS,
+        dbc.icons.FONT_AWESOME,
+    ],
     # these meta_tags ensure content is scaled correctly on different devices
     # see: https://www.w3schools.com/css/css_rwd_viewport.asp for more
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
@@ -200,8 +206,13 @@ sidebar_header = dbc.Row(
         dbc.Col(
             html.Span(
                 [
-                    #dbc.Label(className="fa fa-sun", html_for="color-mode-switch"),
-                    dbc.Switch(id="color-mode-switch", value=True, className="d-inline-block ms-1", persistence=True),
+                    # dbc.Label(className="fa fa-sun", html_for="color-mode-switch"),
+                    dbc.Switch(
+                        id="color-mode-switch",
+                        value=True,
+                        className="d-inline-block ms-1",
+                        persistence=True,
+                    ),
                     dbc.Label(className="fa fa-moon", html_for="color-mode-switch"),
                 ]
             ),
@@ -252,7 +263,7 @@ sidebar = html.Div(
                 dbc.NavLink("Graphs", href="/graphs", active="exact"),
                 dbc.NavLink("Map", href="/map", active="exact"),
             ],
-            id='navigation',
+            id="navigation",
             vertical=True,
             pills=True,
         ),
@@ -261,7 +272,9 @@ sidebar = html.Div(
 
 content = html.Div(id="page-content")
 
-app.layout = dbc.Container([dcc.Location(id="url"), sidebar, content], className="dbc dbc-ag-grid", fluid=True)
+app.layout = dbc.Container(
+    [dcc.Location(id="url"), sidebar, content], className="dbc dbc-ag-grid", fluid=True
+)
 
 timeline = html.Div(
     id="timeline-container",
@@ -319,34 +332,49 @@ metrics = html.Div(
     children=[
         dbc.Row(
             [
-                dbc.Col(dcc.Graph(
-                    figure=go.Figure(),
-                    id="members_lifetime",
-                ),width=6),
-                dbc.Col(dcc.Graph(
-                    figure=go.Figure(),
-                    id="members_migs",
-                ),width=6),
+                dbc.Col(
+                    dcc.Graph(
+                        figure=go.Figure(),
+                        id="members_lifetime",
+                    ),
+                    width=6,
+                ),
+                dbc.Col(
+                    dcc.Graph(
+                        figure=go.Figure(),
+                        id="members_migs",
+                    ),
+                    width=6,
+                ),
             ],
         ),
         dbc.Row(
             [
-                dbc.Col(dcc.Graph(
-                    figure=go.Figure(),
-                    id="members_expiring",
-                ),width=6),
-                dbc.Col(dcc.Graph(
-                    figure=go.Figure(),
-                    id="members_lapsed",
-                ),width=6),
+                dbc.Col(
+                    dcc.Graph(
+                        figure=go.Figure(),
+                        id="members_expiring",
+                    ),
+                    width=6,
+                ),
+                dbc.Col(
+                    dcc.Graph(
+                        figure=go.Figure(),
+                        id="members_lapsed",
+                    ),
+                    width=6,
+                ),
             ]
         ),
         dbc.Row(
             [
-                dbc.Col(dcc.Graph(
-                    figure=go.Figure(),
-                    id="metric_retention",
-                ),width=6),
+                dbc.Col(
+                    dcc.Graph(
+                        figure=go.Figure(),
+                        id="metric_retention",
+                    ),
+                    width=6,
+                ),
             ]
         ),
     ],
@@ -357,30 +385,45 @@ graphs = html.Div(
     children=[
         dbc.Row(
             [
-                dbc.Col(dcc.Graph(
+                dbc.Col(
+                    dcc.Graph(
                         figure=go.Figure(),
                         id="membership_status",
-                ),width=4),
-                dbc.Col(dcc.Graph(
+                    ),
+                    width=4,
+                ),
+                dbc.Col(
+                    dcc.Graph(
                         figure=go.Figure(),
                         id="membership_type",
-                ),width=4),
-                dbc.Col(dcc.Graph(
+                    ),
+                    width=4,
+                ),
+                dbc.Col(
+                    dcc.Graph(
                         figure=go.Figure(),
                         id="union_member",
-                ),width=4),
+                    ),
+                    width=4,
+                ),
             ]
         ),
         dbc.Row(
             [
-                dbc.Col(dcc.Graph(
+                dbc.Col(
+                    dcc.Graph(
                         figure=go.Figure(),
                         id="membership_length",
-                ),width=6),
-                dbc.Col(dcc.Graph(
+                    ),
+                    width=6,
+                ),
+                dbc.Col(
+                    dcc.Graph(
                         figure=go.Figure(),
                         id="race",
-                ),width=6),
+                    ),
+                    width=6,
+                ),
             ]
         ),
     ],
@@ -400,7 +443,7 @@ def selected_data(child: str):
 @callback(
     Output(component_id="membership_timeline", component_property="figure"),
     Input(component_id="timeline_columns", component_property="value"),
-    Input(component_id="color-mode-switch", component_property="value")
+    Input(component_id="color-mode-switch", component_property="value"),
 )
 def create_timeline(selected_columns: list, dark_mode: bool):
     """Update the timeline plotting selected columns."""
@@ -445,26 +488,34 @@ def create_list(date_selected: str, date_compare_selected: str):
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
     if not df_compare.empty:
-        df = pd.concat([df, df_compare]).reset_index(drop=True).drop_duplicates(subset=['actionkit_id'], keep=False)
+        df = (
+            pd.concat([df, df_compare])
+            .reset_index(drop=True)
+            .drop_duplicates(subset=["actionkit_id"], keep=False)
+        )
     return df.to_dict("records")
 
 
-def calculate_metric(df, df_compare, plan: list, dark_mode:bool):
+def calculate_metric(df, df_compare, plan: list, dark_mode: bool):
     """Construct string showing value and change (if comparison data is provided)."""
     column, value, title = plan
     count = df[column].eq(value).sum()
 
     indicator = go.Indicator(
-        mode = "number",
-        value = count,
+        mode="number",
+        value=count,
     )
 
     if not df_compare.empty:
         count_compare = df_compare[column].eq(value).sum()
         indicator = go.Indicator(
-            mode = "number+delta",
-            value = count,
-            delta =  {'position': "top", 'reference': count - count_compare, 'valueformat':'.2'},
+            mode="number+delta",
+            value=count,
+            delta={
+                "position": "top",
+                "reference": count - count_compare,
+                "valueformat": ".2",
+            },
         )
 
     fig = go.Figure(data=indicator)
@@ -475,30 +526,35 @@ def calculate_metric(df, df_compare, plan: list, dark_mode:bool):
 
     return fig
 
-def calculate_retention_rate(df, df_compare, dark_mode:bool):
+
+def calculate_retention_rate(df, df_compare, dark_mode: bool):
     """Construct string showing retention rate and change vs another date (if comparison data is provided)."""
-    migs = df['membership_status'].eq('member in good standing').sum()
-    constitutional = df['membership_status'].eq('member').sum()
+    migs = df["membership_status"].eq("member in good standing").sum()
+    constitutional = df["membership_status"].eq("member").sum()
     rate = (migs / (constitutional + migs)) * 100
 
     indicator = go.Indicator(
-        mode = "number",
-        value = rate,
-        number = {'suffix': "%"},
+        mode="number",
+        value=rate,
+        number={"suffix": "%"},
     )
 
     if not df_compare.empty:
-        compare_migs = df_compare['membership_status'].eq('member in good standing').sum()
-        compare_constitutional = df_compare['membership_status'].eq('member').sum()
+        compare_migs = (
+            df_compare["membership_status"].eq("member in good standing").sum()
+        )
+        compare_constitutional = df_compare["membership_status"].eq("member").sum()
         rate_compare = (compare_migs / (compare_constitutional + compare_migs)) * 100
         indicator = go.Indicator(
-            mode = "number+delta",
-            value = rate,
-            delta = {'position': "top", 'reference': rate_compare, 'valueformat':'.2'},
-            number = {'suffix': "%"},
+            mode="number+delta",
+            value=rate,
+            delta={"position": "top", "reference": rate_compare, "valueformat": ".2"},
+            number={"suffix": "%"},
         )
 
-    fig = go.Figure(data=indicator, layout={'title':'Retention Rate (MIGS / Constitutional)'})
+    fig = go.Figure(
+        data=indicator, layout={"title": "Retention Rate (MIGS / Constitutional)"}
+    )
 
     if not dark_mode:
         fig["layout"]["template"] = pio.templates["journal"]
@@ -514,24 +570,27 @@ def calculate_retention_rate(df, df_compare, dark_mode:bool):
     Output(component_id="metric_retention", component_property="figure"),
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
-    Input(component_id="color-mode-switch", component_property="value")
+    Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_metrics(date_selected: str, date_compare_selected: str, dark_mode:bool):
+def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bool):
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return "", "", "", ""
 
     metrics_plan = [
-        ['membership_type', 'lifetime', 'Lifetime Members'],
-        ['membership_status', 'member in good standing', 'Members in Good Standing'],
-        ['membership_status', 'member', 'Expiring Members'],
-        ['membership_status', 'lapsed', 'Lapsed Members'],
+        ["membership_type", "lifetime", "Lifetime Members"],
+        ["membership_status", "member in good standing", "Members in Good Standing"],
+        ["membership_status", "member", "Expiring Members"],
+        ["membership_status", "lapsed", "Lapsed Members"],
     ]
 
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
 
-    metric_count_frames = [calculate_metric(df, df_compare, metric_plan, dark_mode) for metric_plan in metrics_plan]
+    metric_count_frames = [
+        calculate_metric(df, df_compare, metric_plan, dark_mode)
+        for metric_plan in metrics_plan
+    ]
     metric_retention = calculate_retention_rate(df, df_compare, dark_mode)
 
     return *metric_count_frames, metric_retention
@@ -587,7 +646,7 @@ def create_chart(df_field, df_compare_field, title: str, ylabel: str, log: bool)
     Output(component_id="race", component_property="figure"),
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
-    Input(component_id="color-mode-switch", component_property="value")
+    Input(component_id="color-mode-switch", component_property="value"),
 )
 def create_graphs(date_selected, date_compare_selected, dark_mode: bool):
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
