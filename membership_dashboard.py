@@ -83,17 +83,20 @@ def data_fixes(date_formatted: str):
     memb_lists[date_formatted]["membership_length"] = memb_lists[date_formatted][
         "join_date"
     ].apply(membership_length, list_date=date_formatted)
+    fill_empties(date_formatted, "memb_status", 'unknown')
     if "membership_status" not in memb_lists[date_formatted]:
-        memb_lists[date_formatted]["membership_status"] = np.where(
-            memb_lists[date_formatted]["memb_status"] == "M",
-            "member in good standing",
-            "n/a",
-        )
+        if 'xdate' in memb_lists[date_formatted]:
+            memb_lists[date_formatted]["membership_status"] = np.where(
+                memb_lists[date_formatted]["xdate"] < date_formatted,
+                "member in good standing",
+                "unknown",
+            )
     memb_lists[date_formatted]["membership_status"] = (
         memb_lists[date_formatted]["membership_status"]
         .replace({"expired": "lapsed"})
         .str.lower()
     )
+    fill_empties(date_formatted, "membership_type", "unknown")
     memb_lists[date_formatted]["membership_type"] = np.where(
         memb_lists[date_formatted]["xdate"] == "2099-11-01",
         "lifetime",
