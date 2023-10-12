@@ -1,30 +1,13 @@
-"""Parse membership lists and construct a membership dashboard showing various graphs and metrics to illustrate changes over time."""
+"""Construct a membership dashboard showing various graphs and metrics to illustrate changes over time."""
 
-import os
-import glob
-import zipfile
-import argparse
-import numpy as np
 import pandas as pd
 import plotly.io as pio
 import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input
+from scan_membership_lists import scan_all_membership_lists
 
-parser = argparse.ArgumentParser(
-    prog="DSA Membership Dashboard",
-    description="Parses membership lists and constructs a membership dashboard showing various graphs and metrics to illustrate changes over time.",
-)
-parser.add_argument(
-    "-t",
-    "--test",
-    action="store_true",
-    help="Read a limited subset of the most recent lists and run dash in Debug mode",
-)
-args = parser.parse_args()
-
-MEMB_LIST_NAME = "maine_membership_list"
 COLORS = [
     "#ee8cb5",
     "#c693be",
@@ -40,148 +23,11 @@ COLORS = [
     "#f0959e",
 ]
 
-memb_lists = {}
-"""Contains data organized as column:value pairs within a dict of membership list dates."""
-memb_lists_metrics = {}
-"""Contains data organized as date:value pairs within a dict of original columns names."""
 
-
-def membership_length(date: str, **kwargs):
-    """Return an integer representing how many years between the supplied dates."""
-    return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(
-        days=365
-    )
-
-
-def fill_empties(date_formatted: str, column: str, default):
-    """Fill any empty values in the specified column with the supplied default value."""
-    if column not in memb_lists[date_formatted]:
-        memb_lists[date_formatted][column] = default
-    memb_lists[date_formatted][column] = memb_lists[date_formatted][column].fillna(
-        default
-    )
-
-
-def data_fixes(date_formatted: str):
-    """Standardize data, taking into account changes in membership list format."""
-    memb_lists[date_formatted].columns = memb_lists[date_formatted].columns.str.lower()
-    columns_to_fill = {
-        "billing_city": "city",
-        "akid": "actionkit_id",
-        "ak_id": "actionkit_id",
-        "accomodations": "accommodations",
-        "annual_recurring_dues_status": "yearly_dues_status",
-    }
-    for old, new in columns_to_fill.items():
-        if (new not in memb_lists[date_formatted]) & (
-            old in memb_lists[date_formatted]
-        ):
-            memb_lists[date_formatted][new] = memb_lists[date_formatted][old]
-            memb_lists[date_formatted] = memb_lists[date_formatted].drop(old, axis=1)
-
-    memb_lists[date_formatted].set_index("actionkit_id")
-    memb_lists[date_formatted]["membership_length"] = memb_lists[date_formatted][
-        "join_date"
-    ].apply(membership_length, list_date=date_formatted)
-    fill_empties(date_formatted, "memb_status", 'unknown')
-    if "membership_status" not in memb_lists[date_formatted]:
-        if 'xdate' in memb_lists[date_formatted]:
-            memb_lists[date_formatted]["membership_status"] = np.where(
-                memb_lists[date_formatted]["xdate"] < date_formatted,
-                "member in good standing",
-                "unknown",
-            )
-    memb_lists[date_formatted]["membership_status"] = (
-        memb_lists[date_formatted]["membership_status"]
-        .replace({"expired": "lapsed"})
-        .str.lower()
-    )
-    fill_empties(date_formatted, "membership_type", "unknown")
-    memb_lists[date_formatted]["membership_type"] = np.where(
-        memb_lists[date_formatted]["xdate"] == "2099-11-01",
-        "lifetime",
-        memb_lists[date_formatted]["membership_type"].str.lower(),
-    )
-    memb_lists[date_formatted]["membership_type"] = (
-        memb_lists[date_formatted]["membership_type"]
-        .replace({"annual": "yearly"})
-        .str.lower()
-    )
-    fill_empties(date_formatted, "do_not_call", False)
-    fill_empties(date_formatted, "p2ptext_optout", False)
-    fill_empties(date_formatted, "race", "unknown")
-    fill_empties(date_formatted, "union_member", "unknown")
-    memb_lists[date_formatted]["union_member"] = (
-        memb_lists[date_formatted]["union_member"]
-        .replace(
-            {
-                0: "No",
-                1: "Yes",
-                "Yes, retired union member": "Yes, retired",
-                "Yes, current union member": "Yes, current",
-                "Currently organizing my workplace": "No, organizing",
-                "No, but former union member": "No, former",
-                "No, not a union member": "No",
-            }
-        )
-        .str.lower()
-    )
-    fill_empties(date_formatted, "accommodations", "no")
-    memb_lists[date_formatted]["accommodations"] = (
-        memb_lists[date_formatted]["accommodations"]
-        .str.lower()
-        .replace(
-            {
-                "n/a": None,
-                "no.": None,
-                "no": None,
-            }
-        )
-    )
-
-
-def scan_membership_list(filename: str, filepath: str):
-    """Scan the requested membership list and add data to memb_lists and memb_lists_metrics."""
-    date_from_name = pd.to_datetime(
-        os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
-    ).date()
-    if not date_from_name:
-        print(f"No date detected in name of {filename}. Skipping file.")
-        return
-
-    with zipfile.ZipFile(filepath) as memb_list_zip:
-        with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv") as memb_list:
-            print(f"Loading data from {MEMB_LIST_NAME}.csv in {filename}.")
-            date_formatted = date_from_name.isoformat()
-
-            memb_lists[date_formatted] = pd.read_csv(memb_list, header=0)
-            data_fixes(date_formatted)
-
-            for column in memb_lists[date_formatted].columns:
-                if not column in memb_lists_metrics:
-                    memb_lists_metrics[column] = {}
-                memb_lists_metrics[column][date_formatted] = memb_lists[date_formatted][
-                    column
-                ]
-
-
-def scan_all_membership_lists(directory: str):
-    """Scan all zip files in the supplied directory and call scan_membership_list on each."""
-    print(f"Scanning {directory} for zipped membership lists.")
-    files = sorted(
-        glob.glob(os.path.join(directory, "**/*.zip"), recursive=True), reverse=True
-    )
-    if args.test:
-        for count, file in enumerate(files):
-            scan_membership_list(os.path.basename(file), os.path.abspath(file))
-            if count > 10:
-                return
-    for file in files:
-        scan_membership_list(os.path.basename(file), os.path.abspath(file))
+memb_lists, memb_lists_metrics = scan_all_membership_lists()
 
 
 # Initialize the app
-scan_all_membership_lists(MEMB_LIST_NAME)
 DBC_CSS = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 app = Dash(
     external_stylesheets=[
@@ -796,4 +642,4 @@ def render_page_content(pathname: str):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=args.test)
+    app.run_server(debug=False)
