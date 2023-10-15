@@ -1,6 +1,15 @@
 name: Pylint
 
-on: [push]
+on:
+  push:
+    paths:
+      - '**.py' # Run if pushed commits include a change to a Lua (.lua) file.
+      - 'requirements.txt' # Run if pushed commits include a change to extension.xml.
+  pull_request:
+    paths:
+      - '**.py' # Run if pushed commits include a change to a Lua (.lua) file.
+      - 'requirements.txt' # Run if pushed commits include a change to extension.xml.
+  workflow_dispatch:
 
 jobs:
   build:
