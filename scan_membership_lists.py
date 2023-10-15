@@ -23,91 +23,71 @@ def membership_length(date: str, **kwargs) -> int:
     )
 
 
-def fill_empties(date_formatted: str, column: str, default):
-    """Fill any empty values in the specified column with the supplied default value."""
-    if column not in memb_lists[date_formatted]:
-        memb_lists[date_formatted][column] = default
-    memb_lists[date_formatted][column] = memb_lists[date_formatted][column].fillna(
-        default
-    )
+def data_cleaning(date_formatted:str) -> pd.DataFrame:
+    """Clean and standardize dataframe according to specified rules."""
+    df = memb_lists[date_formatted].copy()  # To avoid modifying original data
+    # Ensure column names are lowercase
+    df.columns = df.columns.str.lower()
 
-
-def data_fixes(date_formatted: str):
-    """Standardize data, taking into account changes in membership list format."""
-    memb_lists[date_formatted].columns = memb_lists[date_formatted].columns.str.lower()
-    columns_to_fill = {
+    # Mapping of old column names to new ones
+    column_mapping = {
         "billing_city": "city",
         "akid": "actionkit_id",
         "ak_id": "actionkit_id",
         "accomodations": "accommodations",
         "annual_recurring_dues_status": "yearly_dues_status",
     }
-    for old, new in columns_to_fill.items():
-        if (new not in memb_lists[date_formatted]) & (
-            old in memb_lists[date_formatted]
-        ):
-            memb_lists[date_formatted][new] = memb_lists[date_formatted][old]
-            memb_lists[date_formatted] = memb_lists[date_formatted].drop(old, axis=1)
 
-    memb_lists[date_formatted].set_index("actionkit_id")
-    memb_lists[date_formatted]["membership_length"] = memb_lists[date_formatted][
-        "join_date"
-    ].apply(membership_length, list_date=date_formatted)
-    fill_empties(date_formatted, "memb_status", 'unknown')
-    if "membership_status" not in memb_lists[date_formatted]:
-        if 'xdate' in memb_lists[date_formatted]:
-            memb_lists[date_formatted]["membership_status"] = np.where(
-                memb_lists[date_formatted]["xdate"] < date_formatted,
-                "member in good standing",
-                "unknown",
-            )
-    memb_lists[date_formatted]["membership_status"] = (
-        memb_lists[date_formatted]["membership_status"]
-        .replace({"expired": "lapsed"})
-        .str.lower()
-    )
-    fill_empties(date_formatted, "membership_type", "unknown")
-    memb_lists[date_formatted]["membership_type"] = np.where(
-        memb_lists[date_formatted]["xdate"] == "2099-11-01",
-        "lifetime",
-        memb_lists[date_formatted]["membership_type"].str.lower(),
-    )
-    memb_lists[date_formatted]["membership_type"] = (
-        memb_lists[date_formatted]["membership_type"]
-        .replace({"annual": "yearly"})
-        .str.lower()
-    )
-    fill_empties(date_formatted, "do_not_call", False)
-    fill_empties(date_formatted, "p2ptext_optout", False)
-    fill_empties(date_formatted, "race", "unknown")
-    fill_empties(date_formatted, "union_member", "unknown")
-    memb_lists[date_formatted]["union_member"] = (
-        memb_lists[date_formatted]["union_member"]
-        .replace(
-            {
-                0: "No",
-                1: "Yes",
-                "Yes, retired union member": "Yes, retired",
-                "Yes, current union member": "Yes, current",
-                "Currently organizing my workplace": "No, organizing",
-                "No, but former union member": "No, former",
-                "No, not a union member": "No",
-            }
+    # Rename the old columns to new names
+    for old, new in column_mapping.items():
+        if (new not in df.columns) & (old in df.columns):
+            df[new] = df[old]
+            df = df.drop(old, axis=1)
+
+    df.set_index("actionkit_id", inplace=True)
+
+    # Apply the membership_length function to join_date
+    df["membership_length"] = df["join_date"].apply(membership_length, list_date=date_formatted)
+
+    # Standardize other columns
+    for col, default in [("memb_status", "unknown"), ("membership_type", "unknown"),
+                         ("do_not_call", False), ("p2ptext_optout", False), ("race", "unknown"),
+                         ("union_member", "unknown"), ("accommodations", "no")]:
+        df[col] = df.get(col, default)
+        df[col] = df[col].fillna(default)
+
+    # Standardize membership_status column
+    if ("membership_status" not in df.columns) & ("xdate" in df.columns):
+        df["membership_status"] = np.where(
+            df["xdate"] < date_formatted,
+            "member in good standing",
+            "unknown",
         )
+    df["membership_status"] = (
+        df.get("membership_status", "unknown")
+        .replace({"annual": "yearly", "expired": "lapsed"})
         .str.lower()
     )
-    fill_empties(date_formatted, "accommodations", "no")
-    memb_lists[date_formatted]["accommodations"] = (
-        memb_lists[date_formatted]["accommodations"]
+
+    df["accommodations"] = (
+        df.get("accommodations", "no")
         .str.lower()
         .replace(
             {
+                "none": None,
                 "n/a": None,
                 "no.": None,
                 "no": None,
             }
         )
     )
+
+    # Standardize membership_type column
+    df["membership_type"] = np.where(
+        df["xdate"] == "2099-11-01", "lifetime", df["membership_type"].str.lower(),
+    )
+
+    return df
 
 
 def scan_membership_list(filename: str, filepath: str):
@@ -125,10 +105,10 @@ def scan_membership_list(filename: str, filepath: str):
             date_formatted = date_from_name.isoformat()
 
             memb_lists[date_formatted] = pd.read_csv(memb_list, header=0)
-            data_fixes(date_formatted)
+            memb_lists[date_formatted] = data_cleaning(date_formatted)
 
             for column in memb_lists[date_formatted].columns:
-                if not column in memb_lists_metrics:
+                if column not in memb_lists_metrics:
                     memb_lists_metrics[column] = {}
                 memb_lists_metrics[column][date_formatted] = memb_lists[date_formatted][
                     column

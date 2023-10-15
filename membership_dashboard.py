@@ -304,7 +304,7 @@ def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
         for date in memb_lists_metrics[selected_column]:
             value_counts = memb_lists_metrics[selected_column][date].value_counts()
             for value, count in value_counts.items():
-                if not value in selected_metrics[selected_column]:
+                if value not in selected_metrics[selected_column]:
                     selected_metrics[selected_column][value] = {}
                 selected_metrics[selected_column][value][date] = count
         for _, metric in selected_metrics.items():
@@ -608,8 +608,8 @@ clientside_callback(
     """
     (switchOn) => {
        switchOn
-         ? document.documentElement.setAttribute('data-bs-theme', 'dark')
-         : document.documentElement.setAttribute('data-bs-theme', 'light')
+         ? document.documentElement.setAttribute("data-bs-theme", "dark")
+         : document.documentElement.setAttribute("data-bs-theme", "light")
        return window.dash_clientside.no_update
     }
     """,
