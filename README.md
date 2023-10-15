@@ -1,3 +1,5 @@
+[![Pylint 10/10](https://github.com/MaineDSA/MembershipDashboard/actions/workflows/pylint.yml/badge.svg?branch=main)](https://github.com/MaineDSA/MembershipDashboard/actions/workflows/pylint.yml)
+
 # Membership Dashboard
 
 Herein lies a Python script that builds a dashboard to analyze membership lists.
