@@ -7,10 +7,10 @@ It uses the Dash framework for creating web-based data visualizations.
 
 ## Getting Started
 
-To run this code, you'll need to have Python installed on your machine. You'll also need to install the required packages by running the following command:
+To run this code, you'll need to have Python 3.9, 3.10, or 3.11 installed on your machine. You'll also need to install the required packages by running the following command:
 
 ```shell
-pip install dash dash-bootstrap-components dash_bootstrap_templates pandas plotly numpy
+python3 -m pip install dash dash-bootstrap-components dash_bootstrap_templates pandas plotly numpy
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ pip install dash dash-bootstrap-components dash_bootstrap_templates pandas plotl
 2. Open a terminal and run the following command to start the dashboard:
 
 ```shell
-python <path-to-python-file>
+python3 <path-to-python-file>
 ```
 
 3. Open your browser and go to `http://localhost:8050` to view the dashboard.
