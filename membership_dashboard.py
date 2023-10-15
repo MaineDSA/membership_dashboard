@@ -279,7 +279,7 @@ graphs = html.Div(
 )
 
 
-def selected_data(child: str):
+def selected_data(child: str) -> pd.DataFrame:
     """Return a pandas dataframe, either empty or containing a membership list."""
     return memb_lists[child] if child else pd.DataFrame()
 
@@ -294,7 +294,7 @@ def selected_data(child: str):
     Input(component_id="timeline_columns", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_timeline(selected_columns: list, dark_mode: bool):
+def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
     """Update the timeline plotting selected columns."""
     timeline_figure = go.Figure()
     selected_metrics = {}
@@ -332,7 +332,7 @@ def create_timeline(selected_columns: list, dark_mode: bool):
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
-def create_list(date_selected: str, date_compare_selected: str):
+def create_list(date_selected: str, date_compare_selected: str) -> dict:
     """Update the list shown based on the selected membership list date."""
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
@@ -346,7 +346,7 @@ def create_list(date_selected: str, date_compare_selected: str):
     return df.to_dict("records")
 
 
-def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dark_mode: bool):
+def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dark_mode: bool) -> go.Figure:
     """Construct string showing value and change (if comparison data is provided)."""
     column, value, title = plan
     count = df[column].eq(value).sum()
@@ -377,7 +377,7 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dar
     return fig
 
 
-def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mode: bool):
+def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mode: bool) -> go.Figure:
     """Construct string showing retention rate and change vs another date (if comparison data is provided)."""
     migs = df["membership_status"].eq("member in good standing").sum()
     constitutional = df["membership_status"].eq("member").sum()
@@ -422,7 +422,7 @@ def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mo
     Input(component_id="list_compare_dropdown", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bool):
+def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bool) -> (list, go.Figure):
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return "", "", "", ""
@@ -446,7 +446,7 @@ def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bo
     return *metric_count_frames, metric_retention
 
 
-def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: str, ylabel: str, log: bool):
+def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: str, ylabel: str, log: bool) -> go.Figure:
     """Set up html data to show a chart of 1-2 dataframes."""
     chartdf_vc = df_field.value_counts()
     chartdf_compare_vc = df_compare_field.value_counts()
@@ -481,10 +481,13 @@ def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: 
             ),
         ]
     )
+
     if log:
         chart.update_yaxes(type="log")
         ylabel = ylabel + " (Logarithmic)"
+
     chart.update_layout(title=title, yaxis_title=ylabel)
+
     return chart
 
 
@@ -498,7 +501,7 @@ def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: 
     Input(component_id="list_compare_dropdown", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: bool):
+def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: bool) -> ([go.Figure] * 5):
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure()
@@ -563,7 +566,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         False,
     )
 
-    def multiple_choice(df: pd.DataFrame, target_column: str, separator: str):
+    def multiple_choice(df: pd.DataFrame, target_column: str, separator: str) -> pd.DataFrame:
         """Split a character-separated list string into an iterable object."""
         return (
             df[target_column]
@@ -642,4 +645,4 @@ def render_page_content(pathname: str):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=False)
+    app.run_server(debug=True)

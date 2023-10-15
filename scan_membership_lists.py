@@ -16,7 +16,7 @@ memb_lists_metrics = {}
 """Contains data organized as date:value pairs within a dict of original columns names."""
 
 
-def membership_length(date: str, **kwargs):
+def membership_length(date: str, **kwargs) -> int:
     """Return an integer representing how many years between the supplied dates."""
     return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(
         days=365
@@ -135,7 +135,7 @@ def scan_membership_list(filename: str, filepath: str):
                 ]
 
 
-def scan_all_membership_lists():
+def scan_all_membership_lists() -> (str, str):
     """Scan all zip files and call scan_membership_list on each."""
     print(f"Scanning {MEMB_LIST_NAME} for zipped membership lists.")
     files = sorted(
