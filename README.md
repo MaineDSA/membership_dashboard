@@ -38,6 +38,7 @@ The dashboard provides the following features:
 
 - The membership lists should be in the form of zipped CSV files.
 - The code assumes that the membership lists are located in the `maine_membership_list` folder.
-- The membership lists should follow a specific naming convention: `<name>_<YYYYMMDD>.zip` containing a single csv file called `maine_membership_list.csv`.
+- The membership lists should follow a specific naming convention: `maine_membership_list_<YYYYMMDD>.zip` containing a single csv file called `maine_membership_list.csv`.
+- To change this file name to match your chapter, look at the top of the [scan_membership_lists.py](scan_membership_lists.py) file and change the string ```MEMB_LIST_NAME```.
 
 Feel free to explore the code and modify it according to your needs!
