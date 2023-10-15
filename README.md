@@ -19,7 +19,7 @@ python3 -m pip install dash dash-bootstrap-components dash_bootstrap_templates p
 2. Open a terminal and run the following command to start the dashboard:
 
 ```shell
-python3 <path-to-python-file>
+python3 -m membership_dashboard
 ```
 
 3. Open your browser and go to `http://localhost:8050` to view the dashboard.
