@@ -7,10 +7,10 @@ It uses the Dash framework for creating web-based data visualizations.
 
 ## Getting Started
 
-To run this code, you'll need to have Python 3.9, 3.10, or 3.11 installed on your machine. You'll also need to install the required packages by running the following command:
+To run this code, you'll need to have Python 3.9, 3.10, or 3.11 installed on your machine. You'll also need to install the required packages by running the following command from inside the project folder:
 
 ```shell
-python3 -m pip install dash dash-bootstrap-components dash_bootstrap_templates pandas plotly numpy
+python3 -m pip install -r requirements.txt
 ```
 
 ## Usage
