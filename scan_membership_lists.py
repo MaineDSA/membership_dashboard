@@ -50,8 +50,8 @@ def data_cleaning(date_formatted:str) -> pd.DataFrame:
     df["membership_length"] = df["join_date"].apply(membership_length, list_date=date_formatted)
 
     # Standardize other columns
-    for col, default in [("memb_status", "unknown"), ("membership_type", "unknown"),
-                         ("do_not_call", False), ("p2ptext_optout", False), ("race", "unknown"),
+    for col, default in [("membership_type", "unknown"), ("do_not_call", False),
+                         ("p2ptext_optout", False), ("race", "unknown"),
                          ("union_member", "unknown"), ("accommodations", "no")]:
         df[col] = df.get(col, default)
         df[col] = df[col].fillna(default)
