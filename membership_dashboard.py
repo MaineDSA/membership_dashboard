@@ -339,7 +339,7 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
     if not df_compare.empty:
         df = (
             pd.concat([df, df_compare])
-            .reset_index(drop=True)
+            .reset_index(drop=False)
             .drop_duplicates(subset=["actionkit_id", "membership_status", "membership_type"], keep=False)
             .drop_duplicates(subset=["actionkit_id"])
         )
