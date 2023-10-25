@@ -57,12 +57,6 @@ def data_cleaning(date_formatted:str) -> pd.DataFrame:
         df[col] = df[col].fillna(default)
 
     # Standardize membership_status column
-    if ("membership_status" not in df.columns) & ("xdate" in df.columns):
-        df["membership_status"] = np.where(
-            df["xdate"] < date_formatted,
-            "member in good standing",
-            "unknown",
-        )
     df["membership_status"] = (
         df.get("membership_status", "unknown")
         .replace({"annual": "yearly", "expired": "lapsed"})
