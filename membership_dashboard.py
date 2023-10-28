@@ -139,6 +139,7 @@ timeline = html.Div(
             id="membership_timeline",
             style={
                 "display": "inline-block",
+                "height": "90vh",
                 "width": "100%",
                 "padding-left": "-1em",
                 "padding-right": "-1em",
@@ -319,7 +320,8 @@ def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
                     )
                 )
     timeline_figure.update_layout(
-        title="Membership Trends Timeline", yaxis_title="Members"
+        title="Membership Trends Timeline",
+		yaxis_title="Members"
     )
     if not dark_mode:
         timeline_figure["layout"]["template"] = pio.templates["journal"]
@@ -403,7 +405,10 @@ def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mo
         )
 
     fig = go.Figure(
-        data=indicator, layout={"title": "Retention Rate (MIGS / Constitutional)"}
+        data=indicator,
+		layout={
+			"title": "Retention Rate (MIGS / Constitutional)"
+		}
     )
 
     if not dark_mode:
