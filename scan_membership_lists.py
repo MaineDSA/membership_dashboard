@@ -66,7 +66,7 @@ def data_cleaning(date_formatted: str) -> pd.DataFrame:
     # Standardize membership_status column
     df["membership_status"] = (
         df.get("membership_status", "unknown")
-        .replace({"annual": "yearly", "expired": "lapsed"})
+        .replace({"expired": "lapsed"})
         .str.lower()
     )
 
@@ -85,7 +85,9 @@ def data_cleaning(date_formatted: str) -> pd.DataFrame:
 
     # Standardize membership_type column
     df["membership_type"] = np.where(
-        df["xdate"] == "2099-11-01", "lifetime", df["membership_type"].str.lower(),
+        df["xdate"] == "2099-11-01",
+        "lifetime",
+        df["membership_type"].replace({"annual": "yearly"}).str.lower(),
     )
 
     return df
