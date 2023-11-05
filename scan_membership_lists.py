@@ -23,7 +23,7 @@ def membership_length(date: str, **kwargs) -> int:
     )
 
 
-def data_cleaning(date_formatted:str) -> pd.DataFrame:
+def data_cleaning(date_formatted: str) -> pd.DataFrame:
     """Clean and standardize dataframe according to specified rules."""
     df = memb_lists[date_formatted].copy()  # To avoid modifying original data
     # Ensure column names are lowercase
@@ -47,12 +47,19 @@ def data_cleaning(date_formatted:str) -> pd.DataFrame:
     df.set_index("actionkit_id", inplace=True)
 
     # Apply the membership_length function to join_date
-    df["membership_length"] = df["join_date"].apply(membership_length, list_date=date_formatted)
+    df["membership_length"] = df["join_date"].apply(
+        membership_length, list_date=date_formatted
+    )
 
     # Standardize other columns
-    for col, default in [("membership_type", "unknown"), ("do_not_call", False),
-                         ("p2ptext_optout", False), ("race", "unknown"),
-                         ("union_member", "unknown"), ("accommodations", "no")]:
+    for col, default in [
+        ("membership_type", "unknown"),
+        ("do_not_call", False),
+        ("p2ptext_optout", False),
+        ("race", "unknown"),
+        ("union_member", "unknown"),
+        ("accommodations", "no"),
+    ]:
         df[col] = df.get(col, default)
         df[col] = df[col].fillna(default)
 
@@ -113,7 +120,8 @@ def scan_all_membership_lists() -> (str, str):
     """Scan all zip files and call scan_membership_list on each."""
     print(f"Scanning {MEMB_LIST_NAME} for zipped membership lists.")
     files = sorted(
-        glob.glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True), reverse=True
+        glob.glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True),
+        reverse=True,
     )
     for file in files:
         scan_membership_list(os.path.basename(file), os.path.abspath(file))
