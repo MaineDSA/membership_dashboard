@@ -8,6 +8,9 @@ from dash_bootstrap_templates import load_figure_template
 from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input
 from scan_membership_lists import scan_all_membership_lists
 
+
+# A list of colors for graphs.
+# The first and sixth hex codes are used for default and comparison graph bars when comparing dates.
 COLORS = [
     "#ee8cb5",
     "#c693be",
