@@ -5,6 +5,7 @@ import glob
 import zipfile
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 
 MEMB_LIST_NAME = "maine_membership_list"
@@ -104,7 +105,7 @@ def scan_membership_list(filename: str, filepath: str):
 
     with zipfile.ZipFile(filepath) as memb_list_zip:
         with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv") as memb_list:
-            print(f"Loading data from {MEMB_LIST_NAME}.csv in {filename}.")
+            # print(f"Loading data from {MEMB_LIST_NAME}.csv in {filename}.")
             date_formatted = date_from_name.isoformat()
 
             memb_lists[date_formatted] = pd.read_csv(memb_list, header=0)
@@ -120,12 +121,12 @@ def scan_membership_list(filename: str, filepath: str):
 
 def scan_all_membership_lists() -> (str, str):
     """Scan all zip files and call scan_membership_list on each."""
-    print(f"Scanning {MEMB_LIST_NAME} for zipped membership lists.")
+    print(f"Scanning {MEMB_LIST_NAME}/ for zipped membership lists.")
     files = sorted(
         glob.glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True),
         reverse=True,
     )
-    for file in files:
+    for file in tqdm(files, unit='lists'):
         scan_membership_list(os.path.basename(file), os.path.abspath(file))
 
     return memb_lists, memb_lists_metrics
