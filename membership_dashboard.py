@@ -371,7 +371,7 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dar
             delta={
                 "position": "top",
                 "reference": count_compare,
-                "valueformat": ".2",
+                "valueformat": ".2f",
             },
         )
 
