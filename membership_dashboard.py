@@ -167,7 +167,9 @@ member_list_page = html.Div(
                 {"column_id": "first_name", "direction": "asc"},
             ],
             filter_action="native",
-            filter_options={"case": "insensitive"},
+            filter_options={
+				"case": "insensitive"
+			},
             export_format="csv",
             page_size=20,
             style_table={
