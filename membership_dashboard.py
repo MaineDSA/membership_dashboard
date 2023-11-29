@@ -405,7 +405,11 @@ def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mo
         indicator = go.Indicator(
             mode="number+delta",
             value=rate,
-            delta={"position": "top", "reference": rate_compare, "valueformat": ".2"},
+            delta={
+				"position": "top",
+				"reference": rate_compare,
+				"valueformat": ".2"
+			},
             number={"suffix": "%"},
         )
 
