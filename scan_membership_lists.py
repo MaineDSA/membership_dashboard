@@ -119,7 +119,7 @@ def scan_membership_list(filename: str, filepath: str):
                 ]
 
 
-def scan_all_membership_lists() -> (str, str):
+def scan_all_membership_lists() -> (dict, dict):
     """Scan all zip files and call scan_membership_list on each."""
     print(f"Scanning zipped membership lists in ./{MEMB_LIST_NAME}/.")
     files = sorted(
