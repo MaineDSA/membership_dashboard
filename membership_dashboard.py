@@ -6,7 +6,8 @@ import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input
-from scan_membership_lists import scan_all_membership_lists
+from scan_membership_lists import get_all_membership_lists, get_membership_list_metrics
+#from scan_membership_lists import scan_all_membership_lists, scan_membership_list_metrics
 
 
 # A list of colors for graphs.
@@ -27,7 +28,8 @@ COLORS = [
 ]
 
 
-memb_lists, memb_lists_metrics = scan_all_membership_lists()
+memb_lists = get_all_membership_lists()
+memb_lists_metrics = get_membership_list_metrics()
 
 
 # Initialize the app
@@ -168,8 +170,8 @@ member_list_page = html.Div(
             ],
             filter_action="native",
             filter_options={
-				"case": "insensitive"
-			},
+                "case": "insensitive"
+            },
             export_format="csv",
             page_size=20,
             style_table={
@@ -326,7 +328,7 @@ def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
                 )
     timeline_figure.update_layout(
         title="Membership Trends Timeline",
-		yaxis_title="Members"
+        yaxis_title="Members"
     )
     if not dark_mode:
         timeline_figure["layout"]["template"] = pio.templates["journal"]
@@ -406,18 +408,18 @@ def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mo
             mode="number+delta",
             value=rate,
             delta={
-				"position": "top",
-				"reference": rate_compare,
-				"valueformat": ".2"
-			},
+                "position": "top",
+                "reference": rate_compare,
+                "valueformat": ".2"
+            },
             number={"suffix": "%"},
         )
 
     fig = go.Figure(
         data=indicator,
-		layout={
-			"title": "Retention Rate (MIGS / Constitutional)"
-		}
+        layout={
+            "title": "Retention Rate (MIGS / Constitutional)"
+        }
     )
 
     if not dark_mode:
