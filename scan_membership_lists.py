@@ -2,6 +2,7 @@
 
 import os
 import glob
+import pickle
 import zipfile
 import numpy as np
 import pandas as pd
@@ -71,6 +72,7 @@ def data_cleaning(date_formatted: str) -> pd.DataFrame:
         .str.lower()
     )
 
+    # Standardize accommodations column
     df["accommodations"] = (
         df.get("accommodations", "no")
         .str.lower()
@@ -95,7 +97,7 @@ def data_cleaning(date_formatted: str) -> pd.DataFrame:
 
 
 def scan_membership_list(filename: str, filepath: str):
-    """Scan the requested membership list and add data to memb_lists and memb_lists_metrics."""
+    """Scan the requested membership list and add data to memb_lists."""
     date_from_name = pd.to_datetime(
         os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
     ).date()
@@ -111,15 +113,41 @@ def scan_membership_list(filename: str, filepath: str):
             memb_lists[date_formatted] = pd.read_csv(memb_list, header=0)
             memb_lists[date_formatted] = data_cleaning(date_formatted)
 
-            for column in memb_lists[date_formatted].columns:
-                if column not in memb_lists_metrics:
-                    memb_lists_metrics[column] = {}
-                memb_lists_metrics[column][date_formatted] = memb_lists[date_formatted][
-                    column
-                ]
+
+def scan_membership_list_metrics() -> (dict):
+    """Scan memb_lists and calculate metrics."""
+    print(f"Calculating metrics for {len(memb_lists)} membership lists")
+    for date_formatted, membership_list in tqdm(memb_lists.items(), unit='lists'):
+        for column in membership_list.columns:
+            if column not in memb_lists_metrics:
+                memb_lists_metrics[column] = {}
+            memb_lists_metrics[column][date_formatted] = memb_lists[date_formatted][
+                column
+            ]
+
+    # Pickle the scanned and calculated metrics
+    with open(f'{MEMB_LIST_NAME}_metrics.pkl', 'wb') as pickled_file:
+        pickle.dump(memb_lists_metrics, pickled_file)
+
+    return memb_lists_metrics
 
 
-def scan_all_membership_lists() -> (dict, dict):
+def get_membership_list_metrics() -> (dict):
+    """Return the last calculated metrics."""
+    try:
+        with open(f'{MEMB_LIST_NAME}_metrics.pkl', 'rb') as pickled_file:
+            pickled_dict = pickle.load(pickled_file)
+            if len(pickled_dict) > 0:
+                return pickled_dict
+            else:
+                return scan_membership_list_metrics()
+    except FileNotFoundError:
+        return scan_membership_list_metrics()
+
+    return {}
+
+
+def scan_all_membership_lists() -> (dict):
     """Scan all zip files and call scan_membership_list on each."""
     print(f"Scanning zipped membership lists in ./{MEMB_LIST_NAME}/.")
     files = sorted(
@@ -129,4 +157,25 @@ def scan_all_membership_lists() -> (dict, dict):
     for file in tqdm(files, unit='lists'):
         scan_membership_list(os.path.basename(file), os.path.abspath(file))
 
-    return memb_lists, memb_lists_metrics
+    # Pickle the scanned and processed lists
+    with open(f'{MEMB_LIST_NAME}.pkl', 'wb') as pickled_file:
+        pickle.dump(memb_lists, pickled_file)
+
+    scan_membership_list_metrics()
+
+    return memb_lists
+
+
+def get_all_membership_lists() -> (dict):
+    """Return the last scanned membership lists."""
+    try:
+        with open(f'{MEMB_LIST_NAME}.pkl', 'rb') as pickled_file:
+            pickled_dict = pickle.load(pickled_file)
+            if len(pickled_dict) > 0:
+                return pickled_dict
+            else:
+                return scan_all_membership_lists()
+    except FileNotFoundError:
+        return scan_all_membership_lists()
+
+    return {}
