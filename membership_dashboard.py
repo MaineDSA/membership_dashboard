@@ -62,7 +62,9 @@ sidebar_header = dbc.Row(
                 dbc.Row(
                     [
                         dbc.Col(
-                            dbc.Label(className="fa fa-sun", html_for="color-mode-switch")
+                            dbc.Label(
+                                className="fa fa-sun", html_for="color-mode-switch"
+                            )
                         ),
                         dbc.Col(
                             dbc.Switch(
@@ -73,7 +75,9 @@ sidebar_header = dbc.Row(
                             )
                         ),
                         dbc.Col(
-                            dbc.Label(className="fa fa-moon", html_for="color-mode-switch")
+                            dbc.Label(
+                                className="fa fa-moon", html_for="color-mode-switch"
+                            )
                         ),
                     ],
                     className="g-0",
@@ -178,9 +182,7 @@ member_list_page = html.Div(
                 {"column_id": "first_name", "direction": "asc"},
             ],
             filter_action="native",
-            filter_options={
-                "case": "insensitive"
-            },
+            filter_options={"case": "insensitive"},
             export_format="csv",
             page_size=20,
             style_table={
@@ -336,8 +338,7 @@ def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
                     )
                 )
     timeline_figure.update_layout(
-        title="Membership Trends Timeline",
-        yaxis_title="Members"
+        title="Membership Trends Timeline", yaxis_title="Members"
     )
     if not dark_mode:
         timeline_figure["layout"]["template"] = pio.templates["journal"]
@@ -358,7 +359,10 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
         df = (
             pd.concat([df, df_compare])
             .reset_index(drop=False)
-            .drop_duplicates(subset=["actionkit_id", "membership_status", "membership_type"], keep=False)
+            .drop_duplicates(
+                subset=["actionkit_id", "membership_status", "membership_type"],
+                keep=False,
+            )
             .drop_duplicates(subset=["actionkit_id"])
         )
     return df.to_dict("records")
@@ -416,19 +420,12 @@ def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mo
         indicator = go.Indicator(
             mode="number+delta",
             value=rate,
-            delta={
-                "position": "top",
-                "reference": rate_compare,
-                "valueformat": ".2"
-            },
+            delta={"position": "top", "reference": rate_compare, "valueformat": ".2"},
             number={"suffix": "%"},
         )
 
     fig = go.Figure(
-        data=indicator,
-        layout={
-            "title": "Retention Rate (MIGS / Constitutional)"
-        }
+        data=indicator, layout={"title": "Retention Rate (MIGS / Constitutional)"}
     )
 
     if not dark_mode:
