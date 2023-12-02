@@ -139,8 +139,7 @@ def get_membership_list_metrics() -> (dict):
             pickled_dict = pickle.load(pickled_file)
             if len(pickled_dict) > 0:
                 return pickled_dict
-            else:
-                return scan_membership_list_metrics()
+            return scan_membership_list_metrics()
     except FileNotFoundError:
         return scan_membership_list_metrics()
 
@@ -173,8 +172,7 @@ def get_all_membership_lists() -> (dict):
             pickled_dict = pickle.load(pickled_file)
             if len(pickled_dict) > 0:
                 return pickled_dict
-            else:
-                return scan_all_membership_lists()
+            return scan_all_membership_lists()
     except FileNotFoundError:
         return scan_all_membership_lists()
 
