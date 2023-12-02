@@ -58,18 +58,27 @@ sidebar_header = dbc.Row(
             align="center",
         ),
         dbc.Col(
-            html.Span(
-                [
-                    # dbc.Label(className="fa fa-sun", html_for="color-mode-switch"),
-                    dbc.Switch(
-                        id="color-mode-switch",
-                        value=True,
-                        className="d-inline-block ms-1",
-                        persistence=True,
-                    ),
-                    dbc.Label(className="fa fa-moon", html_for="color-mode-switch"),
-                ]
-            ),
+            [
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            dbc.Label(className="fa fa-sun", html_for="color-mode-switch")
+                        ),
+                        dbc.Col(
+                            dbc.Switch(
+                                id="color-mode-switch",
+                                value=True,
+                                className="d-inline-block ms-1",
+                                persistence=True,
+                            )
+                        ),
+                        dbc.Col(
+                            dbc.Label(className="fa fa-moon", html_for="color-mode-switch")
+                        ),
+                    ],
+                    className="g-0",
+                )
+            ],
             width="auto",
             align="center",
         ),
@@ -629,12 +638,15 @@ clientside_callback(
        return window.dash_clientside.no_update
     }
     """,
-    Output("color-mode-switch", "id"),
-    Input("color-mode-switch", "value"),
+    Output(component_id="color-mode-switch", component_property="id"),
+    Input(component_id="color-mode-switch", component_property="value"),
 )
 
 
-@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
+@app.callback(
+    Output(component_id="page-content", component_property="children"),
+    Input(component_id="url", component_property="pathname"),
+)
 def render_page_content(pathname: str):
     """Display the correct page based on the user's navigation path."""
     if pathname == "/":
@@ -649,6 +661,7 @@ def render_page_content(pathname: str):
         return html.P(
             "Implementation of a map is planned: https://github.com/MaineDSA/MembershipDashboard/issues/8."
         )
+
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
         [
