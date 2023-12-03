@@ -32,6 +32,7 @@ memb_lists = get_all_membership_lists()
 memb_lists_metrics = get_membership_list_metrics()
 
 
+# pylint: disable-next=consider-using-with
 px.set_mapbox_access_token(open(".mapbox_token", encoding="utf8").read())
 
 
