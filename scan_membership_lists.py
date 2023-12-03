@@ -38,6 +38,15 @@ def data_cleaning(date_formatted: str) -> pd.DataFrame:
         "ak_id": "actionkit_id",
         "accomodations": "accommodations",
         "annual_recurring_dues_status": "yearly_dues_status",
+        # before fall of 2023
+        "mailing_address1": "address1",
+        "mailing_address2": "address2",
+        "mailing_city": "city",
+        "mailing_state": "state",
+        "mailing_zip": "zip",
+        # old 2020-era lists
+        "address_line_1": "address1",
+        "address_line_2": "address2",
     }
 
     # Rename the old columns to new names
@@ -56,6 +65,7 @@ def data_cleaning(date_formatted: str) -> pd.DataFrame:
     # Standardize other columns
     for col, default in [
         ("membership_type", "unknown"),
+        ("address2", ""),
         ("do_not_call", False),
         ("p2ptext_optout", False),
         ("race", "unknown"),
