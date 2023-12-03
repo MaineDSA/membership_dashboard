@@ -643,7 +643,7 @@ def create_map(date_selected: str, dark_mode: bool):
     """Set up html data to show a map of Maine DSA members."""
     df_map = selected_data(date_selected)
     df_map[["lon", "lat"]] = pd.DataFrame(
-        df_map["latlong"].tolist(), index=df_map.index
+        df_map["latlon"].tolist(), index=df_map.index
     )
 
     map_figure = px.scatter_mapbox(
@@ -720,4 +720,4 @@ def render_page_content(pathname: str):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=False)
+    app.run_server(debug=True)
