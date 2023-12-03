@@ -643,9 +643,6 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
 def create_map(date_selected: str, dark_mode: bool):
     """Set up html data to show a map of Maine DSA members."""
     df_map = selected_data(date_selected)
-    df_map[["lon", "lat"]] = pd.DataFrame(
-        df_map["latlon"].tolist(), index=df_map.index
-    )
 
     map_figure = px.scatter_mapbox(
         df_map,

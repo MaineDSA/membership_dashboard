@@ -123,7 +123,9 @@ def data_cleaning(date_formatted: str) -> pd.DataFrame:
 
     # Create full address
     tqdm.pandas(unit="comrades", leave=False)
-    df["latlon"] = (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding)
+    df[["lon", "lat"]] = pd.DataFrame(
+        (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding).tolist(), index=df.index
+    )
 
     return df
 
