@@ -20,6 +20,7 @@ memb_lists_metrics = {}
 """Contains data organized as date:value pairs within a dict of original columns names."""
 
 
+# pylint: disable-next=consider-using-with
 geocoder = Geocoder(access_token=open(".mapbox_token", encoding="utf8").read())
 
 
