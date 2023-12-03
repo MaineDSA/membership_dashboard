@@ -7,6 +7,7 @@ import zipfile
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from mapbox import Geocoder
 
 
 MEMB_LIST_NAME = "maine_membership_list"
@@ -18,11 +19,25 @@ memb_lists_metrics = {}
 """Contains data organized as date:value pairs within a dict of original columns names."""
 
 
+geocoder = Geocoder(access_token=open(".mapbox_token", encoding="utf8").read())
+
+
 def membership_length(date: str, **kwargs) -> int:
     """Return an integer representing how many years between the supplied dates."""
     return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(
         days=365
     )
+
+
+def get_geocoding(address: str) -> list:
+    """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API"""
+    if not isinstance(address, str):
+        return []
+
+    response = geocoder.forward(address, country=["us"])
+    latlong = response.geojson()["features"][0]["center"]
+
+    return latlong
 
 
 def data_cleaning(date_formatted: str) -> pd.DataFrame:
@@ -102,6 +117,10 @@ def data_cleaning(date_formatted: str) -> pd.DataFrame:
         "lifetime",
         df["membership_type"].replace({"annual": "yearly"}).str.lower(),
     )
+
+    # Create full address
+    tqdm.pandas(unit="comrades", leave=False)
+    df["latlong"] = (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding)
 
     return df
 

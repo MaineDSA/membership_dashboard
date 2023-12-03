@@ -3,6 +3,7 @@ research/*
 *_membership_list*/*
 *.zip
 *.pkl
+.mapbox_token
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
