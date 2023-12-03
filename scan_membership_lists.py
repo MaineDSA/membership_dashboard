@@ -1,6 +1,7 @@
 """Parse all membership lists into pandas dataframes for display on dashboard"""
 
 import os
+import time
 import glob
 import pickle
 import zipfile
@@ -36,6 +37,7 @@ def get_geocoding(address: str) -> list:
 
     response = geocoder.forward(address, country=["us"])
     latlong = response.geojson()["features"][0]["center"]
+    time.sleep(0.01) # free tier rate limit is 600/min
 
     return latlong
 
