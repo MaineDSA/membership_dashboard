@@ -28,12 +28,17 @@ COLORS = [
 ]
 
 
+def get_mapbox_token() -> str:
+    """Read and return mapbox token from .mapbox_token file"""
+    with open(".mapbox_token", encoding="utf8").read() as mapbox_token:
+        return mapbox_token
+        
+
+px.set_mapbox_access_token(get_mapbox_token())
+
+
 memb_lists = get_all_membership_lists()
 memb_lists_metrics = get_membership_list_metrics()
-
-
-# pylint: disable-next=consider-using-with
-px.set_mapbox_access_token(open(".mapbox_token", encoding="utf8").read())
 
 
 # Initialize the app
@@ -663,17 +668,17 @@ def create_map(date_selected: str, selected_column: str, dark_mode: bool):
             "email": True,
             "membership_type": True,
             "membership_status": True,
-			"membership_length": True,
-			"xdate": True,
-			"lat": False,
-			"lon": False,
-		},
+            "membership_length": True,
+            "xdate": True,
+            "lat": False,
+            "lon": False,
+        },
         color=df_map[selected_column],
         color_discrete_sequence=COLORS,
         zoom=6,
         height=1100,
-		mapbox_style="dark",
-		template=pio.templates["darkly"],
+        mapbox_style="dark",
+        template=pio.templates["darkly"],
     )
 
     if not dark_mode:
