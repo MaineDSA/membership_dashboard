@@ -20,13 +20,8 @@ memb_lists_metrics = {}
 """Contains data organized as date:value pairs within a dict of original columns names."""
 
 
-def get_mapbox_token() -> str:
-    """Read and return mapbox token from .mapbox_token file"""
-    with open(".mapbox_token", encoding="utf8").read() as mapbox_token:
-        return mapbox_token
-
-
-geocoder = Geocoder(access_token=get_mapbox_token())
+# pylint: disable-next=consider-using-with
+geocoder = Geocoder(access_token=open(".mapbox_token", encoding="utf8").read())
 
 
 def membership_length(date: str, **kwargs) -> int:
