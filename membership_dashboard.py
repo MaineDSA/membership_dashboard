@@ -304,6 +304,12 @@ graphs = html.Div(
 member_map = html.Div(
     id="map-container",
     children=[
+        dcc.Dropdown(
+            options=list(memb_lists_metrics.keys()),
+            value="membership_status",
+            multi=False,
+            id="map_column",
+        ),
         dcc.Graph(
             figure=go.Figure(),
             id="membership_map",
@@ -638,9 +644,10 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
 @callback(
     Output(component_id="membership_map", component_property="figure"),
     Input(component_id="list_dropdown", component_property="value"),
+    Input(component_id="map_column", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_map(date_selected: str, dark_mode: bool):
+def create_map(date_selected: str, selected_column: str, dark_mode: bool):
     """Set up html data to show a map of Maine DSA members."""
     df_map = selected_data(date_selected)
 
@@ -648,23 +655,30 @@ def create_map(date_selected: str, dark_mode: bool):
         df_map,
         lat="lat",
         lon="lon",
-        hover_name="first_name",
-        hover_data=[
-            "first_name",
-            "last_name",
-            "best_phone",
-            "membership_type",
-            "membership_status",
-        ],
-        color="membership_status",
+        hover_name=df_map.index,
+        hover_data={
+            "first_name": True,
+            "last_name": True,
+            "best_phone": True,
+            "email": True,
+            "membership_type": True,
+            "membership_status": True,
+			"membership_length": True,
+			"xdate": True,
+			"lat": False,
+			"lon": False,
+		},
+        color=df_map[selected_column],
         color_discrete_sequence=COLORS,
         zoom=6,
         height=1100,
+		mapbox_style="dark",
+		template=pio.templates["darkly"],
     )
-    display_mode = "light"
-    if dark_mode:
-        display_mode = "dark"
-    map_figure.update_layout(mapbox_style=display_mode)
+
+    if not dark_mode:
+        map_figure.update_layout(mapbox_style="light", template=pio.templates["journal"])
+
     map_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
     return map_figure
