@@ -1,8 +1,8 @@
 """Construct a membership dashboard showing various graphs and metrics to illustrate changes over time."""
 
+from pathlib import Path
 import pandas as pd
 import plotly.io as pio
-from pathlib import Path
 import plotly.express as px
 import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
@@ -33,7 +33,7 @@ memb_lists = get_all_membership_lists()
 memb_lists_metrics = get_membership_list_metrics()
 
 
-px.set_mapbox_access_token(Path(".mapbox_token").read_text())
+px.set_mapbox_access_token(Path(".mapbox_token").read_text(encoding="UTF-8"))
 
 
 # Initialize the app

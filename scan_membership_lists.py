@@ -5,10 +5,10 @@ import time
 import glob
 import pickle
 import zipfile
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from pathlib import Path
 from mapbox import Geocoder
 
 
@@ -21,7 +21,7 @@ memb_lists_metrics = {}
 """Contains data organized as date:value pairs within a dict of original columns names."""
 
 
-geocoder = Geocoder(access_token=Path(".mapbox_token").read_text())
+geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
 
 
 def membership_length(date: str, **kwargs) -> int:
