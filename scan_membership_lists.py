@@ -146,7 +146,7 @@ def scan_membership_list(filename: str, filepath: str):
 def scan_membership_list_metrics() -> (dict):
     """Scan memb_lists and calculate metrics."""
     print(f"Calculating metrics for {len(memb_lists)} membership lists")
-    for date_formatted, membership_list in tqdm(memb_lists.items(), unit='lists'):
+    for date_formatted, membership_list in memb_lists.items():
         for column in membership_list.columns:
             if column not in memb_lists_metrics:
                 memb_lists_metrics[column] = {}
