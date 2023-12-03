@@ -2,6 +2,7 @@
 
 import pandas as pd
 import plotly.io as pio
+from pathlib import Path
 import plotly.express as px
 import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
@@ -32,8 +33,7 @@ memb_lists = get_all_membership_lists()
 memb_lists_metrics = get_membership_list_metrics()
 
 
-# pylint: disable-next=consider-using-with
-px.set_mapbox_access_token(open(".mapbox_token", encoding="utf8").read())
+px.set_mapbox_access_token(Path(".mapbox_token").read_text())
 
 
 # Initialize the app

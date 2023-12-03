@@ -8,6 +8,7 @@ import zipfile
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from pathlib import Path
 from mapbox import Geocoder
 
 
@@ -20,8 +21,7 @@ memb_lists_metrics = {}
 """Contains data organized as date:value pairs within a dict of original columns names."""
 
 
-# pylint: disable-next=consider-using-with
-geocoder = Geocoder(access_token=open(".mapbox_token", encoding="utf8").read())
+geocoder = Geocoder(access_token=Path(".mapbox_token").read_text())
 
 
 def membership_length(date: str, **kwargs) -> int:
