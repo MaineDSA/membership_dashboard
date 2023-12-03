@@ -2,12 +2,12 @@
 
 import pandas as pd
 import plotly.io as pio
+import plotly.express as px
 import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input
 from scan_membership_lists import get_all_membership_lists, get_membership_list_metrics
-#from scan_membership_lists import scan_all_membership_lists, scan_membership_list_metrics
 
 
 # A list of colors for graphs.
@@ -30,6 +30,9 @@ COLORS = [
 
 memb_lists = get_all_membership_lists()
 memb_lists_metrics = get_membership_list_metrics()
+
+
+px.set_mapbox_access_token(open(".mapbox_token", encoding="utf8").read())
 
 
 # Initialize the app
@@ -293,6 +296,16 @@ graphs = html.Div(
                     width=6,
                 ),
             ]
+        ),
+    ],
+)
+
+member_map = html.Div(
+    id="map-container",
+    children=[
+        dcc.Graph(
+            figure=go.Figure(),
+            id="membership_map",
         ),
     ],
 )
@@ -621,6 +634,44 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
     return chart1, chart2, chart3, chart4, chart5
 
 
+@callback(
+    Output(component_id="membership_map", component_property="figure"),
+    Input(component_id="list_dropdown", component_property="value"),
+    Input(component_id="color-mode-switch", component_property="value"),
+)
+def create_map(date_selected: str, dark_mode: bool):
+    """Set up html data to show a map of Maine DSA members."""
+    df_map = selected_data(date_selected)
+    df_map[["lon", "lat"]] = pd.DataFrame(
+        df_map["latlong"].tolist(), index=df_map.index
+    )
+
+    map_figure = px.scatter_mapbox(
+        df_map,
+        lat="lat",
+        lon="lon",
+        hover_name="first_name",
+        hover_data=[
+            "first_name",
+            "last_name",
+            "best_phone",
+            "membership_type",
+            "membership_status",
+        ],
+        color="membership_status",
+        color_discrete_sequence=COLORS,
+        zoom=6,
+        height=1100,
+    )
+    display_mode = "light"
+    if dark_mode:
+        display_mode = "dark"
+    map_figure.update_layout(mapbox_style=display_mode)
+    map_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+
+    return map_figure
+
+
 ##
 ## Sidebar
 ##
@@ -655,9 +706,7 @@ def render_page_content(pathname: str):
     if pathname == "/graphs":
         return graphs
     if pathname == "/map":
-        return html.P(
-            "Implementation of a map is planned: https://github.com/MaineDSA/MembershipDashboard/issues/8."
-        )
+        return member_map
 
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
