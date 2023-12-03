@@ -155,7 +155,7 @@ def scan_membership_list_metrics() -> (dict):
             ]
 
     # Pickle the scanned and calculated metrics
-    with open(f'{MEMB_LIST_NAME}_metrics.pkl', 'wb') as pickled_file:
+    with open(f"{MEMB_LIST_NAME}_metrics.pkl", "wb") as pickled_file:
         pickle.dump(memb_lists_metrics, pickled_file)
 
     return memb_lists_metrics
@@ -164,7 +164,7 @@ def scan_membership_list_metrics() -> (dict):
 def get_membership_list_metrics() -> (dict):
     """Return the last calculated metrics."""
     try:
-        with open(f'{MEMB_LIST_NAME}_metrics.pkl', 'rb') as pickled_file:
+        with open(f"{MEMB_LIST_NAME}_metrics.pkl", "rb") as pickled_file:
             pickled_dict = pickle.load(pickled_file)
             if len(pickled_dict) > 0:
                 return pickled_dict
@@ -182,11 +182,11 @@ def scan_all_membership_lists() -> (dict):
         glob.glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True),
         reverse=True,
     )
-    for file in tqdm(files, unit='lists'):
+    for file in tqdm(files, unit="lists"):
         scan_membership_list(os.path.basename(file), os.path.abspath(file))
 
     # Pickle the scanned and processed lists
-    with open(f'{MEMB_LIST_NAME}.pkl', 'wb') as pickled_file:
+    with open(f"{MEMB_LIST_NAME}.pkl", "wb") as pickled_file:
         pickle.dump(memb_lists, pickled_file)
 
     scan_membership_list_metrics()
@@ -197,7 +197,7 @@ def scan_all_membership_lists() -> (dict):
 def get_all_membership_lists() -> (dict):
     """Return the last scanned membership lists."""
     try:
-        with open(f'{MEMB_LIST_NAME}.pkl', 'rb') as pickled_file:
+        with open(f"{MEMB_LIST_NAME}.pkl", "rb") as pickled_file:
             pickled_dict = pickle.load(pickled_file)
             if len(pickled_dict) > 0:
                 return pickled_dict
