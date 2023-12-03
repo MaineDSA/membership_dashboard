@@ -167,7 +167,7 @@ timeline = html.Div(
     ],
 )
 
-member_list_page = html.Div(
+member_list = html.Div(
     id="list-container",
     children=[
         dash_table.DataTable(
@@ -649,7 +649,7 @@ def render_page_content(pathname: str):
     if pathname == "/":
         return timeline
     if pathname == "/list":
-        return member_list_page
+        return member_list
     if pathname == "/metrics":
         return metrics
     if pathname == "/graphs":

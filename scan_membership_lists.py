@@ -37,10 +37,10 @@ def get_geocoding(address: str) -> list:
         return []
 
     response = geocoder.forward(address, country=["us"])
-    latlong = response.geojson()["features"][0]["center"]
+    latlon = response.geojson()["features"][0]["center"]
     time.sleep(0.01) # free tier rate limit is 600/min
 
-    return latlong
+    return latlon
 
 
 def data_cleaning(date_formatted: str) -> pd.DataFrame:
@@ -123,7 +123,7 @@ def data_cleaning(date_formatted: str) -> pd.DataFrame:
 
     # Create full address
     tqdm.pandas(unit="comrades", leave=False)
-    df["latlong"] = (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding)
+    df["latlon"] = (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding)
 
     return df
 
