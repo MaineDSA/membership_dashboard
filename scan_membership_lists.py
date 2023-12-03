@@ -184,7 +184,7 @@ def scan_all_membership_lists() -> (dict):
         glob.glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True),
         reverse=True,
     )
-    for file in tqdm(files, unit="lists"):
+    for file in tqdm(files, unit="list"):
         scan_membership_list(os.path.basename(file), os.path.abspath(file))
 
     # Pickle the scanned and processed lists
