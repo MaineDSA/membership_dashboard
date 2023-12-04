@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from mapbox import Geocoder
-from ratelimit import limits
+from ratelimit import limits, sleep_and_retry
 
 
 MEMB_LIST_NAME = "maine_membership_list"
@@ -31,6 +31,7 @@ def membership_length(date: str, **kwargs) -> int:
     )
 
 
+@sleep_and_retry
 @limits(calls=600, period=60)
 def get_geocoding(address: str) -> list:
     """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API"""
