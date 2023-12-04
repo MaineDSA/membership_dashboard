@@ -1,7 +1,6 @@
 """Parse all membership lists into pandas dataframes for display on dashboard"""
 
 import os
-import time
 import glob
 import pickle
 import zipfile
@@ -10,6 +9,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from mapbox import Geocoder
+from ratelimit import limits
 
 
 MEMB_LIST_NAME = "maine_membership_list"
@@ -31,6 +31,7 @@ def membership_length(date: str, **kwargs) -> int:
     )
 
 
+@limits(calls=600, period=60)
 def get_geocoding(address: str) -> list:
     """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API"""
     if not isinstance(address, str):
@@ -38,7 +39,6 @@ def get_geocoding(address: str) -> list:
 
     response = geocoder.forward(address, country=["us"])
     latlon = response.geojson()["features"][0]["center"]
-    time.sleep(0.01) # free tier rate limit is 600/min
 
     return latlon
 
