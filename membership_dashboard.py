@@ -6,8 +6,7 @@ import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input
-from scan_membership_lists import get_all_membership_lists, get_membership_list_metrics
-#from scan_membership_lists import scan_all_membership_lists, scan_membership_list_metrics
+from scan_membership_lists import get_membership_lists, get_membership_list_metrics
 
 
 # A list of colors for graphs.
@@ -28,8 +27,8 @@ COLORS = [
 ]
 
 
-memb_lists = get_all_membership_lists()
-memb_lists_metrics = get_membership_list_metrics()
+memb_lists = get_membership_lists()
+memb_lists_metrics = get_membership_list_metrics(memb_lists)
 
 
 # Initialize the app
