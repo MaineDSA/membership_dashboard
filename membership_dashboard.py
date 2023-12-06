@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input
-from scan_membership_lists import get_membership_lists, get_membership_list_metrics
+from scan_membership_lists import get_membership_lists
 
 
 # A list of colors for graphs.
@@ -29,8 +29,25 @@ COLORS = [
 ]
 
 
-
 px.set_mapbox_access_token(Path(".mapbox_token").read_text(encoding="UTF-8"))
+
+
+def get_membership_list_metrics(members: pd.DataFrame) -> dict:
+    """Scan memb_lists and calculate metrics."""
+    members_metrics = {}
+
+    print(f"Calculating metrics for {len(members)} membership lists")
+    for date_formatted, membership_list in members.items():
+        for column in membership_list.columns:
+            if column not in members_metrics:
+                members_metrics[column] = {}
+            members_metrics[column][date_formatted] = members[date_formatted][
+                column
+            ]
+
+    return members_metrics
+
+
 memb_lists = get_membership_lists()
 memb_lists_metrics = get_membership_list_metrics(memb_lists)
 
@@ -345,13 +362,13 @@ def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
                 if value not in selected_metrics[selected_column]:
                     selected_metrics[selected_column][value] = {}
                 selected_metrics[selected_column][value][date] = count
-        for _, metric in selected_metrics.items():
-            for count, value in enumerate(metric):
+        for _, timeline_metric in selected_metrics.items():
+            for count, value in enumerate(timeline_metric):
                 timeline_figure.add_trace(
                     go.Scatter(
                         name=value,
-                        x=list(metric[value].keys()),
-                        y=list(metric[value].values()),
+                        x=list(timeline_metric[value].keys()),
+                        y=list(timeline_metric[value].values()),
                         mode="lines",
                         marker_color=COLORS[count % len(COLORS)],
                     )

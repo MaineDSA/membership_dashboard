@@ -15,22 +15,6 @@ from ratelimit import limits, sleep_and_retry
 MEMB_LIST_NAME = "maine_membership_list"
 
 
-def get_membership_list_metrics(memb_lists: pd.DataFrame) -> dict:
-    """Scan memb_lists and calculate metrics."""
-    memb_lists_metrics = {}
-
-    print(f"Calculating metrics for {len(memb_lists)} membership lists")
-    for date_formatted, membership_list in memb_lists.items():
-        for column in membership_list.columns:
-            if column not in memb_lists_metrics:
-                memb_lists_metrics[column] = {}
-            memb_lists_metrics[column][date_formatted] = memb_lists[date_formatted][
-                column
-            ]
-
-    return memb_lists_metrics
-
-
 geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
 
 
