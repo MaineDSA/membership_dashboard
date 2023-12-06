@@ -680,6 +680,7 @@ def create_map(date_selected: str, selected_column: str, dark_mode: bool):
             "membership_type": True,
             "membership_status": True,
             "membership_length": True,
+            "join_date": True,
             "xdate": True,
             "lat": False,
             "lon": False,
