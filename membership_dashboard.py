@@ -1,12 +1,14 @@
 """Construct a membership dashboard showing various graphs and metrics to illustrate changes over time."""
 
+from pathlib import Path
 import pandas as pd
 import plotly.io as pio
+import plotly.express as px
 import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 from dash import Dash, html, dash_table, dcc, callback, clientside_callback, Output, Input
-from scan_membership_lists import get_membership_lists, get_membership_list_metrics
+from scan_membership_lists import get_membership_lists
 
 
 # A list of colors for graphs.
@@ -25,6 +27,25 @@ COLORS = [
     "#f3aa79",
     "#f0959e",
 ]
+
+
+px.set_mapbox_access_token(Path(".mapbox_token").read_text(encoding="UTF-8"))
+
+
+def get_membership_list_metrics(members: pd.DataFrame) -> dict:
+    """Scan memb_lists and calculate metrics."""
+    members_metrics = {}
+
+    print(f"Calculating metrics for {len(members)} membership lists")
+    for date_formatted, membership_list in members.items():
+        for column in membership_list.columns:
+            if column not in members_metrics:
+                members_metrics[column] = {}
+            members_metrics[column][date_formatted] = members[date_formatted][
+                column
+            ]
+
+    return members_metrics
 
 
 memb_lists = get_membership_lists()
@@ -166,7 +187,7 @@ timeline = html.Div(
     ],
 )
 
-member_list_page = html.Div(
+member_list = html.Div(
     id="list-container",
     children=[
         dash_table.DataTable(
@@ -296,6 +317,22 @@ graphs = html.Div(
     ],
 )
 
+member_map = html.Div(
+    id="map-container",
+    children=[
+        dcc.Dropdown(
+            options=list(memb_lists_metrics.keys()),
+            value="membership_status",
+            multi=False,
+            id="map_column",
+        ),
+        dcc.Graph(
+            figure=go.Figure(),
+            id="membership_map",
+        ),
+    ],
+)
+
 
 def selected_data(child: str) -> pd.DataFrame:
     """Return a pandas dataframe, either empty or containing a membership list."""
@@ -325,13 +362,13 @@ def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
                 if value not in selected_metrics[selected_column]:
                     selected_metrics[selected_column][value] = {}
                 selected_metrics[selected_column][value][date] = count
-        for _, metric in selected_metrics.items():
-            for count, value in enumerate(metric):
+        for _, timeline_metric in selected_metrics.items():
+            for count, value in enumerate(timeline_metric):
                 timeline_figure.add_trace(
                     go.Scatter(
                         name=value,
-                        x=list(metric[value].keys()),
-                        y=list(metric[value].values()),
+                        x=list(timeline_metric[value].keys()),
+                        y=list(timeline_metric[value].values()),
                         mode="lines",
                         marker_color=COLORS[count % len(COLORS)],
                     )
@@ -620,6 +657,49 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
     return chart1, chart2, chart3, chart4, chart5
 
 
+@callback(
+    Output(component_id="membership_map", component_property="figure"),
+    Input(component_id="list_dropdown", component_property="value"),
+    Input(component_id="map_column", component_property="value"),
+    Input(component_id="color-mode-switch", component_property="value"),
+)
+def create_map(date_selected: str, selected_column: str, dark_mode: bool):
+    """Set up html data to show a map of Maine DSA members."""
+    df_map = selected_data(date_selected)
+
+    map_figure = px.scatter_mapbox(
+        df_map,
+        lat="lat",
+        lon="lon",
+        hover_name=df_map.index,
+        hover_data={
+            "first_name": True,
+            "last_name": True,
+            "best_phone": True,
+            "email": True,
+            "membership_type": True,
+            "membership_status": True,
+            "membership_length": True,
+            "xdate": True,
+            "lat": False,
+            "lon": False,
+        },
+        color=df_map[selected_column],
+        color_discrete_sequence=COLORS,
+        zoom=6,
+        height=1100,
+        mapbox_style="dark",
+        template=pio.templates["darkly"],
+    )
+
+    if not dark_mode:
+        map_figure.update_layout(mapbox_style="light", template=pio.templates["journal"])
+
+    map_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+
+    return map_figure
+
+
 ##
 ## Sidebar
 ##
@@ -648,15 +728,13 @@ def render_page_content(pathname: str):
     if pathname == "/":
         return timeline
     if pathname == "/list":
-        return member_list_page
+        return member_list
     if pathname == "/metrics":
         return metrics
     if pathname == "/graphs":
         return graphs
     if pathname == "/map":
-        return html.P(
-            "Implementation of a map is planned: https://github.com/MaineDSA/MembershipDashboard/issues/8."
-        )
+        return member_map
 
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
@@ -670,4 +748,4 @@ def render_page_content(pathname: str):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=False)
+    app.run_server(debug=True)

@@ -4,28 +4,18 @@ import os
 import glob
 import pickle
 import zipfile
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from mapbox import Geocoder
+from ratelimit import limits, sleep_and_retry
 
 
-MEMB_LIST_NAME = "maine_membership_list"
+MEMB_LIST_NAME = Path(".list_name").read_text(encoding="UTF-8")
 
 
-def get_membership_list_metrics(memb_lists: pd.DataFrame) -> dict:
-    """Scan memb_lists and calculate metrics."""
-    memb_lists_metrics = {}
-
-    print(f"Calculating metrics for {len(memb_lists)} membership lists")
-    for date_formatted, membership_list in memb_lists.items():
-        for column in membership_list.columns:
-            if column not in memb_lists_metrics:
-                memb_lists_metrics[column] = {}
-            memb_lists_metrics[column][date_formatted] = memb_lists[date_formatted][
-                column
-            ]
-
-    return memb_lists_metrics
+geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
 
 
 def membership_length(date: str, **kwargs) -> int:
@@ -33,6 +23,27 @@ def membership_length(date: str, **kwargs) -> int:
     return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(
         days=365
     )
+
+
+address_cache = {}
+
+
+@sleep_and_retry
+@limits(calls=600, period=60)
+def get_geocoding(address: str) -> list:
+    """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API"""
+    if not isinstance(address, str):
+        return []
+
+    if address in address_cache:
+        return address_cache[address]
+
+    response = geocoder.forward(address, country=["us"])
+    latlon = response.geojson()["features"][0]["center"]
+
+    address_cache[address] = latlon
+
+    return latlon
 
 
 def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
@@ -47,6 +58,15 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
         "ak_id": "actionkit_id",
         "accomodations": "accommodations",
         "annual_recurring_dues_status": "yearly_dues_status",
+        # before fall of 2023
+        "mailing_address1": "address1",
+        "mailing_address2": "address2",
+        "mailing_city": "city",
+        "mailing_state": "state",
+        "mailing_zip": "zip",
+        # old 2020-era lists
+        "address_line_1": "address1",
+        "address_line_2": "address2",
     }
 
     # Rename the old columns to new names
@@ -65,6 +85,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     # Standardize other columns
     for col, default in [
         ("membership_type", "unknown"),
+        ("address2", ""),
         ("do_not_call", False),
         ("p2ptext_optout", False),
         ("race", "unknown"),
@@ -102,10 +123,16 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
         df["membership_type"].replace({"annual": "yearly"}).str.lower(),
     )
 
+    # Create full address
+    tqdm.pandas(unit="comrades", leave=False)
+    df[["lon", "lat"]] = pd.DataFrame(
+        (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding).tolist(), index=df.index
+    )
+
     return df
 
 
-def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
+def scan_membership_list(filename: str, filepath: str):
     """Scan the requested membership list and add data to memb_lists."""
     date_from_name = pd.to_datetime(
         os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
@@ -159,6 +186,7 @@ def get_pickled_dict() -> dict:
 
     return {}
 
+
 def get_membership_lists() -> dict:
     """Return all membership lists, preferring pickled lists for speed."""
     memb_lists = scan_all_membership_lists()
@@ -166,8 +194,8 @@ def get_membership_lists() -> dict:
     new_lists = {k: v for k, v in memb_lists.items() if k not in pickled_lists}
     print(f"Found {len(new_lists)} new lists")
     if len(new_lists) > 0:
-        new_lists = {k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="lists")}
-    memb_lists = new_lists | pickled_lists
+        new_lists = {k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="list")}
+    memb_lists = dict(sorted((new_lists | pickled_lists).items()))
 
     with open(f"{MEMB_LIST_NAME}.pkl", "wb") as pickled_file:
         pickle.dump(memb_lists, pickled_file)
