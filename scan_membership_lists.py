@@ -25,6 +25,9 @@ def membership_length(date: str, **kwargs) -> int:
     )
 
 
+address_cache = {}
+
+
 @sleep_and_retry
 @limits(calls=600, period=60)
 def get_geocoding(address: str) -> list:
@@ -32,8 +35,13 @@ def get_geocoding(address: str) -> list:
     if not isinstance(address, str):
         return []
 
+    if address in address_cache:
+        return address_cache[address]
+
     response = geocoder.forward(address, country=["us"])
     latlon = response.geojson()["features"][0]["center"]
+
+    address_cache[address] = latlon
 
     return latlon
 
