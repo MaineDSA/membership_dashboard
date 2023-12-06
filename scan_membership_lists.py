@@ -194,8 +194,8 @@ def get_membership_lists() -> dict:
     new_lists = {k: v for k, v in memb_lists.items() if k not in pickled_lists}
     print(f"Found {len(new_lists)} new lists")
     if len(new_lists) > 0:
-        new_lists = {k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="lists")}
-    memb_lists = new_lists | pickled_lists
+        new_lists = {k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="list")}
+    memb_lists = dict(sorted((new_lists | pickled_lists).items()))
 
     with open(f"{MEMB_LIST_NAME}.pkl", "wb") as pickled_file:
         pickle.dump(memb_lists, pickled_file)
