@@ -37,7 +37,7 @@ The dashboard provides the following features:
 - List table displaying the active membership list with the option to export a CSV. If a compare list is selected, only the rows that changed are shown.
 - Metrics showing the number of constitutional members, members in good standing, expiring members, and lapsed members.
 - Graphs displaying membership counts, dues, union membership, length of membership, and racial demographics.
-- Displays members on a map with color-coding based on membership status.
+- Maps addresses to allow visualization of how membership metrics are distributed across the state.
 - Standardizes some important membership list metrics across variances in membership list formatting going back to at least Jan 2020.
 
 ## Notes
