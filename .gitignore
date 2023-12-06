@@ -1,9 +1,10 @@
 # Inputs, Outputs, Private Data
-research/*
-*_membership_list*/*
-*.zip
-*.pkl
+.list_name
 .mapbox_token
+*_membership_list*/*
+*.pkl
+*.zip
+research/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

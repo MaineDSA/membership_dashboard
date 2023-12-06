@@ -16,7 +16,11 @@ python3 -m pip install -r requirements.txt
 ## Usage
 
 1. Clone the repository and navigate to the project folder.
-2. Open a terminal and run the following command to start the dashboard:
+2. Put the name of the membership lists you get from National DSA into a UTF-8 text file called `.list_name` in the project folder. We use `maine_membership_list`.
+3. Put a [MapBox](https://www.mapbox.com/) API token into a UTF-8 text file called `.mapbox_token` in the project folder.
+4. Create a folder with the same title as the membership lists you receive from National DSA (you can use subfolders).
+5. Add membership lists to the folder (see [notes](#notes) below).
+6. Open a terminal and run the following command to start the dashboard:
 
 ```shell
 python3 -m membership_dashboard
@@ -38,9 +42,7 @@ The dashboard provides the following features:
 
 ## Notes
 
-- The membership lists should be in the form of zipped CSV files.
-- The code assumes that the membership lists are located in the `maine_membership_list` folder.
-- The membership lists should follow a specific naming convention: `maine_membership_list_<YYYYMMDD>.zip` containing a single csv file called `maine_membership_list.csv`.
-- To change this file name to match your chapter, look at the top of the [scan_membership_lists.py](scan_membership_lists.py) file and change the string ```MEMB_LIST_NAME```.
+- The membership lists should be in the form of zipped CSV files (as provided by National DSA).
+- The membership list zip files should have the list date appended to the zip file name (as `name_<YYYYMMDD>.zip`) and contain a single csv file.
 
 Feel free to explore the code and modify it according to your needs!

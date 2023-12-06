@@ -12,7 +12,7 @@ from mapbox import Geocoder
 from ratelimit import limits, sleep_and_retry
 
 
-MEMB_LIST_NAME = "maine_membership_list"
+MEMB_LIST_NAME = Path(".list_name").read_text(encoding="UTF-8")
 
 
 geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
