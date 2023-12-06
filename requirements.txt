@@ -1,6 +1,6 @@
 dash_bootstrap_components==1.5.0
 dash_bootstrap_templates==1.1.1
-dash==2.14.1
+dash==2.14.2
 mapbox==0.18.1
 numpy==1.26.2
 pandas==2.1.3

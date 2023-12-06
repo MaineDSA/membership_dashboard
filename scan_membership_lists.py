@@ -15,10 +15,20 @@ from ratelimit import limits, sleep_and_retry
 MEMB_LIST_NAME = "maine_membership_list"
 
 
-memb_lists = {}
-"""Contains data organized as column:value pairs within a dict of membership list dates."""
-memb_lists_metrics = {}
-"""Contains data organized as date:value pairs within a dict of original columns names."""
+def get_membership_list_metrics(memb_lists: pd.DataFrame) -> dict:
+    """Scan memb_lists and calculate metrics."""
+    memb_lists_metrics = {}
+
+    print(f"Calculating metrics for {len(memb_lists)} membership lists")
+    for date_formatted, membership_list in memb_lists.items():
+        for column in membership_list.columns:
+            if column not in memb_lists_metrics:
+                memb_lists_metrics[column] = {}
+            memb_lists_metrics[column][date_formatted] = memb_lists[date_formatted][
+                column
+            ]
+
+    return memb_lists_metrics
 
 
 geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
@@ -44,9 +54,8 @@ def get_geocoding(address: str) -> list:
     return latlon
 
 
-def data_cleaning(date_formatted: str) -> pd.DataFrame:
+def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     """Clean and standardize dataframe according to specified rules."""
-    df = memb_lists[date_formatted].copy()  # To avoid modifying original data
     # Ensure column names are lowercase
     df.columns = df.columns.str.lower()
 
@@ -78,7 +87,7 @@ def data_cleaning(date_formatted: str) -> pd.DataFrame:
 
     # Apply the membership_length function to join_date
     df["membership_length"] = df["join_date"].apply(
-        membership_length, list_date=date_formatted
+        membership_length, list_date=list_date
     )
 
     # Standardize other columns
@@ -138,77 +147,65 @@ def scan_membership_list(filename: str, filepath: str):
     ).date()
     if not date_from_name:
         print(f"No date detected in name of {filename}. Skipping file.")
-        return
+        return pd.DataFrame()
 
     with zipfile.ZipFile(filepath) as memb_list_zip:
         with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv") as memb_list:
             # print(f"Loading data from {MEMB_LIST_NAME}.csv in {filename}.")
-            date_formatted = date_from_name.isoformat()
-
-            memb_lists[date_formatted] = pd.read_csv(memb_list, header=0)
-            memb_lists[date_formatted] = data_cleaning(date_formatted)
+            return pd.read_csv(memb_list, header=0)
 
 
-def scan_membership_list_metrics() -> (dict):
-    """Scan memb_lists and calculate metrics."""
-    print(f"Calculating metrics for {len(memb_lists)} membership lists")
-    for date_formatted, membership_list in memb_lists.items():
-        for column in membership_list.columns:
-            if column not in memb_lists_metrics:
-                memb_lists_metrics[column] = {}
-            memb_lists_metrics[column][date_formatted] = memb_lists[date_formatted][
-                column
-            ]
-
-    # Pickle the scanned and calculated metrics
-    with open(f"{MEMB_LIST_NAME}_metrics.pkl", "wb") as pickled_file:
-        pickle.dump(memb_lists_metrics, pickled_file)
-
-    return memb_lists_metrics
-
-
-def get_membership_list_metrics() -> (dict):
-    """Return the last calculated metrics."""
-    try:
-        with open(f"{MEMB_LIST_NAME}_metrics.pkl", "rb") as pickled_file:
-            pickled_dict = pickle.load(pickled_file)
-            if len(pickled_dict) > 0:
-                return pickled_dict
-            return scan_membership_list_metrics()
-    except FileNotFoundError:
-        return scan_membership_list_metrics()
-
-    return {}
-
-
-def scan_all_membership_lists() -> (dict):
+def scan_all_membership_lists() -> dict:
     """Scan all zip files and call scan_membership_list on each."""
+    memb_lists = {}
+
     print(f"Scanning zipped membership lists in ./{MEMB_LIST_NAME}/.")
     files = sorted(
         glob.glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True),
         reverse=True,
     )
-    for file in tqdm(files, unit="list"):
-        scan_membership_list(os.path.basename(file), os.path.abspath(file))
+    for zip_file in tqdm(files, unit="lists"):
 
-    # Pickle the scanned and processed lists
-    with open(f"{MEMB_LIST_NAME}.pkl", "wb") as pickled_file:
-        pickle.dump(memb_lists, pickled_file)
+        # Get date from each file name
+        filename = os.path.basename(zip_file)
+        date_from_name = pd.to_datetime(
+            os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
+        ).date()
+        if not date_from_name:
+            print(f"No date detected in name of {filename}. Skipping file.")
+            continue
 
-    scan_membership_list_metrics()
+        # Save contents of each zip file into dict keyed to date
+        memb_lists[date_from_name.isoformat()] = scan_membership_list(filename, os.path.abspath(zip_file))
 
+    print(f"Found {len(memb_lists)} zipped membership lists.")
     return memb_lists
 
 
-def get_all_membership_lists() -> (dict):
+def get_pickled_dict() -> dict:
     """Return the last scanned membership lists."""
     try:
         with open(f"{MEMB_LIST_NAME}.pkl", "rb") as pickled_file:
             pickled_dict = pickle.load(pickled_file)
-            if len(pickled_dict) > 0:
-                return pickled_dict
-            return scan_all_membership_lists()
+            print(f"Found {len(pickled_dict)} pickled membership lists.")
+            return pickled_dict
     except FileNotFoundError:
-        return scan_all_membership_lists()
+        pass
 
     return {}
+
+
+def get_membership_lists() -> dict:
+    """Return all membership lists, preferring pickled lists for speed."""
+    memb_lists = scan_all_membership_lists()
+    pickled_lists = get_pickled_dict()
+    new_lists = {k: v for k, v in memb_lists.items() if k not in pickled_lists}
+    print(f"Found {len(new_lists)} new lists")
+    if len(new_lists) > 0:
+        new_lists = {k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="lists")}
+    memb_lists = new_lists | pickled_lists
+
+    with open(f"{MEMB_LIST_NAME}.pkl", "wb") as pickled_file:
+        pickle.dump(memb_lists, pickled_file)
+
+    return memb_lists
