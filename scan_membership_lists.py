@@ -177,7 +177,7 @@ def scan_all_membership_lists() -> dict:
 def get_pickled_dict() -> dict:
     """Return the last scanned membership lists."""
     try:
-        with open(f"{MEMB_LIST_NAME}.pkl", "rb") as pickled_file:
+        with open(f"{MEMB_LIST_NAME}/{MEMB_LIST_NAME}.pkl", "rb") as pickled_file:
             pickled_dict = pickle.load(pickled_file)
             print(f"Found {len(pickled_dict)} pickled membership lists.")
             return pickled_dict
@@ -197,7 +197,7 @@ def get_membership_lists() -> dict:
         new_lists = {k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="list")}
     memb_lists = dict(sorted((new_lists | pickled_lists).items()))
 
-    with open(f"{MEMB_LIST_NAME}.pkl", "wb") as pickled_file:
+    with open(f"{MEMB_LIST_NAME}/{MEMB_LIST_NAME}.pkl", "wb") as pickled_file:
         pickle.dump(memb_lists, pickled_file)
 
     return memb_lists
