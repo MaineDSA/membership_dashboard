@@ -3,7 +3,7 @@
 # Membership Dashboard
 
 Herein lies a Python script that builds a dashboard to analyze DSA membership lists.
-It uses the web frameworks to create browser-based data visualizations.
+It uses web frameworks to create browser-based data visualizations.
 
 ## Getting Started
 
