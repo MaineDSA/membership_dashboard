@@ -30,20 +30,22 @@ address_cache = {}
 
 @sleep_and_retry
 @limits(calls=600, period=60)
-def get_geocoding(address: str) -> list:
+def mapbox_geocoder(address: str) -> list:
     """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API"""
+    response = geocoder.forward(address, country=["us"])
+    return response.geojson()["features"][0]["center"]
+
+
+def get_geocoding(address: str) -> list:
+    """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
     if not isinstance(address, str):
         return []
 
     if address in address_cache:
         return address_cache[address]
 
-    response = geocoder.forward(address, country=["us"])
-    latlon = response.geojson()["features"][0]["center"]
-
-    address_cache[address] = latlon
-
-    return latlon
+    address_cache[address] = mapbox_geocoder(address)
+    return address_cache[address]
 
 
 def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
