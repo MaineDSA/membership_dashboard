@@ -176,14 +176,12 @@ def scan_all_membership_lists() -> dict:
 
 def get_pickled_dict() -> dict:
     """Return the last scanned membership lists."""
-    try:
-        with open(f"{MEMB_LIST_NAME}/{MEMB_LIST_NAME}.pkl", "rb") as pickled_file:
+    pickled_file_path = os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl")
+    if os.path.exists(pickled_file_path):
+        with open(pickled_file_path, "rb") as pickled_file:
             pickled_dict = pickle.load(pickled_file)
             print(f"Found {len(pickled_dict)} pickled membership lists.")
             return pickled_dict
-    except FileNotFoundError:
-        pass
-
     return {}
 
 
