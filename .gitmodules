@@ -1,0 +1,3 @@
+[submodule "test_membership_list"]
+	path = test_membership_list
+	url = https://github.com/MaineDSA/MembershipListTest
