@@ -512,7 +512,7 @@ def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bo
     return *metric_count_frames, metric_retention
 
 
-def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: str, ylabel: str, log: bool) -> go.Figure:
+def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: str, ylabel: str, log: bool, dark_mode: bool) -> go.Figure:
     """Set up html data to show a chart of 1-2 dataframes."""
     chartdf_vc = df_field.value_counts()
     chartdf_compare_vc = df_compare_field.value_counts()
@@ -554,6 +554,9 @@ def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: 
 
     chart.update_layout(title=title, yaxis_title=ylabel)
 
+    if not dark_mode:
+        chart["layout"]["template"] = pio.templates["journal"]
+
     return chart
 
 
@@ -583,6 +586,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         "Membership Counts (all-time)",
         "Members",
         False,
+		dark_mode
     )
 
     chart2 = create_chart(
@@ -597,6 +601,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         "Dues (members in good standing)",
         "Members",
         True,
+		dark_mode
     )
 
     membersdf = df.query(
@@ -618,6 +623,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         "Union Membership (not lapsed)",
         "Members",
         True,
+		dark_mode
     )
 
     chart4 = create_chart(
@@ -630,6 +636,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         "Length of Membership (0 - 8+yrs, not lapsed)",
         "Members",
         False,
+		dark_mode
     )
 
     def multiple_choice(df: pd.DataFrame, target_column: str, separator: str) -> pd.DataFrame:
@@ -653,14 +660,8 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         "Racial Demographics (self-reported)",
         "Members",
         True,
+		dark_mode
     )
-
-    if not dark_mode:
-        chart1["layout"]["template"] = pio.templates["journal"]
-        chart2["layout"]["template"] = pio.templates["journal"]
-        chart3["layout"]["template"] = pio.templates["journal"]
-        chart4["layout"]["template"] = pio.templates["journal"]
-        chart5["layout"]["template"] = pio.templates["journal"]
 
     return chart1, chart2, chart3, chart4, chart5
 
