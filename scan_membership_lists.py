@@ -1,9 +1,9 @@
 """Parse all membership lists into pandas dataframes for display on dashboard"""
 
 import os
-import glob
+from glob import glob
 import pickle
-import zipfile
+from zipfile import ZipFile
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -143,7 +143,7 @@ def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
         print(f"No date detected in name of {filename}. Skipping file.")
         return pd.DataFrame()
 
-    with zipfile.ZipFile(filepath) as memb_list_zip:
+    with ZipFile(filepath) as memb_list_zip:
         with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv") as memb_list:
             # print(f"Loading data from {MEMB_LIST_NAME}.csv in {filename}.")
             return pd.read_csv(memb_list, header=0)
@@ -154,7 +154,7 @@ def scan_all_membership_lists() -> dict:
     memb_lists = {}
     print(f"Scanning zipped membership lists in ./{MEMB_LIST_NAME}/.")
     files = sorted(
-        glob.glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True),
+        glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True),
         reverse=True,
     )
     for zip_file in tqdm(files, unit="lists"):
