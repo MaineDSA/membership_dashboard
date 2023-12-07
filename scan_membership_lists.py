@@ -190,6 +190,7 @@ def get_membership_lists() -> dict:
     new_lists = {k: v for k, v in memb_lists.items() if k not in pickled_lists}
     print(f"Found {len(new_lists)} new lists")
     if len(new_lists) > 0:
+        print("Geocoding and cleaning data for new lists. The first one takes a long time.")
         new_lists = {k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="list")}
 
     memb_lists = dict(sorted((new_lists | pickled_lists).items()))
