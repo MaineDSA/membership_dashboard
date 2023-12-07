@@ -329,6 +329,14 @@ member_map = html.Div(
         dcc.Graph(
             figure=go.Figure(),
             id="membership_map",
+			style={
+				"display": "inline-block",
+				"height": "90vh",
+				"width": "100%",
+				"padding-left": "-1em",
+				"padding-right": "-1em",
+				"padding-bottom": "-1em",
+			},
         ),
     ],
 )
