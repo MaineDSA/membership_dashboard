@@ -2,7 +2,7 @@
 
 # Membership Dashboard
 
-Herein lies a Python script that builds a dashboard to analyze DSA membership lists.
+Herein lies a Python module that builds a dashboard to analyze DSA membership lists.
 It uses web frameworks to create browser-based data visualizations.
 
 ## Getting Started
