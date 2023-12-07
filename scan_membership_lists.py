@@ -152,26 +152,21 @@ def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
 def scan_all_membership_lists() -> dict:
     """Scan all zip files and call scan_membership_list on each."""
     memb_lists = {}
-
     print(f"Scanning zipped membership lists in ./{MEMB_LIST_NAME}/.")
     files = sorted(
         glob.glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True),
         reverse=True,
     )
     for zip_file in tqdm(files, unit="lists"):
-
-        # Get date from each file name
         filename = os.path.basename(zip_file)
-        date_from_name = pd.to_datetime(
-            os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
-        ).date()
-        if not date_from_name:
+        try:
+            date_from_name = pd.to_datetime(
+                os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
+            ).date()
+            # Save contents of each zip file into dict keyed to date
+            memb_lists[date_from_name.isoformat()] = scan_membership_list(filename, os.path.abspath(zip_file))
+        except (IndexError, ValueError):
             print(f"No date detected in name of {filename}. Skipping file.")
-            continue
-
-        # Save contents of each zip file into dict keyed to date
-        memb_lists[date_from_name.isoformat()] = scan_membership_list(filename, os.path.abspath(zip_file))
-
     print(f"Found {len(memb_lists)} zipped membership lists.")
     return memb_lists
 
