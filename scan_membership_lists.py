@@ -193,7 +193,7 @@ def get_membership_lists() -> dict:
         print("Geocoding and cleaning data for new lists. The first one takes a long time.")
         new_lists = {k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="list")}
 
-    memb_lists = dict(sorted((new_lists | pickled_lists).items()))
+    memb_lists = dict(sorted((new_lists | pickled_lists).items(), reverse=True))
     with open(os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
         pickle.dump(memb_lists, pickled_file)
     return memb_lists
