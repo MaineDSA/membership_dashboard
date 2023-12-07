@@ -132,7 +132,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     return df
 
 
-def scan_membership_list(filename: str, filepath: str):
+def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
     """Scan the requested membership list and add data to memb_lists."""
     date_from_name = pd.to_datetime(
         os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
