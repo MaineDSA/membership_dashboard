@@ -224,6 +224,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="members_lifetime",
+						style={'height': '30vh'}
                     ),
                     width=6,
                 ),
@@ -231,6 +232,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="members_migs",
+						style={'height': '30vh'}
                     ),
                     width=6,
                 ),
@@ -242,6 +244,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="members_expiring",
+						style={'height': '30vh'}
                     ),
                     width=6,
                 ),
@@ -249,6 +252,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="members_lapsed",
+						style={'height': '30vh'}
                     ),
                     width=6,
                 ),
@@ -260,6 +264,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="metric_retention",
+						style={'height': '30vh'}
                     ),
                     width=6,
                 ),
