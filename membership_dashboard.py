@@ -177,7 +177,7 @@ timeline = html.Div(
             id="membership_timeline",
             style={
                 "display": "inline-block",
-                "height": "90vh",
+                "height": "85vh",
                 "width": "100%",
                 "padding-left": "-1em",
                 "padding-right": "-1em",
