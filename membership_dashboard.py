@@ -206,9 +206,10 @@ member_list = html.Div(
             export_format="csv",
             page_size=20,
             style_table={
+                "display": "inline-block",
+                "height": "80vh",
                 "overflowY": "auto",
                 "overflowX": "auto",
-                "padding-left": "-.5em",
             },
             id="membership_list",
         ),
