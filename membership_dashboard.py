@@ -277,24 +277,28 @@ graphs = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="membership_status",
+						style={'height': '46vh'}
                     ),
-                    width=4,
+					md=4,
                 ),
                 dbc.Col(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="membership_type",
+						style={'height': '46vh'}
                     ),
-                    width=4,
+					md=4,
                 ),
                 dbc.Col(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="union_member",
+						style={'height': '46vh'}
                     ),
-                    width=4,
+					md=4,
                 ),
-            ]
+            ],
+            align="center",
         ),
         dbc.Row(
             [
@@ -302,17 +306,20 @@ graphs = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="membership_length",
+						style={'height': '46vh'}
                     ),
-                    width=6,
+					md=6,
                 ),
                 dbc.Col(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="race",
+						style={'height': '46vh'}
                     ),
-                    width=6,
+					md=6,
                 ),
-            ]
+            ],
+            align="center",
         ),
     ],
 )
