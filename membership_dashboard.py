@@ -225,7 +225,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="members_lifetime",
-						style={'height': '30vh'}
+                        style={'height': '30vh'}
                     ),
                     width=6,
                 ),
@@ -233,7 +233,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="members_migs",
-						style={'height': '30vh'}
+                        style={'height': '30vh'}
                     ),
                     width=6,
                 ),
@@ -245,7 +245,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="members_expiring",
-						style={'height': '30vh'}
+                        style={'height': '30vh'}
                     ),
                     width=6,
                 ),
@@ -253,7 +253,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="members_lapsed",
-						style={'height': '30vh'}
+                        style={'height': '30vh'}
                     ),
                     width=6,
                 ),
@@ -265,7 +265,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="metric_retention",
-						style={'height': '30vh'}
+                        style={'height': '30vh'}
                     ),
                     width=6,
                 ),
@@ -283,25 +283,25 @@ graphs = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="membership_status",
-						style={'height': '46vh'}
+                        style={'height': '46vh'}
                     ),
-					md=4,
+                    md=4,
                 ),
                 dbc.Col(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="membership_type",
-						style={'height': '46vh'}
+                        style={'height': '46vh'}
                     ),
-					md=4,
+                    md=4,
                 ),
                 dbc.Col(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="union_member",
-						style={'height': '46vh'}
+                        style={'height': '46vh'}
                     ),
-					md=4,
+                    md=4,
                 ),
             ],
             align="center",
@@ -312,17 +312,17 @@ graphs = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="membership_length",
-						style={'height': '46vh'}
+                        style={'height': '46vh'}
                     ),
-					md=6,
+                    md=6,
                 ),
                 dbc.Col(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="race",
-						style={'height': '46vh'}
+                        style={'height': '46vh'}
                     ),
-					md=6,
+                    md=6,
                 ),
             ],
             align="center",
@@ -342,14 +342,14 @@ member_map = html.Div(
         dcc.Graph(
             figure=go.Figure(),
             id="membership_map",
-			style={
-				"display": "inline-block",
-				"height": "85vh",
-				"width": "100%",
-				"padding-left": "-1em",
-				"padding-right": "-1em",
-				"padding-bottom": "-1em",
-			},
+            style={
+                "display": "inline-block",
+                "height": "85vh",
+                "width": "100%",
+                "padding-left": "-1em",
+                "padding-right": "-1em",
+                "padding-bottom": "-1em",
+            },
         ),
     ],
 )
@@ -599,7 +599,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         "Membership Counts (all-time)",
         "Members",
         False,
-		dark_mode
+        dark_mode
     )
 
     chart2 = create_chart(
@@ -614,7 +614,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         "Dues (members in good standing)",
         "Members",
         True,
-		dark_mode
+        dark_mode
     )
 
     membersdf = df.query(
@@ -636,7 +636,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         "Union Membership (not lapsed)",
         "Members",
         True,
-		dark_mode
+        dark_mode
     )
 
     chart4 = create_chart(
@@ -649,7 +649,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         "Length of Membership (0 - 8+yrs, not lapsed)",
         "Members",
         False,
-		dark_mode
+        dark_mode
     )
 
     def multiple_choice(df: pd.DataFrame, target_column: str, separator: str) -> pd.DataFrame:
@@ -673,7 +673,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         "Racial Demographics (self-reported)",
         "Members",
         True,
-		dark_mode
+        dark_mode
     )
 
     return chart1, chart2, chart3, chart4, chart5
