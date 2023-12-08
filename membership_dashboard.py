@@ -525,7 +525,7 @@ def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bo
     return *metric_count_frames, metric_retention
 
 
-def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: str, ylabel: str, log: bool, dark_mode: bool) -> go.Figure:
+def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: str, ylabel: str, log: bool) -> go.Figure:
     """Set up html data to show a chart of 1-2 dataframes."""
     chartdf_vc = df_field.value_counts()
     chartdf_compare_vc = df_compare_field.value_counts()
@@ -561,14 +561,8 @@ def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: 
         ]
     )
 
-    if log:
-        chart.update_yaxes(type="log")
-        ylabel = ylabel + " (Logarithmic)"
-
-    chart.update_layout(title=title, yaxis_title=ylabel)
-
-    if not dark_mode:
-        chart["layout"]["template"] = pio.templates["journal"]
+    chart.update_layout(title=title, yaxis_title=(ylabel + " (Logarithmic)") if log else ylabel)
+    chart.update_yaxes(type="log" if log else None)
 
     return chart
 
@@ -586,71 +580,10 @@ def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: 
 def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: bool) -> ([go.Figure] * 5):
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
-        return go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure()
+        return [go.Figure()] * 5
 
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
-
-    chart1 = create_chart(
-        df["membership_status"] if "membership_status" in df else pd.DataFrame(),
-        df_compare["membership_status"]
-        if "membership_status" in df_compare
-        else pd.DataFrame(),
-        "Membership Counts (all-time)",
-        "Members",
-        False,
-        dark_mode
-    )
-
-    chart2 = create_chart(
-        df.loc[df["membership_status"] == "member in good standing"]["membership_type"]
-        if "membership_status" in df
-        else pd.DataFrame(),
-        df_compare.loc[df_compare["membership_status"] == "member in good standing"][
-            "membership_type"
-        ]
-        if "membership_status" in df_compare
-        else pd.DataFrame(),
-        "Dues (members in good standing)",
-        "Members",
-        True,
-        dark_mode
-    )
-
-    membersdf = df.query(
-        'membership_status != "lapsed" and membership_status != "expired"'
-    )
-    membersdf_compare = (
-        df_compare.query(
-            'membership_status != "lapsed" and membership_status != "expired"'
-        )
-        if "membership_status" in df_compare
-        else pd.DataFrame()
-    )
-
-    chart3 = create_chart(
-        membersdf["union_member"] if "union_member" in df else pd.DataFrame(),
-        membersdf_compare["union_member"]
-        if "union_member" in df_compare
-        else pd.DataFrame(),
-        "Union Membership (not lapsed)",
-        "Members",
-        True,
-        dark_mode
-    )
-
-    chart4 = create_chart(
-        membersdf["membership_length"].clip(upper=8)
-        if "membership_length" in df
-        else pd.DataFrame(),
-        membersdf_compare["membership_length"].clip(upper=8)
-        if "membership_length" in membersdf_compare
-        else pd.DataFrame(),
-        "Length of Membership (0 - 8+yrs, not lapsed)",
-        "Members",
-        False,
-        dark_mode
-    )
 
     def multiple_choice(df: pd.DataFrame, target_column: str, separator: str) -> pd.DataFrame:
         """Split a character-separated list string into an iterable object."""
@@ -663,20 +596,71 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
             .join(df.drop(target_column, axis=1))
         )
 
-    chart5 = create_chart(
-        multiple_choice(membersdf, "race", ",")["race"]
-        if "race" in df
-        else pd.DataFrame(),
-        multiple_choice(membersdf_compare, "race", ",")["race"]
-        if "race" in membersdf_compare
-        else pd.DataFrame(),
-        "Racial Demographics (self-reported)",
-        "Members",
-        True,
-        dark_mode
+    membersdf = df.query(
+        'membership_status != "lapsed" and membership_status != "expired"'
+    )
+    membersdf_compare = (
+        df_compare.query(
+            'membership_status != "lapsed" and membership_status != "expired"'
+        )
+        if "membership_status" in df_compare
+        else pd.DataFrame()
     )
 
-    return chart1, chart2, chart3, chart4, chart5
+    charts = [
+        create_chart(
+            df["membership_status"] if "membership_status"
+            in df else pd.DataFrame(),
+            df_compare["membership_status"]
+            if "membership_status" in df_compare else pd.DataFrame(),
+            "Membership Counts (all-time)",
+            "Members",
+            False,
+        ),
+        create_chart(
+            df.loc[df["membership_status"] == "member in good standing"]["membership_type"]
+            if "membership_status" in df else pd.DataFrame(),
+            df_compare.loc[df_compare["membership_status"] == "member in good standing"]["membership_type"]
+            if "membership_status" in df_compare else pd.DataFrame(),
+            "Dues (members in good standing)",
+            "Members",
+            True,
+        ),
+        create_chart(
+            membersdf["union_member"]
+            if "union_member" in df else pd.DataFrame(),
+            membersdf_compare["union_member"]
+            if "union_member" in df_compare else pd.DataFrame(),
+            "Union Membership (not lapsed)",
+            "Members",
+            True,
+        ),
+        create_chart(
+            membersdf["membership_length"].clip(upper=8)
+            if "membership_length" in df else pd.DataFrame(),
+            membersdf_compare["membership_length"].clip(upper=8)
+            if "membership_length" in membersdf_compare else pd.DataFrame(),
+            "Length of Membership (0 - 8+yrs, not lapsed)",
+            "Members",
+            False,
+        ),
+        create_chart(
+            multiple_choice(membersdf, "race", ",")["race"]
+            if "race" in df else pd.DataFrame(),
+            multiple_choice(membersdf_compare, "race", ",")["race"]
+            if "race" in membersdf_compare else pd.DataFrame(),
+            "Racial Demographics (self-reported)",
+            "Members",
+            True,
+        )
+    ]
+
+    for chart in charts:
+        if not dark_mode:
+            chart["layout"]["template"] = pio.templates["journal"]
+
+
+    return charts
 
 
 @callback(
