@@ -16,7 +16,7 @@ python3 -m pip install -r requirements.txt
 ## Usage
 
 1. Clone the repository and navigate to the project folder.
-2. Put the name of the membership lists you get from National DSA into a UTF-8 text file called `.list_name` in the project folder. We use `maine_membership_list`.
+2. Put the name of the membership lists you get from National DSA into a UTF-8 text file called `.list_name` in the project folder. We use `maine_membership_list` and the repo includes the `test_membership_list` submodule which includes a single randomly-generated list in the correct format.
 3. Put a [MapBox](https://www.mapbox.com/) API token into a UTF-8 text file called `.mapbox_token` in the project folder.
 4. Create a folder with the same title as the membership lists you receive from National DSA (you can use subfolders).
 5. Add membership lists to the folder (see [notes](#notes) below).
