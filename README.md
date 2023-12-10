@@ -46,3 +46,11 @@ The dashboard provides the following features:
 - The membership list zip files should have the list date appended to the zip file name (as `name_<YYYYMMDD>.zip`) and contain a single csv file.
 
 Feel free to explore the code and modify it according to your needs!
+
+## Screenshots
+![Screenshot from 2023-12-09 22-40-04](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/a9dadd59-e995-4a4b-b732-88f94e157e84)
+![Screenshot from 2023-12-09 22-40-14](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/c179e4ae-b300-4131-9647-f5df9be6511e)
+![Screenshot from 2023-12-09 22-40-31](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/294e89d5-2d65-4156-b8f5-7fd170d457c1)
+![Screenshot from 2023-12-09 22-40-53](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/30895742-4fda-43d1-a66c-729da1193a4a)
+![Screenshot from 2023-12-09 22-42-01](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/f0be090b-4188-439f-8b27-b4e567bb81c7)
+![Screenshot from 2023-12-09 22-42-11](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/b6449275-6c87-445e-bda9-47591d430c97)
