@@ -225,15 +225,13 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="members_lifetime",
-                        style={'height': '30vh'}
+                        style={"height": "30vh"},
                     ),
                     width=6,
                 ),
                 dbc.Col(
                     dcc.Graph(
-                        figure=go.Figure(),
-                        id="members_migs",
-                        style={'height': '30vh'}
+                        figure=go.Figure(), id="members_migs", style={"height": "30vh"}
                     ),
                     width=6,
                 ),
@@ -245,7 +243,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="members_expiring",
-                        style={'height': '30vh'}
+                        style={"height": "30vh"},
                     ),
                     width=6,
                 ),
@@ -253,7 +251,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="members_lapsed",
-                        style={'height': '30vh'}
+                        style={"height": "30vh"},
                     ),
                     width=6,
                 ),
@@ -265,7 +263,7 @@ metrics = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="metric_retention",
-                        style={'height': '30vh'}
+                        style={"height": "30vh"},
                     ),
                     width=6,
                 ),
@@ -283,7 +281,7 @@ graphs = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="membership_status",
-                        style={'height': '46vh'}
+                        style={"height": "46vh"},
                     ),
                     md=4,
                 ),
@@ -291,15 +289,13 @@ graphs = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="membership_type",
-                        style={'height': '46vh'}
+                        style={"height": "46vh"},
                     ),
                     md=4,
                 ),
                 dbc.Col(
                     dcc.Graph(
-                        figure=go.Figure(),
-                        id="union_member",
-                        style={'height': '46vh'}
+                        figure=go.Figure(), id="union_member", style={"height": "46vh"}
                     ),
                     md=4,
                 ),
@@ -312,16 +308,12 @@ graphs = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="membership_length",
-                        style={'height': '46vh'}
+                        style={"height": "46vh"},
                     ),
                     md=6,
                 ),
                 dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="race",
-                        style={'height': '46vh'}
-                    ),
+                    dcc.Graph(figure=go.Figure(), id="race", style={"height": "46vh"}),
                     md=6,
                 ),
             ],
@@ -652,13 +644,12 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
             "Racial Demographics (self-reported)",
             "Members",
             True,
-        )
+        ),
     ]
 
     for chart in charts:
         if not dark_mode:
             chart["layout"]["template"] = pio.templates["journal"]
-
 
     return charts
 
@@ -700,7 +691,9 @@ def create_map(date_selected: str, selected_column: str, dark_mode: bool):
     )
 
     if not dark_mode:
-        map_figure.update_layout(mapbox_style="light", template=pio.templates["journal"])
+        map_figure.update_layout(
+            mapbox_style="light", template=pio.templates["journal"]
+        )
 
     map_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
