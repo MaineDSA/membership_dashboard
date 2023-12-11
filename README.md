@@ -47,7 +47,7 @@ The dashboard provides the following features:
 
 Feel free to explore the code and modify it according to your needs!
 
-## Screenshots
+## Screenshots (based on random testing data for demonstration/development purposes)
 ![Screenshot from 2023-12-09 22-40-04](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/a9dadd59-e995-4a4b-b732-88f94e157e84)
 ![Screenshot from 2023-12-09 22-40-14](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/c179e4ae-b300-4131-9647-f5df9be6511e)
 ![Screenshot from 2023-12-09 22-40-31](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/294e89d5-2d65-4156-b8f5-7fd170d457c1)
