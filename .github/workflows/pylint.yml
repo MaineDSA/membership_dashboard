@@ -2,21 +2,28 @@ name: Pylint
 
 on:
   push:
+    branches:
+      - "main"
     paths:
-      - '**.py' # Run if pushed commits include a change to a Lua (.lua) file.
-      - 'requirements.txt' # Run if pushed commits include a change to extension.xml.
+      - '**.py' # Run if pushed commits include a change to a Python (.py) file.
+      - '.github/workflows/*.yml' # Run if pushed commits include a change to a github actions workflow file.
+      - 'requirements.txt' # Run if pushed commits include a change to the Python requirements.txt file.
   pull_request:
+    branches:
+      - "main"
     paths:
-      - '**.py' # Run if pushed commits include a change to a Lua (.lua) file.
-      - 'requirements.txt' # Run if pushed commits include a change to extension.xml.
+      - '**.py' # Run if pushed commits include a change to a Python (.py) file.
+      - '.github/workflows/*.yml' # Run if pushed commits include a change to a github actions workflow file.
+      - 'requirements.txt' # Run if pushed commits include a change to the Python requirements.txt file.
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: "Ruff"
+    runs-on: "ubuntu-latest"
     strategy:
       matrix:
-        python-version: ["3.12","3.11","3.10","3.9"]
+        python-version: ["3.12", "3.11", "3.10"]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -28,6 +35,6 @@ jobs:
         python3 -m pip install --upgrade pip
         pip3 install pylint
         if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
-    - name: Analysing the code with pylint
+    - name: Analysing the code with ruff
       run: |
         pylint $(git ls-files '*.py') --max-line-length=160
