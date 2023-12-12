@@ -19,7 +19,6 @@ on:
 
 jobs:
   build:
-    name: "Ruff"
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
