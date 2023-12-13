@@ -40,7 +40,7 @@ def mapbox_geocoder(address: str) -> list:
 
 def get_geocoding(address: str) -> list:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
-    if not isinstance(address, str) or (MEMB_LIST_NAME == "test_membership_list"):
+    if not isinstance(address, str) or (MEMB_LIST_NAME == "fake_membership_list"):
         return [0,0]
 
     if address in address_cache:
