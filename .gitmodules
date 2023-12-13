@@ -1,3 +1,3 @@
-[submodule "test_membership_list"]
-	path = test_membership_list
+[submodule "fake_membership_list"]
+	path = fake_membership_list
 	url = https://github.com/MaineDSA/generate_fake_membership_list
