@@ -1,5 +1,6 @@
 """Construct a membership dashboard showing various graphs and metrics to illustrate changes over time."""
 
+import logging
 from pathlib import Path
 import pandas as pd
 import plotly.io as pio
@@ -30,13 +31,13 @@ COLORS = [
 
 
 px.set_mapbox_access_token(Path(".mapbox_token").read_text(encoding="UTF-8"))
-
+logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(message)s")
 
 def get_membership_list_metrics(members: pd.DataFrame) -> dict:
     """Scan memb_lists and calculate metrics."""
     members_metrics = {}
 
-    print(f"Calculating metrics for {len(members)} membership lists")
+    logging.info(f"Calculating metrics for {len(members)} membership lists")
     for date_formatted, membership_list in members.items():
         for column in membership_list.columns:
             if column not in members_metrics:

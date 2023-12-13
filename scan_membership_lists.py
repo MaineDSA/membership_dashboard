@@ -1,6 +1,7 @@
 """Parse all membership lists into pandas dataframes for display on dashboard"""
 
 import os
+import logging
 from glob import glob
 import pickle
 from zipfile import ZipFile
@@ -16,6 +17,7 @@ MEMB_LIST_NAME = Path(".list_name").read_text(encoding="UTF-8")
 
 
 geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
+logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(message)s")
 
 
 def membership_length(date: str, **kwargs) -> int:
@@ -143,19 +145,19 @@ def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
         os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
     ).date()
     if not date_from_name:
-        print(f"No date detected in name of {filename}. Skipping file.")
+        logging.warning("No date detected in name of %s. Skipping file.", filename)
         return pd.DataFrame()
 
     with ZipFile(filepath) as memb_list_zip:
         with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv") as memb_list:
-            # print(f"Loading data from {MEMB_LIST_NAME}.csv in {filename}.")
+            logging.info("Loading data from %s.csv in %s.", MEMB_LIST_NAME, filename)
             return pd.read_csv(memb_list, header=0)
 
 
 def scan_all_membership_lists() -> dict:
     """Scan all zip files and call scan_membership_list on each."""
     memb_lists = {}
-    print(f"Scanning zipped membership lists in ./{MEMB_LIST_NAME}/.")
+    logging.info("Scanning zipped membership lists in ./%s/.", MEMB_LIST_NAME)
     files = sorted(
         glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True),
         reverse=True,
@@ -169,8 +171,8 @@ def scan_all_membership_lists() -> dict:
             # Save contents of each zip file into dict keyed to date
             memb_lists[date_from_name.isoformat()] = scan_membership_list(filename, os.path.abspath(zip_file))
         except (IndexError, ValueError):
-            print(f"No date detected in name of {filename}. Skipping file.")
-    print(f"Found {len(memb_lists)} zipped membership lists.")
+            logging.info("No date detected in name of %s. Skipping file.", filename)
+    logging.info("Found %s zipped membership lists.", len(memb_lists))
     return memb_lists
 
 
@@ -180,7 +182,7 @@ def get_pickled_dict() -> dict:
     if os.path.exists(pickled_file_path):
         with open(pickled_file_path, "rb") as pickled_file:
             pickled_dict = pickle.load(pickled_file)
-            print(f"Found {len(pickled_dict)} pickled membership lists.")
+            logging.info("Found %s pickled membership lists.", len(pickled_dict))
             return pickled_dict
     return {}
 
@@ -191,12 +193,13 @@ def get_membership_lists() -> dict:
     pickled_lists = get_pickled_dict()
 
     new_lists = {k: v for k, v in memb_lists.items() if k not in pickled_lists}
-    print(f"Found {len(new_lists)} new lists")
+    logging.info("Found %s new lists", len(new_lists))
     if len(new_lists) > 0:
-        print("Geocoding and cleaning data for new lists. The first one takes a long time.")
+        logging.info("Geocoding and cleaning data for new lists.")
         new_lists = {k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="list")}
 
     memb_lists = dict(sorted((new_lists | pickled_lists).items(), reverse=True))
     with open(os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
         pickle.dump(memb_lists, pickled_file)
+
     return memb_lists
