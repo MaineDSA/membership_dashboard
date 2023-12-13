@@ -37,7 +37,7 @@ def get_membership_list_metrics(members: pd.DataFrame) -> dict:
     """Scan memb_lists and calculate metrics."""
     members_metrics = {}
 
-    logging.info(f"Calculating metrics for {len(members)} membership lists")
+    logging.info("Calculating metrics for %s membership lists", len(members))
     for date_formatted, membership_list in members.items():
         for column in membership_list.columns:
             if column not in members_metrics:
