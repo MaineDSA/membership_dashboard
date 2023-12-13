@@ -34,6 +34,6 @@ jobs:
         python3 -m pip install --upgrade pip
         pip3 install pylint
         if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
-    - name: Analysing the code with ruff
+    - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py') --max-line-length=160
