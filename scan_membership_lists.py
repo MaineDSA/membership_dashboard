@@ -22,9 +22,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(
 
 def membership_length(date: str, **kwargs) -> int:
     """Return an integer representing how many years between the supplied dates."""
-    return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(
-        days=365
-    )
+    return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(days=365)
 
 
 address_cache = {}
@@ -37,13 +35,13 @@ def mapbox_geocoder(address: str) -> list:
     response = geocoder.forward(address, country=["us"])
     if "features" in response.geojson():
         return response.geojson()["features"][0]["center"]
-    return [0,0]
+    return [0, 0]
 
 
 def get_geocoding(address: str) -> list:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
     if not isinstance(address, str) or (MEMB_LIST_NAME == "fake_membership_list"):
-        return [0,0]
+        return [0, 0]
 
     if address in address_cache:
         return address_cache[address]
@@ -84,9 +82,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     df.set_index("actionkit_id", inplace=True)
 
     # Apply the membership_length function to join_date
-    df["membership_length"] = df["join_date"].apply(
-        membership_length, list_date=list_date
-    )
+    df["membership_length"] = df["join_date"].apply(membership_length, list_date=list_date)
 
     # Standardize other columns
     for col, default in [
@@ -102,11 +98,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
         df[col] = df[col].fillna(default)
 
     # Standardize membership_status column
-    df["membership_status"] = (
-        df.get("membership_status", "unknown")
-        .replace({"expired": "lapsed"})
-        .str.lower()
-    )
+    df["membership_status"] = df.get("membership_status", "unknown").replace({"expired": "lapsed"}).str.lower()
 
     # Standardize accommodations column
     df["accommodations"] = (
@@ -141,9 +133,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
 
 def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
     """Scan the requested membership list and add data to memb_lists."""
-    date_from_name = pd.to_datetime(
-        os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
-    ).date()
+    date_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d").date()
     if not date_from_name:
         logging.warning("No date detected in name of %s. Skipping file.", filename)
         return pd.DataFrame()
@@ -165,9 +155,7 @@ def scan_all_membership_lists() -> dict:
     for zip_file in tqdm(files, unit="lists"):
         filename = os.path.basename(zip_file)
         try:
-            date_from_name = pd.to_datetime(
-                os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
-            ).date()
+            date_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d").date()
             # Save contents of each zip file into dict keyed to date
             memb_lists[date_from_name.isoformat()] = scan_membership_list(filename, os.path.abspath(zip_file))
         except (IndexError, ValueError):

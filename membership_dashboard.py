@@ -31,7 +31,8 @@ COLORS = [
 
 
 px.set_mapbox_access_token(Path(".mapbox_token").read_text(encoding="UTF-8"))
-logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(message)s")
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
+
 
 def get_membership_list_metrics(members: pd.DataFrame) -> dict:
     """Scan memb_lists and calculate metrics."""
@@ -42,9 +43,7 @@ def get_membership_list_metrics(members: pd.DataFrame) -> dict:
         for column in membership_list.columns:
             if column not in members_metrics:
                 members_metrics[column] = {}
-            members_metrics[column][date_formatted] = members[date_formatted][
-                column
-            ]
+            members_metrics[column][date_formatted] = members[date_formatted][column]
 
     return members_metrics
 
@@ -82,11 +81,7 @@ sidebar_header = dbc.Row(
             [
                 dbc.Row(
                     [
-                        dbc.Col(
-                            dbc.Label(
-                                className="fa fa-sun", html_for="color-mode-switch"
-                            )
-                        ),
+                        dbc.Col(dbc.Label(className="fa fa-sun", html_for="color-mode-switch")),
                         dbc.Col(
                             dbc.Switch(
                                 id="color-mode-switch",
@@ -95,11 +90,7 @@ sidebar_header = dbc.Row(
                                 persistence=True,
                             )
                         ),
-                        dbc.Col(
-                            dbc.Label(
-                                className="fa fa-moon", html_for="color-mode-switch"
-                            )
-                        ),
+                        dbc.Col(dbc.Label(className="fa fa-moon", html_for="color-mode-switch")),
                     ],
                     className="g-0",
                 )
@@ -160,9 +151,7 @@ sidebar = html.Div(
 
 content = html.Div(id="page-content")
 
-app.layout = dbc.Container(
-    [dcc.Location(id="url"), sidebar, content], className="dbc dbc-ag-grid", fluid=True
-)
+app.layout = dbc.Container([dcc.Location(id="url"), sidebar, content], className="dbc dbc-ag-grid", fluid=True)
 
 timeline = html.Div(
     id="timeline-container",
@@ -193,10 +182,7 @@ member_list = html.Div(
     children=[
         dash_table.DataTable(
             data=memb_lists[list(memb_lists.keys())[0]].to_dict("records"),
-            columns=[
-                {"name": i, "id": i, "selectable": True}
-                for i in memb_lists[list(memb_lists.keys())[0]].columns
-            ],
+            columns=[{"name": i, "id": i, "selectable": True} for i in memb_lists[list(memb_lists.keys())[0]].columns],
             sort_action="native",
             sort_by=[
                 {"column_id": "last_name", "direction": "asc"},
@@ -231,9 +217,7 @@ metrics = html.Div(
                     width=6,
                 ),
                 dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(), id="members_migs", style={"height": "30vh"}
-                    ),
+                    dcc.Graph(figure=go.Figure(), id="members_migs", style={"height": "30vh"}),
                     width=6,
                 ),
             ],
@@ -295,9 +279,7 @@ graphs = html.Div(
                     md=4,
                 ),
                 dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(), id="union_member", style={"height": "46vh"}
-                    ),
+                    dcc.Graph(figure=go.Figure(), id="union_member", style={"height": "46vh"}),
                     md=4,
                 ),
             ],
@@ -387,9 +369,7 @@ def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
                         marker_color=COLORS[count % len(COLORS)],
                     )
                 )
-    timeline_figure.update_layout(
-        title="Membership Trends Timeline", yaxis_title="Members"
-    )
+    timeline_figure.update_layout(title="Membership Trends Timeline", yaxis_title="Members")
     if not dark_mode:
         timeline_figure["layout"]["template"] = pio.templates["journal"]
 
@@ -462,9 +442,7 @@ def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mo
     )
 
     if not df_compare.empty:
-        compare_migs = (
-            df_compare["membership_status"].eq("member in good standing").sum()
-        )
+        compare_migs = df_compare["membership_status"].eq("member in good standing").sum()
         compare_constitutional = df_compare["membership_status"].eq("member").sum()
         rate_compare = (compare_migs / (compare_constitutional + compare_migs)) * 100
         indicator = go.Indicator(
@@ -474,9 +452,7 @@ def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mo
             number={"suffix": "%"},
         )
 
-    fig = go.Figure(
-        data=indicator, layout={"title": "Retention Rate (MIGS / Constitutional)"}
-    )
+    fig = go.Figure(data=indicator, layout={"title": "Retention Rate (MIGS / Constitutional)"})
 
     if not dark_mode:
         fig["layout"]["template"] = pio.templates["journal"]
@@ -509,10 +485,7 @@ def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bo
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
 
-    metric_count_frames = [
-        calculate_metric(df, df_compare, metric_plan, dark_mode)
-        for metric_plan in metrics_plan
-    ]
+    metric_count_frames = [calculate_metric(df, df_compare, metric_plan, dark_mode) for metric_plan in metrics_plan]
     metric_retention = calculate_retention_rate(df, df_compare, dark_mode)
 
     return *metric_count_frames, metric_retention
@@ -570,7 +543,7 @@ def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: 
     Input(component_id="list_compare_dropdown", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: bool) -> ([go.Figure] * 5):
+def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: bool) -> [go.Figure] * 5:
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return [go.Figure()] * 5
@@ -589,59 +562,45 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
             .join(df.drop(target_column, axis=1))
         )
 
-    membersdf = df.query(
-        'membership_status != "lapsed" and membership_status != "expired"'
-    )
+    membersdf = df.query('membership_status != "lapsed" and membership_status != "expired"')
     membersdf_compare = (
-        df_compare.query(
-            'membership_status != "lapsed" and membership_status != "expired"'
-        )
-        if "membership_status" in df_compare
-        else pd.DataFrame()
+        df_compare.query('membership_status != "lapsed" and membership_status != "expired"') if "membership_status" in df_compare else pd.DataFrame()
     )
 
     charts = [
         create_chart(
-            df["membership_status"] if "membership_status"
-            in df else pd.DataFrame(),
-            df_compare["membership_status"]
-            if "membership_status" in df_compare else pd.DataFrame(),
+            df["membership_status"] if "membership_status" in df else pd.DataFrame(),
+            df_compare["membership_status"] if "membership_status" in df_compare else pd.DataFrame(),
             "Membership Counts (all-time)",
             "Members",
             False,
         ),
         create_chart(
-            df.loc[df["membership_status"] == "member in good standing"]["membership_type"]
-            if "membership_status" in df else pd.DataFrame(),
+            df.loc[df["membership_status"] == "member in good standing"]["membership_type"] if "membership_status" in df else pd.DataFrame(),
             df_compare.loc[df_compare["membership_status"] == "member in good standing"]["membership_type"]
-            if "membership_status" in df_compare else pd.DataFrame(),
+            if "membership_status" in df_compare
+            else pd.DataFrame(),
             "Dues (members in good standing)",
             "Members",
             True,
         ),
         create_chart(
-            membersdf["union_member"]
-            if "union_member" in df else pd.DataFrame(),
-            membersdf_compare["union_member"]
-            if "union_member" in df_compare else pd.DataFrame(),
+            membersdf["union_member"] if "union_member" in df else pd.DataFrame(),
+            membersdf_compare["union_member"] if "union_member" in df_compare else pd.DataFrame(),
             "Union Membership (not lapsed)",
             "Members",
             True,
         ),
         create_chart(
-            membersdf["membership_length"].clip(upper=8)
-            if "membership_length" in df else pd.DataFrame(),
-            membersdf_compare["membership_length"].clip(upper=8)
-            if "membership_length" in membersdf_compare else pd.DataFrame(),
+            membersdf["membership_length"].clip(upper=8) if "membership_length" in df else pd.DataFrame(),
+            membersdf_compare["membership_length"].clip(upper=8) if "membership_length" in membersdf_compare else pd.DataFrame(),
             "Length of Membership (0 - 8+yrs, not lapsed)",
             "Members",
             False,
         ),
         create_chart(
-            multiple_choice(membersdf, "race", ",")["race"]
-            if "race" in df else pd.DataFrame(),
-            multiple_choice(membersdf_compare, "race", ",")["race"]
-            if "race" in membersdf_compare else pd.DataFrame(),
+            multiple_choice(membersdf, "race", ",")["race"] if "race" in df else pd.DataFrame(),
+            multiple_choice(membersdf_compare, "race", ",")["race"] if "race" in membersdf_compare else pd.DataFrame(),
             "Racial Demographics (self-reported)",
             "Members",
             True,
@@ -692,9 +651,7 @@ def create_map(date_selected: str, selected_column: str, dark_mode: bool):
     )
 
     if not dark_mode:
-        map_figure.update_layout(
-            mapbox_style="light", template=pio.templates["journal"]
-        )
+        map_figure.update_layout(mapbox_style="light", template=pio.templates["journal"])
 
     map_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
