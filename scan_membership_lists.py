@@ -43,10 +43,9 @@ def get_geocoding(address: str) -> list:
     if not isinstance(address, str) or not Path(".mapbox_token").is_file():
         return [0, 0]
 
-    if address in address_cache:
-        return address_cache[address]
+    if address not in address_cache:
+        address_cache[address] = mapbox_geocoder(address)
 
-    address_cache[address] = mapbox_geocoder(address)
     return address_cache[address]
 
 
