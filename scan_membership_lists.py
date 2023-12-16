@@ -148,7 +148,7 @@ def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
 def scan_all_membership_lists() -> dict:
     """Scan all zip files and call scan_membership_list on each."""
     memb_lists = {}
-    logging.info("Scanning zipped membership lists in ./%s/.", MEMB_LIST_NAME)
+    logging.info("Scanning zipped membership lists in %s/.", MEMB_LIST_NAME)
     files = sorted(
         glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True),
         reverse=True,
