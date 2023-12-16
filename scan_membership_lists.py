@@ -54,8 +54,8 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     # Ensure column names are lowercase
     df.columns = df.columns.str.lower()
 
-    # Mapping of old column names to new ones
-    column_mapping = {
+    # Rename the old columns to new names
+    for old, new in {
         "billing_city": "city",
         "akid": "actionkit_id",
         "ak_id": "actionkit_id",
@@ -70,13 +70,9 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
         # old 2020-era lists
         "address_line_1": "address1",
         "address_line_2": "address2",
-    }
-
-    # Rename the old columns to new names
-    for old, new in column_mapping.items():
+    }.items():
         if (new not in df.columns) & (old in df.columns):
-            df[new] = df[old]
-            df = df.drop(old, axis=1)
+            df.rename(columns={old: new}, inplace=True)
 
     df.set_index("actionkit_id", inplace=True)
 
