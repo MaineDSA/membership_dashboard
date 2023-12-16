@@ -384,17 +384,18 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
     """Update the list shown based on the selected membership list date."""
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
-    if not df_compare.empty:
-        df = (
-            pd.concat([df, df_compare])
-            .reset_index(drop=False)
-            .drop_duplicates(
-                subset=["actionkit_id", "membership_status", "membership_type"],
-                keep=False,
-            )
-            .drop_duplicates(subset=["actionkit_id"])
+    if df_compare.empty:
+        return df.to_dict("records")
+
+    return (
+        pd.concat([df, df_compare])
+        .reset_index(drop=False)
+        .drop_duplicates(
+            subset=["actionkit_id", "membership_status", "membership_type"],
+            keep=False,
         )
-    return df.to_dict("records")
+        .drop_duplicates(subset=["actionkit_id"])
+    ).to_dict("records")
 
 
 def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dark_mode: bool) -> go.Figure:
