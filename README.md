@@ -17,10 +17,11 @@ python3 -m pip install -r requirements.txt
 
 1. Clone the repository and navigate to the project folder.
 2. Put the name of the membership lists you get from National DSA into a UTF-8 text file called `.list_name` in the project folder. We use `maine_membership_list` and the repo includes the `test_membership_list` submodule which includes a single randomly-generated list in the correct format.
-3. Put a [MapBox](https://www.mapbox.com/) API token into a UTF-8 text file called `.mapbox_token` in the project folder.
-4. Create a folder with the same title as the membership lists you receive from National DSA (you can use subfolders).
-5. Add membership lists to the folder (see [notes](#notes) below).
-6. Open a terminal and run the following command to start the dashboard:
+3. Put a [MapBox](https://www.mapbox.com/) API token into a UTF-8 text file called `.mapbox_token` in the project folder [OPTIONAL]
+4. Put a CSV called `branch_zips.csv` containing zip codes matched with branch names in the project folder [OPTIONAL]
+5. Create a folder with the same title as the membership lists you receive from National DSA (you can use subfolders).
+6. Add membership lists to the folder (see [notes](#notes) below).
+7. Open a terminal and run the following command to start the dashboard:
 
 ```shell
 python3 -m membership_dashboard
@@ -39,6 +40,7 @@ The dashboard provides the following features:
 - Graphs displaying membership counts, dues, union membership, length of membership, and racial demographics.
 - Maps addresses to allow visualization of how membership metrics are distributed across the state.
 - Standardizes some important membership list metrics across variances in membership list formatting going back to at least Jan 2020.
+- Tags members with the appropriate branch for their zip code, if a branch_zips.csv file is provided with the columns zip and branch. As tagging reoccurs each time the program is loaded, all branch labeling is based on the current branch zip codes allocations, as opposed to historical zip code allocations.
 
 ## Notes
 

@@ -1,6 +1,7 @@
 # Inputs, Outputs, Private Data
 .list_name
 .mapbox_token
+branch_zips.csv
 *_membership_list*/*
 *.pkl
 *.zip

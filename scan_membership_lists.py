@@ -14,6 +14,7 @@ from ratelimit import limits, sleep_and_retry
 
 
 MEMB_LIST_NAME = Path(".list_name").read_text(encoding="UTF-8")
+BRANCH_ZIPS_FILE = "branch_zips.csv"
 
 
 geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
@@ -187,4 +188,12 @@ def get_membership_lists() -> dict:
     with open(os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
         pickle.dump(memb_lists, pickled_file)
 
-    return memb_lists
+    # Cross-reference with branch_zips.csv
+    if not Path(BRANCH_ZIPS_FILE).is_file():
+        return memb_lists
+
+    branch_zips = pd.read_csv(BRANCH_ZIPS_FILE, dtype={"zip": str}, index_col="zip")
+    return {
+        k: pd.DataFrame({**v, "branch": v["zip"].astype(str).str[:5].map(lambda zip_code: branch_zips.loc[zip_code, "branch"])})
+        for k, v in memb_lists.items()
+    }
