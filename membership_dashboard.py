@@ -39,9 +39,7 @@ def get_membership_list_metrics(members: pd.DataFrame) -> dict:
     logging.info("Calculating metrics for %s membership lists", len(members))
     return {
         column: {
-            date_formatted: members[date_formatted].get(column)
-            for date_formatted, membership_list in members.items()
-            if column in membership_list.columns
+            date_formatted: members[date_formatted].get(column) for date_formatted, membership_list in members.items() if column in membership_list.columns
         }
         for column in set(column for membership_list in members.values() for column in membership_list.columns)
     }
@@ -346,7 +344,7 @@ def selected_data(child: str) -> pd.DataFrame:
 )
 def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
     """Update the timeline plotting selected columns."""
-    timeline_figure = go.Figure()
+    timeline_figure = go.Figure(layout={"title": "Membership Trends Timeline", "yaxis_title": "Members"})
     selected_metrics = {}
 
     for selected_column in selected_columns:
@@ -369,7 +367,6 @@ def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
         ]
     )
 
-    timeline_figure.update_layout(title="Membership Trends Timeline", yaxis_title="Members")
     if not dark_mode:
         timeline_figure["layout"]["template"] = pio.templates["journal"]
 
@@ -422,8 +419,7 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dar
             },
         )
 
-    fig = go.Figure(data=indicator)
-    fig["layout"]["title"] = title
+    fig = go.Figure(data=indicator, layout={"title": title})
 
     if not dark_mode:
         fig["layout"]["template"] = pio.templates["journal"]
@@ -526,11 +522,13 @@ def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: 
                 text=active_labels,
                 marker_color=color,
             ),
-        ]
+        ],
+        layout={"title": title, "yaxis_title": ylabel},
     )
 
-    chart.update_layout(title=title, yaxis_title=(ylabel + " (Logarithmic)") if log else ylabel)
-    chart.update_yaxes(type="log" if log else None)
+    if log:
+        chart.update_layout(yaxis_title=ylabel + " (Logarithmic)")
+        chart.update_yaxes(type="log")
 
     return chart
 
