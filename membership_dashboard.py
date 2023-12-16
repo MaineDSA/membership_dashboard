@@ -358,17 +358,18 @@ def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
                 if value not in selected_metrics[selected_column]:
                     selected_metrics[selected_column][value] = {}
                 selected_metrics[selected_column][value][date] = count
-        for _, timeline_metric in selected_metrics.items():
-            for count, value in enumerate(timeline_metric):
-                timeline_figure.add_trace(
-                    go.Scatter(
-                        name=value,
-                        x=list(timeline_metric[value].keys()),
-                        y=list(timeline_metric[value].values()),
-                        mode="lines",
-                        marker_color=COLORS[count % len(COLORS)],
-                    )
-                )
+    timeline_figure.add_traces([
+        go.Scatter(
+            name=value,
+            x=list(timeline_metric[value].keys()),
+            y=list(timeline_metric[value].values()),
+            mode="lines",
+            marker_color=COLORS[count % len(COLORS)],
+        )
+        for count, (selected_column, timeline_metric) in enumerate(selected_metrics.items())
+        for value in timeline_metric
+    ])
+
     timeline_figure.update_layout(title="Membership Trends Timeline", yaxis_title="Members")
     if not dark_mode:
         timeline_figure["layout"]["template"] = pio.templates["journal"]
