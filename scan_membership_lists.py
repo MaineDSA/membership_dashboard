@@ -17,7 +17,7 @@ MEMB_LIST_NAME = Path(".list_name").read_text(encoding="UTF-8")
 
 
 geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
-logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(message)s")
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 
 
 def membership_length(date: str, **kwargs) -> int:
