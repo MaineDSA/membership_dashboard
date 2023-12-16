@@ -36,14 +36,15 @@ logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s :
 
 def get_membership_list_metrics(members: pd.DataFrame) -> dict:
     """Scan memb_lists and calculate metrics."""
-    members_metrics = {}
-
     logging.info("Calculating metrics for %s membership lists", len(members))
-    for date_formatted, membership_list in members.items():
-        for column in membership_list.columns:
-            members_metrics.setdefault(column, {}).setdefault(date_formatted, members[date_formatted][column])
-
-    return members_metrics
+    return {
+        column: {
+            date_formatted: members[date_formatted].get(column)
+            for date_formatted, membership_list in members.items()
+            if column in membership_list.columns
+        }
+        for column in set(column for membership_list in members.values() for column in membership_list.columns)
+    }
 
 
 memb_lists = get_membership_lists()
