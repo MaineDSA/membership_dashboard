@@ -41,9 +41,7 @@ def get_membership_list_metrics(members: pd.DataFrame) -> dict:
     logging.info("Calculating metrics for %s membership lists", len(members))
     for date_formatted, membership_list in members.items():
         for column in membership_list.columns:
-            if column not in members_metrics:
-                members_metrics[column] = {}
-            members_metrics[column][date_formatted] = members[date_formatted][column]
+            members_metrics.setdefault(column, {}).setdefault(date_formatted, members[date_formatted][column])
 
     return members_metrics
 
@@ -353,22 +351,22 @@ def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
     for selected_column in selected_columns:
         selected_metrics[selected_column] = {}
         for date in memb_lists_metrics[selected_column]:
-            value_counts = memb_lists_metrics[selected_column][date].value_counts()
-            for value, count in value_counts.items():
-                if value not in selected_metrics[selected_column]:
-                    selected_metrics[selected_column][value] = {}
-                selected_metrics[selected_column][value][date] = count
-    timeline_figure.add_traces([
-        go.Scatter(
-            name=value,
-            x=list(timeline_metric[value].keys()),
-            y=list(timeline_metric[value].values()),
-            mode="lines",
-            marker_color=COLORS[count % len(COLORS)],
-        )
-        for count, (selected_column, timeline_metric) in enumerate(selected_metrics.items())
-        for value in timeline_metric
-    ])
+            for value, count in memb_lists_metrics[selected_column][date].value_counts().items():
+                selected_metrics[selected_column].setdefault(value, {}).setdefault(date, count)
+
+    timeline_figure.add_traces(
+        [
+            go.Scatter(
+                name=value,
+                x=list(timeline_metric[value].keys()),
+                y=list(timeline_metric[value].values()),
+                mode="lines",
+                marker_color=COLORS[count % len(COLORS)],
+            )
+            for count, (selected_column, timeline_metric) in enumerate(selected_metrics.items())
+            for value in timeline_metric
+        ]
+    )
 
     timeline_figure.update_layout(title="Membership Trends Timeline", yaxis_title="Members")
     if not dark_mode:
