@@ -125,7 +125,8 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     if ("lat" not in df) and ("lon" not in df):
         tqdm.pandas(unit="comrades", leave=False)
         df[["lon", "lat"]] = pd.DataFrame(
-            (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + str(df["zip"])).progress_apply(get_geocoding).tolist(), index=df.index
+            (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + str(df["zip"])).progress_apply(get_geocoding).tolist(),
+            index=df.index,
         )
 
     return df
@@ -140,7 +141,7 @@ def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
 
     with ZipFile(filepath) as memb_list_zip:
         with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv") as memb_list:
-            logging.info("Loading data from %s.csv in %s.", MEMB_LIST_NAME, filename)
+            logging.debug("Loading data from %s.csv in %s.", MEMB_LIST_NAME, filename)
             return pd.read_csv(memb_list, header=0)
 
 
