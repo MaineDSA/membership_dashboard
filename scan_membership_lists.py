@@ -153,7 +153,7 @@ def scan_all_membership_lists() -> dict:
         glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True),
         reverse=True,
     )
-    for zip_file in tqdm(files, unit="lists"):
+    for zip_file in files:
         filename = os.path.basename(zip_file)
         try:
             date_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d").date()
