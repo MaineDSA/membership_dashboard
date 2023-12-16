@@ -163,12 +163,13 @@ def scan_all_membership_lists() -> dict:
 def get_pickled_dict() -> dict:
     """Return the last scanned membership lists."""
     pickled_file_path = os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl")
-    if os.path.exists(pickled_file_path):
-        with open(pickled_file_path, "rb") as pickled_file:
-            pickled_dict = pickle.load(pickled_file)
-            logging.info("Found %s pickled membership lists.", len(pickled_dict))
-            return pickled_dict
-    return {}
+    if not os.path.exists(pickled_file_path):
+        return {}
+
+    with open(pickled_file_path, "rb") as pickled_file:
+        pickled_dict = pickle.load(pickled_file)
+        logging.info("Found %s pickled membership lists.", len(pickled_dict))
+        return pickled_dict
 
 
 def get_membership_lists() -> dict:
