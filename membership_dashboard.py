@@ -385,6 +385,7 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
     """Update the list shown based on the selected membership list date."""
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
+
     if df_compare.empty:
         return df.to_dict("records")
 
@@ -608,8 +609,8 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         ),
     ]
 
-    for chart in charts:
-        if not dark_mode:
+    if not dark_mode:
+        for chart in charts:
             chart["layout"]["template"] = pio.templates["journal"]
 
     return charts
