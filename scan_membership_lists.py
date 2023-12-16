@@ -179,7 +179,7 @@ def get_membership_lists() -> dict:
 
     new_lists = {k: v for k, v in memb_lists.items() if k not in pickled_lists}
     logging.info("Found %s new lists", len(new_lists))
-    if len(new_lists) > 0:
+    if new_lists:
         logging.info("Geocoding and cleaning data for new lists.")
         new_lists = {k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="list")}
 

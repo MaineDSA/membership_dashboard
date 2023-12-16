@@ -553,14 +553,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
 
     def multiple_choice(df: pd.DataFrame, target_column: str, separator: str) -> pd.DataFrame:
         """Split a character-separated list string into an iterable object."""
-        return (
-            df[target_column]
-            .str.split(separator, expand=True)
-            .stack()
-            .reset_index(level=1, drop=True)
-            .to_frame(target_column)
-            .join(df.drop(target_column, axis=1))
-        )
+        return df.assign(**{target_column: df[target_column].str.split(separator)}).explode(target_column).reset_index(drop=True)
 
     membersdf = df.query('membership_status != "lapsed" and membership_status != "expired"')
     membersdf_compare = (
