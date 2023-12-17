@@ -492,11 +492,8 @@ def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mo
     Input(component_id="list_compare_dropdown", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bool) -> (list, go.Figure):
+def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bool) -> list:
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
-    if not date_selected:
-        return "", "", "", ""
-
     metrics_plan = [
         ["membership_type", "lifetime", "Lifetime Members"],
         ["membership_status", "member in good standing", "Members in Good Standing"],
@@ -504,13 +501,16 @@ def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bo
         ["membership_status", "lapsed", "Lapsed Members"],
     ]
 
+    if not date_selected:
+        return [""] * len(metrics_plan+1)
+
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
 
     metric_count_frames = [calculate_metric(df, df_compare, metric_plan, dark_mode) for metric_plan in metrics_plan]
-    metric_retention = calculate_retention_rate(df, df_compare, dark_mode)
+    metric_count_frames.append(calculate_retention_rate(df, df_compare, dark_mode))
 
-    return *metric_count_frames, metric_retention
+    return metric_count_frames
 
 
 def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: str, ylabel: str, log: bool) -> go.Figure:
