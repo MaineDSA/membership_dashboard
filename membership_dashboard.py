@@ -588,7 +588,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         create_chart(
             df["membership_status"] if "membership_status" in df else pd.DataFrame(),
             df_compare["membership_status"] if "membership_status" in df_compare else pd.DataFrame(),
-            "Membership Counts (all-time)",
+            "Membership Counts",
             "Members",
             False,
         ),
@@ -597,28 +597,28 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
             df_compare.loc[df_compare["membership_status"] == "member in good standing"]["membership_type"]
             if "membership_status" in df_compare
             else pd.DataFrame(),
-            "Dues (members in good standing)",
+            "Dues of Members in Good Standing",
             "Members",
             True,
         ),
         create_chart(
             membersdf["union_member"] if "union_member" in df else pd.DataFrame(),
             membersdf_compare["union_member"] if "union_member" in df_compare else pd.DataFrame(),
-            "Union Membership (not lapsed)",
+            "Union Membership of Constitutional Members",
             "Members",
             True,
         ),
         create_chart(
             membersdf["membership_length"].clip(upper=8) if "membership_length" in df else pd.DataFrame(),
             membersdf_compare["membership_length"].clip(upper=8) if "membership_length" in membersdf_compare else pd.DataFrame(),
-            "Length of Membership (0 - 8+yrs, not lapsed)",
+            "Length of Membership of Constitutional Members (0 - 8+yrs)",
             "Members",
             False,
         ),
         create_chart(
             multiple_choice(membersdf, "race", ",")["race"] if "race" in df else pd.DataFrame(),
             multiple_choice(membersdf_compare, "race", ",")["race"] if "race" in membersdf_compare else pd.DataFrame(),
-            "Racial Demographics (self-reported)",
+            "Racial Demographics of Constitutional Members",
             "Members",
             True,
         ),
