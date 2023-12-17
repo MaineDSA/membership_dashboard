@@ -362,8 +362,8 @@ def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
                 mode="lines",
                 marker_color=COLORS[count % len(COLORS)],
             )
-            for count, (selected_column, timeline_metric) in enumerate(selected_metrics.items())
-            for value in timeline_metric
+            for _, timeline_metric in selected_metrics.items()
+            for count, value in enumerate(timeline_metric)
         ]
     )
 
