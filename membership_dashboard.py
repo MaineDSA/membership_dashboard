@@ -13,7 +13,7 @@ from scan_membership_lists import get_membership_lists
 
 
 # A list of colors for graphs.
-# The first and sixth hex codes are used for default and comparison graph bars when comparing dates.
+# The first and eigth hex codes are used for default and comparison graph bars when comparing dates.
 COLORS = [
     "#ee8cb5",
     "#c693be",
@@ -413,7 +413,7 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
             "if": {
                 "filter_query": '{list_date} = "' + date_selected + '"',
             },
-            "backgroundColor": COLORS[5],
+            "backgroundColor": COLORS[7],
             "color": "black",
         },
     ]
@@ -522,7 +522,7 @@ def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: 
     active_labels = [str(val) for val in chartdf_vc.values]
 
     if not df_compare_field.empty:
-        color, color_compare = COLORS[5], COLORS[0]
+        color, color_compare = COLORS[7], COLORS[0]
         active_labels = [
             f"{count} (+{count - chartdf_compare_vc.get(val, 0)})"
             if count - chartdf_compare_vc.get(val, 0) > 0
