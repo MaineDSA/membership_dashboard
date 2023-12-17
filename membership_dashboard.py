@@ -375,6 +375,7 @@ def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
 
 @callback(
     Output(component_id="membership_list", component_property="data"),
+    Output(component_id="membership_list", component_property="style_data_conditional"),
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
@@ -384,17 +385,40 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
     df_compare = selected_data(date_compare_selected)
 
     if df_compare.empty:
-        return df.to_dict("records")
+        return df.to_dict("records"), []
 
-    return (
+    # Add list date to column to facilitate comparison
+    df["list_date"] = date_selected
+    df_compare["list_date"] = date_compare_selected
+
+    records = (
         pd.concat([df, df_compare])
         .reset_index(drop=False)
         .drop_duplicates(
-            subset=["actionkit_id", "membership_status", "membership_type"],
+            subset=["actionkit_id", "membership_type", "monthly_dues_status", "yearly_dues_status", "membership_status", "city"],
             keep=False,
         )
-        .drop_duplicates(subset=["actionkit_id"])
     ).to_dict("records")
+
+    # Define the conditional styling rule
+    conditional_style = [
+        {
+            "if": {
+                "filter_query": '{list_date} = "' + date_compare_selected + '"',
+            },
+            "backgroundColor": COLORS[0],
+            "color": "black",
+        },
+        {
+            "if": {
+                "filter_query": '{list_date} = "' + date_selected + '"',
+            },
+            "backgroundColor": COLORS[5],
+            "color": "black",
+        },
+    ]
+
+    return records, conditional_style
 
 
 def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dark_mode: bool) -> go.Figure:
@@ -498,7 +522,7 @@ def create_chart(df_field: pd.DataFrame, df_compare_field: pd.DataFrame, title: 
     active_labels = [str(val) for val in chartdf_vc.values]
 
     if not df_compare_field.empty:
-        color, color_compare = COLORS[0], COLORS[5]
+        color, color_compare = COLORS[5], COLORS[0]
         active_labels = [
             f"{count} (+{count - chartdf_compare_vc.get(val, 0)})"
             if count - chartdf_compare_vc.get(val, 0) > 0
