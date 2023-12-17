@@ -194,5 +194,8 @@ def get_membership_lists() -> dict:
 
     branch_zips = pd.read_csv(BRANCH_ZIPS_FILE, dtype={"zip": str}, index_col="zip")
     return {
-        k: pd.DataFrame({**v, "branch": v["zip"].astype(str).str[:5].map(lambda zip_code: branch_zips.loc[zip_code, "branch"])}) for k, v in memb_lists.items()
+        k: pd.DataFrame(
+            {**v, "branch": v["zip"].astype(str).str[:5].map(lambda zip_code: branch_zips.loc[zip_code, "branch"] if zip_code in branch_zips.index else "")}
+        )
+        for k, v in memb_lists.items()
     }
