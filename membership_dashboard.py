@@ -502,7 +502,7 @@ def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bo
     ]
 
     if not date_selected:
-        return [""] * len(metrics_plan+1)
+        return [""] * len(metrics_plan + 1)
 
     df = selected_data(date_selected)
     df_compare = selected_data(date_compare_selected)
