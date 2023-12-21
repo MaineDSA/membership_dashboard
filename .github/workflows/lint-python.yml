@@ -41,4 +41,4 @@ jobs:
 
     - name: Linting the code with ruff
       run: |
-        ruff check $(git ls-files '*.py') --fix
+        ruff check $(git ls-files '*.py')
