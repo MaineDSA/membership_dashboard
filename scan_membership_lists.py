@@ -38,9 +38,11 @@ address_cache = {}
 def mapbox_geocoder(address: str) -> list:
     """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API"""
     response = geocoder.forward(address, country=["us"])
-    if "features" in response.geojson():
-        return response.geojson()["features"][0]["center"]
-    return [0, 0]
+
+    if "features" not in response.geojson():
+        return [0, 0]
+
+    return response.geojson()["features"][0]["center"]
 
 
 def get_geocoding(address: str) -> list:
