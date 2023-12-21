@@ -18,16 +18,12 @@ BRANCH_ZIPS_FILE = "branch_zips.csv"
 
 
 geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
-logging.basicConfig(
-    level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s"
-)
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 
 
 def membership_length(date: str, **kwargs) -> int:
     """Return an integer representing how many years between the supplied dates."""
-    return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(
-        days=365
-    )
+    return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(days=365)
 
 
 address_cache = {}
@@ -84,9 +80,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     df.set_index("actionkit_id", inplace=True)
 
     # Apply the membership_length function to join_date
-    df["membership_length"] = df["join_date"].apply(
-        membership_length, list_date=list_date
-    )
+    df["membership_length"] = df["join_date"].apply(membership_length, list_date=list_date)
 
     # Standardize other columns
     for col, default in [
@@ -102,11 +96,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
         df[col] = df[col].fillna(default)
 
     # Standardize membership_status column
-    df["membership_status"] = (
-        df.get("membership_status", "unknown")
-        .replace({"expired": "lapsed"})
-        .str.lower()
-    )
+    df["membership_status"] = df.get("membership_status", "unknown").replace({"expired": "lapsed"}).str.lower()
 
     # Standardize accommodations column
     df["accommodations"] = (
@@ -133,17 +123,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     if ("lat" not in df) and ("lon" not in df):
         tqdm.pandas(unit="comrades", leave=False)
         df[["lon", "lat"]] = pd.DataFrame(
-            (
-                df["address1"]
-                + ", "
-                + df["city"]
-                + ", "
-                + df["state"]
-                + " "
-                + str(df["zip"])
-            )
-            .progress_apply(get_geocoding)
-            .tolist(),
+            (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + str(df["zip"])).progress_apply(get_geocoding).tolist(),
             index=df.index,
         )
 
@@ -152,10 +132,8 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
 
 def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
     """Scan the requested membership list and add data to memb_lists."""
-    date_from_name = pd.to_datetime(
-        os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
-    ).date()
-    if not date_from_name:
+    datetime_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d")
+    if not datetime_from_name.date():
         logging.warning("No date detected in name of %s. Skipping file.", filename)
         return pd.DataFrame()
 
@@ -176,13 +154,9 @@ def scan_all_membership_lists() -> dict:
     for zip_file in files:
         filename = os.path.basename(zip_file)
         try:
-            date_from_name = pd.to_datetime(
-                os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d"
-            ).date()
+            date_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d").date()
             # Save contents of each zip file into dict keyed to date
-            memb_lists[date_from_name.isoformat()] = scan_membership_list(
-                filename, os.path.abspath(zip_file)
-            )
+            memb_lists[date_from_name.isoformat()] = scan_membership_list(filename, os.path.abspath(zip_file))
         except (IndexError, ValueError):
             logging.info("No date detected in name of %s. Skipping file.", filename)
     logging.info("Found %s zipped membership lists.", len(memb_lists))
@@ -210,14 +184,10 @@ def get_membership_lists() -> dict:
     logging.info("Found %s new lists", len(new_lists))
     if new_lists:
         logging.info("Geocoding and cleaning data for new lists.")
-        new_lists = {
-            k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="list")
-        }
+        new_lists = {k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="list")}
 
     memb_lists = dict(sorted((new_lists | pickled_lists).items(), reverse=True))
-    with open(
-        os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb"
-    ) as pickled_file:
+    with open(os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
         pickle.dump(memb_lists, pickled_file)
 
     # Cross-reference with branch_zips.csv
@@ -229,14 +199,7 @@ def get_membership_lists() -> dict:
         k: pd.DataFrame(
             {
                 **v,
-                "branch": v["zip"]
-                .astype(str)
-                .str[:5]
-                .map(
-                    lambda zip_code: branch_zips.loc[zip_code, "branch"]
-                    if zip_code in branch_zips.index
-                    else ""
-                ),
+                "branch": v["zip"].astype(str).str[:5].map(lambda zip_code: branch_zips.loc[zip_code, "branch"] if zip_code in branch_zips.index else ""),
             }
         )
         for k, v in memb_lists.items()
