@@ -1,4 +1,4 @@
-name: Pylint
+name: Check Python Code
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - "main"
     paths:
       - '**.py' # Run if pushed commits include a change to a Python (.py) file.
-      - '.github/workflows/*.yml' # Run if pushed commits include a change to a github actions workflow file.
+      - '.github/workflows/lint-python.yml' # Run if pushed commits include a change to a github actions workflow file.
       - 'requirements.txt' # Run if pushed commits include a change to the Python requirements.txt file.
 
   pull_request:
@@ -14,7 +14,7 @@ on:
       - "main"
     paths:
       - '**.py' # Run if pushed commits include a change to a Python (.py) file.
-      - '.github/workflows/*.yml' # Run if pushed commits include a change to a github actions workflow file.
+      - '.github/workflows/lint-python.yml' # Run if pushed commits include a change to a github actions workflow file.
       - 'requirements.txt' # Run if pushed commits include a change to the Python requirements.txt file.
 
   workflow_dispatch:
