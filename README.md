@@ -1,4 +1,4 @@
-[![Pylint](https://github.com/MaineDSA/MembershipDashboard/actions/workflows/pylint.yml/badge.svg?branch=main)](https://github.com/MaineDSA/MembershipDashboard/actions/workflows/pylint.yml)
+[![Python Code](https://github.com/MaineDSA/membership_dashboard/actions/workflows/lint-python.yml/badge.svg)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/lint-python.yml)
 
 # Membership Dashboard
 
