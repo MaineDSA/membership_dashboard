@@ -43,7 +43,7 @@ px.set_mapbox_access_token(Path(".mapbox_token").read_text(encoding="UTF-8"))
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 
 
-def get_membership_list_metrics(members: pd.DataFrame) -> dict:
+def get_membership_list_metrics(members: dict) -> dict[str, dict[str, pd.DataFrame]]:
     """Scan memb_lists and calculate metrics."""
     logging.info("Calculating metrics for %s membership lists", len(members))
     return {
@@ -351,7 +351,7 @@ def selected_data(child: str) -> pd.DataFrame:
     Input(component_id="timeline_columns", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_timeline(selected_columns: list, dark_mode: bool) -> go.Figure:
+def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
     """Update the timeline plotting selected columns."""
     timeline_figure = go.Figure(layout={"title": "Membership Trends Timeline", "yaxis_title": "Members"})
     selected_metrics = {}
@@ -508,7 +508,7 @@ def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mo
     Input(component_id="list_compare_dropdown", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bool) -> list:
+def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bool) -> list[go.Figure]:
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
     metrics_plan = [
         ["membership_type", "lifetime", "Lifetime Members"],

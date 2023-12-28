@@ -143,7 +143,7 @@ def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
             return pd.read_csv(memb_list, header=0)
 
 
-def scan_all_membership_lists() -> dict:
+def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
     """Scan all zip files and call scan_membership_list on each."""
     memb_lists = {}
     logging.info("Scanning zipped membership lists in %s/.", MEMB_LIST_NAME)
@@ -163,7 +163,7 @@ def scan_all_membership_lists() -> dict:
     return memb_lists
 
 
-def get_pickled_dict() -> dict:
+def get_pickled_dict() -> dict[str, pd.DataFrame]:
     """Return the last scanned membership lists."""
     pickled_file_path = os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl")
     if not os.path.exists(pickled_file_path):
@@ -175,7 +175,7 @@ def get_pickled_dict() -> dict:
         return pickled_dict
 
 
-def get_membership_lists() -> dict:
+def get_membership_lists() -> dict[str, pd.DataFrame]:
     """Return all membership lists, preferring pickled lists for speed."""
     memb_lists = scan_all_membership_lists()
     pickled_lists = get_pickled_dict()
