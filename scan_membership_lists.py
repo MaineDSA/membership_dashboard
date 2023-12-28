@@ -59,7 +59,6 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
 
     # Rename the old columns to new names
     for old, new in {
-        "billing_city": "city",
         "akid": "actionkit_id",
         "ak_id": "actionkit_id",
         "accomodations": "accommodations",
