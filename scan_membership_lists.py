@@ -31,7 +31,7 @@ address_cache = {}
 
 @sleep_and_retry
 @limits(calls=600, period=60)
-def mapbox_geocoder(address: str) -> list:
+def mapbox_geocoder(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API"""
     response = geocoder.forward(address, country=["us"])
 
@@ -41,7 +41,7 @@ def mapbox_geocoder(address: str) -> list:
     return response.geojson()["features"][0]["center"]
 
 
-def get_geocoding(address: str) -> list:
+def get_geocoding(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
     if not isinstance(address, str) or not Path(".mapbox_token").is_file():
         return [0, 0]
@@ -119,7 +119,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
         df["membership_type"].replace({"annual": "yearly"}).str.lower(),
     )
 
-    # Create full address
+    # Get lat/lon from address
     if ("lat" not in df) and ("lon" not in df):
         tqdm.pandas(unit="comrades", leave=False)
         df[["lon", "lat"]] = pd.DataFrame(
