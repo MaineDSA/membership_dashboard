@@ -52,6 +52,10 @@ def get_geocoding(address: str) -> list[float]:
     return address_cache[address]
 
 
+def format_zip_code(zip_code):
+    return str(zip_code).zfill(5)
+
+
 def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     """Clean and standardize dataframe according to specified rules."""
     # Ensure column names are lowercase
@@ -75,6 +79,8 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     }.items():
         if (new not in df.columns) & (old in df.columns):
             df.rename(columns={old: new}, inplace=True)
+
+    df["zip"] = df["zip"].apply(format_zip_code)
 
     df.set_index("actionkit_id", inplace=True)
 
