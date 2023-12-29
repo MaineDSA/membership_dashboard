@@ -408,11 +408,12 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
         .drop_duplicates(
             subset=[
                 "actionkit_id",
+                "accommodations",
+                "city",
+                "membership_status",
                 "membership_type",
                 "monthly_dues_status",
                 "yearly_dues_status",
-                "membership_status",
-                "city",
             ],
             keep=False,
         )
