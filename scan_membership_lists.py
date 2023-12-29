@@ -13,12 +13,17 @@ from mapbox import Geocoder
 from ratelimit import limits, sleep_and_retry
 from tqdm import tqdm
 
-MEMB_LIST_NAME = Path(".list_name").read_text(encoding="UTF-8")
+
 BRANCH_ZIPS_FILE = "branch_zips.csv"
+MEMB_LIST_NAME = "fake_membership_list"
+if Path(".list_name").is_file():
+    MEMB_LIST_NAME = Path(".list_name").read_text(encoding="UTF-8")
 
 
-geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
+geocoder = Geocoder()
+if Path(".mapbox_token").is_file():
+    geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
 
 
 def membership_length(date: str, **kwargs) -> int:
