@@ -39,8 +39,9 @@ COLORS = [
 ]
 
 
-px.set_mapbox_access_token(Path(".mapbox_token").read_text(encoding="UTF-8"))
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
+if Path(".mapbox_token").is_file():
+    px.set_mapbox_access_token(Path(".mapbox_token").read_text(encoding="UTF-8"))
 
 
 def get_membership_list_metrics(members: dict) -> dict[str, dict[str, pd.DataFrame]]:
