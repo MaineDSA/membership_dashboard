@@ -1,4 +1,4 @@
-name: Check Python Code
+name: Ruff
 
 on:
   push:
