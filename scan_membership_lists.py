@@ -199,7 +199,7 @@ def tag_branch_zips(memb_lists: dict[str, pd.DataFrame], branch_zip_path: Path):
         k_date: pd.DataFrame(
             {
                 **memb_list,  # retain all existing data
-                "branch": memb_list["zip"].map(lambda zip_code: branch_zips.loc[zip_code, "branch"] if zip_code in branch_zips.index else None),
+                "branch": memb_list["zip"].map(lambda zip_code: branch_zips.loc[zip_code.split('-')[0], "branch"] if zip_code.split('-')[0] in branch_zips.index else None),
             }
         )
         for k_date, memb_list in memb_lists.items()
