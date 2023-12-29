@@ -6,6 +6,8 @@ branch_zips.csv
 *.pkl
 *.zip
 research/*
+.ruff_cache
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

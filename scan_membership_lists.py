@@ -1,17 +1,18 @@
 """Parse all membership lists into pandas dataframes for display on dashboard"""
 
-import logging
-import os
-import pickle
 from glob import glob
 from pathlib import Path
 from zipfile import ZipFile
+import logging
+import os
+import pickle
 
-import numpy as np
-import pandas as pd
+from functools import lru_cache
 from mapbox import Geocoder
 from ratelimit import limits, sleep_and_retry
 from tqdm import tqdm
+import numpy as np
+import pandas as pd
 
 
 MEMB_LIST_NAME = "fake_membership_list"
@@ -19,7 +20,6 @@ BRANCH_ZIPS_PATH = Path("branch_zips.csv")
 MEMB_LIST_CONFIG_PATH = Path(".list_name")
 if MEMB_LIST_CONFIG_PATH.is_file():
     MEMB_LIST_NAME = MEMB_LIST_CONFIG_PATH.read_text(encoding="UTF-8")
-
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 geocoder = Geocoder()
@@ -33,9 +33,6 @@ def membership_length(date: str, **kwargs) -> int:
     return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(days=365)
 
 
-address_cache = {}
-
-
 @sleep_and_retry
 @limits(calls=600, period=60)
 def mapbox_geocoder(address: str) -> list[float]:
@@ -43,20 +40,20 @@ def mapbox_geocoder(address: str) -> list[float]:
     response = geocoder.forward(address, country=["us"])
 
     if "features" not in response.geojson():
+        print(address)
+        #logging.warning("No lat/lon found for address: %s.", address)
         return [0, 0]
 
     return response.geojson()["features"][0]["center"]
 
 
+@lru_cache(maxsize=16_384, typed=False)
 def get_geocoding(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
     if not isinstance(address, str) or not MAPBOX_TOKEN_PATH.is_file():
         return [0, 0]
 
-    if address not in address_cache:
-        address_cache[address] = mapbox_geocoder(address)
-
-    return address_cache[address]
+    return mapbox_geocoder(address)
 
 
 def format_zip_code(zip_code):
@@ -135,7 +132,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     if ("lat" not in df) and ("lon" not in df):
         tqdm.pandas(unit="comrades", leave=False)
         df[["lon", "lat"]] = pd.DataFrame(
-            (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + str(df["zip"])).progress_apply(get_geocoding).tolist(),
+            (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding).tolist(),
             index=df.index,
         )
 
@@ -148,7 +145,6 @@ def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
     if not datetime_from_name.date():
         logging.warning("No date detected in name of %s. Skipping file.", filename)
         return pd.DataFrame()
-
     with ZipFile(filepath) as memb_list_zip:
         with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv") as memb_list:
             logging.debug("Loading data from %s.csv in %s.", MEMB_LIST_NAME, filename)
