@@ -14,16 +14,18 @@ from ratelimit import limits, sleep_and_retry
 from tqdm import tqdm
 
 
-BRANCH_ZIPS_FILE = "branch_zips.csv"
 MEMB_LIST_NAME = "fake_membership_list"
-if Path(".list_name").is_file():
-    MEMB_LIST_NAME = Path(".list_name").read_text(encoding="UTF-8")
+BRANCH_ZIPS_PATH = Path("branch_zips.csv")
+MEMB_LIST_CONFIG_PATH = Path(".list_name")
+if MEMB_LIST_CONFIG_PATH.is_file():
+    MEMB_LIST_NAME = MEMB_LIST_CONFIG_PATH.read_text(encoding="UTF-8")
 
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 geocoder = Geocoder()
-if Path(".mapbox_token").is_file():
-    geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
+MAPBOX_TOKEN_PATH = Path(".mapbox_token")
+if MAPBOX_TOKEN_PATH.is_file():
+    geocoder = Geocoder(access_token=MAPBOX_TOKEN_PATH.read_text(encoding="UTF-8"))
 
 
 def membership_length(date: str, **kwargs) -> int:
@@ -48,7 +50,7 @@ def mapbox_geocoder(address: str) -> list[float]:
 
 def get_geocoding(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
-    if not isinstance(address, str) or not Path(".mapbox_token").is_file():
+    if not isinstance(address, str) or not MAPBOX_TOKEN_PATH.is_file():
         return [0, 0]
 
     if address not in address_cache:
@@ -211,8 +213,10 @@ def get_membership_lists() -> dict[str, pd.DataFrame]:
     with open(os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
         pickle.dump(memb_lists, pickled_file)
 
-    if not Path(BRANCH_ZIPS_FILE).is_file():
-        return memb_lists
+    # Cross-reference with branch_zips.csv
+    if BRANCH_ZIPS_PATH.is_file():
+        return tag_branch_zips(memb_lists, BRANCH_ZIPS_PATH)
+
 
     # Cross-reference with branch_zips.csv
     branch_zips = pd.read_csv(BRANCH_ZIPS_FILE, dtype={"zip": str}, index_col="zip")
