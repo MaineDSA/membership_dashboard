@@ -197,10 +197,16 @@ def integrate_new_membership_lists(memb_list_zips: dict[str, pd.DataFrame], pick
     return dict(sorted((new_lists | pickled_lists).items(), reverse=True))
 
 
-def tag_branch_zips(branch_zips, date, memb_list):
+def tag_branch_zips(memb_lists: dict[str, pd.DataFrame], branch_zip_path: Path):
+    branch_zips = pd.read_csv(branch_zip_path, dtype={"zip": str}, index_col="zip")
     return {
-        **memb_list, # retain all data
-        "branch": memb_list["zip"].map(lambda zip_code: branch_zips.loc[zip_code, "branch"] if zip_code in branch_zips.index else None),
+        k_date: pd.DataFrame(
+            {
+                **memb_list,  # retain all existing data
+                "branch": memb_list["zip"].map(lambda zip_code: branch_zips.loc[zip_code, "branch"] if zip_code in branch_zips.index else None),
+            }
+        )
+        for k_date, memb_list in memb_lists.items()
     }
 
 
@@ -217,7 +223,4 @@ def get_membership_lists() -> dict[str, pd.DataFrame]:
     if BRANCH_ZIPS_PATH.is_file():
         return tag_branch_zips(memb_lists, BRANCH_ZIPS_PATH)
 
-
-    # Cross-reference with branch_zips.csv
-    branch_zips = pd.read_csv(BRANCH_ZIPS_FILE, dtype={"zip": str}, index_col="zip")
-    return {k_date: pd.DataFrame(tag_branch_zips(branch_zips, k_date, memb_list)) for k_date, memb_list in memb_lists.items()}
+    return memb_lists
