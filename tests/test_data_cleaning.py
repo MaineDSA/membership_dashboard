@@ -53,7 +53,7 @@ def test_expired_status_conversion():
 
 
 def test_lifetime_type_conversion():
-    """Ensure members with expired status have this changed to lapsed"""
+    """Ensure members with expiration date of 2099 have membership_type set to lifetime"""
     with open("tests/test_harness_assets/fake_membership_list_2023_late.csv") as memb_list:
         person = data_cleaning(pd.read_csv(memb_list, header=0), "2024-01-01").loc[155222]
         assert person["membership_type"] == "lifetime"
