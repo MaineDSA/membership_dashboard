@@ -13,12 +13,17 @@ from mapbox import Geocoder
 from ratelimit import limits, sleep_and_retry
 from tqdm import tqdm
 
-MEMB_LIST_NAME = Path(".list_name").read_text(encoding="UTF-8")
+
 BRANCH_ZIPS_FILE = "branch_zips.csv"
+MEMB_LIST_NAME = "fake_membership_list"
+if Path(".list_name").is_file():
+    MEMB_LIST_NAME = Path(".list_name").read_text(encoding="UTF-8")
 
 
-geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
+geocoder = Geocoder()
+if Path(".mapbox_token").is_file():
+    geocoder = Geocoder(access_token=Path(".mapbox_token").read_text(encoding="UTF-8"))
 
 
 def membership_length(date: str, **kwargs) -> int:
@@ -52,6 +57,10 @@ def get_geocoding(address: str) -> list[float]:
     return address_cache[address]
 
 
+def format_zip_code(zip_code):
+    return str(zip_code).zfill(5)
+
+
 def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     """Clean and standardize dataframe according to specified rules."""
     # Ensure column names are lowercase
@@ -59,7 +68,6 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
 
     # Rename the old columns to new names
     for old, new in {
-        "billing_city": "city",
         "akid": "actionkit_id",
         "ak_id": "actionkit_id",
         "accomodations": "accommodations",
@@ -76,6 +84,8 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     }.items():
         if (new not in df.columns) & (old in df.columns):
             df.rename(columns={old: new}, inplace=True)
+
+    df["zip"] = df["zip"].apply(format_zip_code)
 
     df.set_index("actionkit_id", inplace=True)
 
