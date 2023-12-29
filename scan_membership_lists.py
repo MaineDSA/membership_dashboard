@@ -185,6 +185,16 @@ def get_pickled_dict() -> dict[str, pd.DataFrame]:
         return pickled_dict
 
 
+def integrate_new_membership_lists(memb_list_zips: dict[str, pd.DataFrame], pickled_lists: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
+    """Use pre-calculated data from pickle, clean data from new membership lists, and combine them into a complete, date-sorted dict"""
+    new_lists = {k: v for k, v in memb_list_zips.items() if k not in pickled_lists}
+    logging.info("Found %s new lists", len(new_lists))
+    if new_lists:
+        logging.info("Geocoding and cleaning data for new lists.")
+        new_lists = {k_date: data_cleaning(memb_list, k_date) for k_date, memb_list in tqdm(new_lists.items(), unit="list")}
+    return dict(sorted((new_lists | pickled_lists).items(), reverse=True))
+
+
 def tag_branch_zips(branch_zips, date, memb_list):
     return {
         **memb_list, # retain all data
@@ -194,16 +204,10 @@ def tag_branch_zips(branch_zips, date, memb_list):
 
 def get_membership_lists() -> dict[str, pd.DataFrame]:
     """Return all membership lists, preferring pickled lists for speed."""
-    memb_lists = scan_all_membership_lists()
+    memb_list_zips = scan_all_membership_lists()
     pickled_lists = get_pickled_dict()
+    memb_lists = integrate_new_membership_lists(memb_list_zips, pickled_lists)
 
-    new_lists = {k: v for k, v in memb_lists.items() if k not in pickled_lists}
-    logging.info("Found %s new lists", len(new_lists))
-    if new_lists:
-        logging.info("Geocoding and cleaning data for new lists.")
-        new_lists = {k: data_cleaning(v, k) for k, v in tqdm(new_lists.items(), unit="list")}
-
-    memb_lists = dict(sorted((new_lists | pickled_lists).items(), reverse=True))
     with open(os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
         pickle.dump(memb_lists, pickled_file)
 
