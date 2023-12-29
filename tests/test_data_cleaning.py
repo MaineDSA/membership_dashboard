@@ -29,3 +29,17 @@ def test_annual_to_yearly_dues_conversion():
     with open("tests/test_harness_assets/fake_membership_list_2022_late.csv") as memb_list:
         person = data_cleaning(pd.read_csv(memb_list, header=0), "2024-01-01").loc[55222]
         assert person["yearly_dues_status"] == "canceled"
+
+
+def test_add_accomodations_column():
+    """Esure all members have an accomodations column"""
+    with open("tests/test_harness_assets/fake_membership_list_2020_early.csv") as memb_list:
+        person = data_cleaning(pd.read_csv(memb_list, header=0), "2024-01-01").loc[55222]
+        assert person["accommodations"] is None
+
+
+def test_expired_status_conversion():
+    """Ensure members with expired status have this changed to lapsed"""
+    with open("tests/test_harness_assets/fake_membership_list_2021_early.csv") as memb_list:
+        person = data_cleaning(pd.read_csv(memb_list, header=0), "2024-01-01").loc[55222]
+        assert person["membership_status"] == "lapsed"
