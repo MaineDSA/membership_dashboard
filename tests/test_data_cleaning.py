@@ -16,6 +16,13 @@ def test_mailing_to_unified_address_conversion():
         assert person["zip"] == "04011"
 
 
+def test_zip_code_leading_zero_padding():
+    """Check whether mailing address is converted to single unified address"""
+    with open("tests/test_harness_assets/fake_membership_list_2020_early.csv") as memb_list:
+        person = data_cleaning(pd.read_csv(memb_list, header=0), "2024-01-01").loc[55222]
+        assert person["zip"] == "04011"
+
+
 def test_old_address_column_name_conversion():
     """Check whether old address column name (2020 era) is converted to new address column name"""
     with open("tests/test_harness_assets/fake_membership_list_2020_early.csv") as memb_list:
