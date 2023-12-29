@@ -23,7 +23,7 @@ def test_zip_code_leading_zero_padding():
         assert person["zip"] == "04011"
 
 
-def test_old_address_column_name_conversion():
+def test_old_address_column_name_renaming():
     """Check whether old address column name (2020 era) is converted to new address column name"""
     with open("tests/test_harness_assets/fake_membership_list_2020_early.csv") as memb_list:
         person = data_cleaning(pd.read_csv(memb_list, header=0), "2024-01-01").loc[55222]
@@ -31,7 +31,7 @@ def test_old_address_column_name_conversion():
         assert person["address2"] == "Unit 2"
 
 
-def test_annual_to_yearly_dues_conversion():
+def test_annual_to_yearly_dues_renaming():
     """Check whether annual dues status of pre-2023 lists is converted to yearly dues status"""
     with open("tests/test_harness_assets/fake_membership_list_2022_late.csv") as memb_list:
         person = data_cleaning(pd.read_csv(memb_list, header=0), "2024-01-01").loc[55222]
@@ -57,3 +57,11 @@ def test_lifetime_type_conversion():
     with open("tests/test_harness_assets/fake_membership_list_2023_late.csv") as memb_list:
         person = data_cleaning(pd.read_csv(memb_list, header=0), "2024-01-01").loc[155222]
         assert person["membership_type"] == "lifetime"
+
+
+def test_accommodations_column_renaming():
+    """Ensure membership lists with misspelled accommodations column have it corrected so it can be compared"""
+    with open("tests/test_harness_assets/fake_membership_list_2022_late.csv") as memb_list:
+        memb_list = data_cleaning(pd.read_csv(memb_list, header=0), "2024-01-01")
+        assert "accommodations" in memb_list.columns
+        assert "accomodations" not in memb_list.columns
