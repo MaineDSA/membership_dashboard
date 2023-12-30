@@ -39,8 +39,6 @@ COLORS = [
     "#f0959e",
 ]
 
-
-logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 MAPBOX_TOKEN_PATH = Path(".mapbox_token")
 if MAPBOX_TOKEN_PATH.is_file():
     px.set_mapbox_access_token(MAPBOX_TOKEN_PATH.read_text(encoding="UTF-8"))
@@ -749,4 +747,5 @@ def render_page_content(pathname: str):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
     app.run_server(debug=True)
