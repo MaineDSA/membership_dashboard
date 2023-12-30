@@ -65,3 +65,10 @@ def test_accommodations_column_renaming():
         memb_list = data_cleaning(pd.read_csv(memb_list, header=0), "2024-01-01")
         assert "accommodations" in memb_list.columns
         assert "accomodations" not in memb_list.columns
+
+
+def test_membership_status_column_lowercasing():
+    """Ensure membership lists with misspelled accommodations column have it corrected so it can be compared"""
+    with open("tests/test_harness_assets/fake_membership_list_2022_late.csv") as memb_list:
+        person = data_cleaning(pd.read_csv(memb_list, header=0), "2024-01-01").loc[55222]
+        assert person["membership_status"] == "lapsed"
