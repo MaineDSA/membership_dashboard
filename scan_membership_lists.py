@@ -14,7 +14,6 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 
-
 MEMB_LIST_NAME = "fake_membership_list"
 BRANCH_ZIPS_PATH = Path("branch_zips.csv")
 MEMB_LIST_CONFIG_PATH = Path(".list_name")
@@ -123,7 +122,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     df["membership_type"] = np.where(df["xdate"] == "2099-11-01", "lifetime", df["membership_type"].replace({"annual": "yearly"}).str.lower())
 
     # Get lat/lon from address
-    if ("lat" not in df) and ("lon" not in df):
+    if "lat" not in df:
         tqdm.pandas(unit="comrades", leave=False)
         df[["lon", "lat"]] = pd.DataFrame(
             (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding).tolist(), index=df.index
