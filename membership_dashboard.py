@@ -21,6 +21,7 @@ from dash import (
 from dash_bootstrap_templates import load_figure_template
 from scan_membership_lists import get_membership_lists
 
+
 # A list of colors for graphs.
 # The first and eigth hex codes are used for default and comparison graph bars when comparing dates.
 COLORS = [

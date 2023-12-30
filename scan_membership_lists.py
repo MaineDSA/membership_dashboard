@@ -40,8 +40,6 @@ def mapbox_geocoder(address: str) -> list[float]:
     response = geocoder.forward(address, country=["us"])
 
     if "features" not in response.geojson():
-        print(address)
-        #logging.warning("No lat/lon found for address: %s.", address)
         return [0, 0]
 
     return response.geojson()["features"][0]["center"]
@@ -122,18 +120,13 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     )
 
     # Standardize membership_type column
-    df["membership_type"] = np.where(
-        df["xdate"] == "2099-11-01",
-        "lifetime",
-        df["membership_type"].replace({"annual": "yearly"}).str.lower(),
-    )
+    df["membership_type"] = np.where(df["xdate"] == "2099-11-01", "lifetime", df["membership_type"].replace({"annual": "yearly"}).str.lower())
 
     # Get lat/lon from address
     if ("lat" not in df) and ("lon" not in df):
         tqdm.pandas(unit="comrades", leave=False)
         df[["lon", "lat"]] = pd.DataFrame(
-            (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding).tolist(),
-            index=df.index,
+            (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding).tolist(), index=df.index
         )
 
     return df
@@ -155,10 +148,7 @@ def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
     """Scan all zip files and call scan_membership_list on each."""
     memb_lists = {}
     logging.info("Scanning zipped membership lists in %s/.", MEMB_LIST_NAME)
-    files = sorted(
-        glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True),
-        reverse=True,
-    )
+    files = sorted(glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True), reverse=True)
     for zip_file in files:
         filename = os.path.basename(zip_file)
         try:
@@ -199,7 +189,9 @@ def tag_branch_zips(memb_lists: dict[str, pd.DataFrame], branch_zip_path: Path):
         k_date: pd.DataFrame(
             {
                 **memb_list,  # retain all existing data
-                "branch": memb_list["zip"].map(lambda zip_code: branch_zips.loc[zip_code.split('-')[0], "branch"] if zip_code.split('-')[0] in branch_zips.index else None),
+                "branch": memb_list["zip"].map(
+                    lambda zip_code: branch_zips.loc[zip_code.split("-")[0], "branch"] if zip_code.split("-")[0] in branch_zips.index else None
+                ),
             }
         )
         for k_date, memb_list in memb_lists.items()
