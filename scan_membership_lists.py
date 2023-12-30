@@ -133,7 +133,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
 
 def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
     """Scan the requested membership list and add data to memb_lists."""
-    datetime_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d")
+    datetime_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[-1], format="%Y%m%d")
     if not datetime_from_name.date():
         logging.warning("No date detected in name of %s. Skipping file.", filename)
         return pd.DataFrame()
@@ -151,7 +151,7 @@ def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
     for zip_file in files:
         filename = os.path.basename(zip_file)
         try:
-            date_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[3], format="%Y%m%d").date()
+            date_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[-1], format="%Y%m%d").date()
             # Save contents of each zip file into dict keyed to date
             memb_lists[date_from_name.isoformat()] = scan_membership_list(filename, os.path.abspath(zip_file))
         except (IndexError, ValueError):
