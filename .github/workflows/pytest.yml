@@ -1,6 +1,17 @@
 name: Pytest
 
-on: [push]
+on:
+  push:
+    paths:
+      - '**.py' # Run if pushed commits include a change to a Python (.py) file.
+      - '.github/workflows/pytest.yml' # Run if pushed commits include a change to a github actions workflow file.
+      - 'requirements.txt' # Run if pushed commits include a change to the Python requirements.txt file.
+  pull_request:
+    paths:
+      - '**.py' # Run if pushed commits include a change to a Python (.py) file.
+      - '.github/workflows/pytest.yml' # Run if pushed commits include a change to a github actions workflow file.
+      - 'requirements.txt' # Run if pushed commits include a change to the Python requirements.txt file.
+  workflow_dispatch:
 
 jobs:
   pytest:
