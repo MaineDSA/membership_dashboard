@@ -24,11 +24,26 @@ from scan_membership_lists import get_membership_lists
 import membership_dashboard_components as mdc
 
 
-# A list of colors for graphs.
-# The first and eigth hex codes are used for default and comparison graph bars when comparing dates.
+def get_membership_list_metrics(members: dict) -> dict[str, dict[str, pd.DataFrame]]:
+    """Scan MEMB_LISTS and calculate metrics."""
+    logging.info("Calculating metrics for %s membership lists", len(members))
+    return {
+        column: {
+            date_formatted: members[date_formatted].get(column) for date_formatted, membership_list in members.items() if column in membership_list.columns
+        }
+        for column in set(column for membership_list in members.values() for column in membership_list.columns)
+    }
+
+
+MEMB_LISTS = get_membership_lists()
+MEMB_METRICS = get_membership_list_metrics(MEMB_LISTS)
+DBC_CSS = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
+MAPBOX_TOKEN_PATH = Path(".mapbox_token")
+if MAPBOX_TOKEN_PATH.is_file():
+    px.set_mapbox_access_token(MAPBOX_TOKEN_PATH.read_text(encoding="UTF-8"))
 COLORS = [
-    "#ee8cb5",
-    "#c693be",
+    "#ee8cb5",    # A list of colors for graphs.
+    "#c693be",    # The first and eigth hex codes are used for default and comparison graph bars when comparing dates.
     "#937dc0",
     "#5fa3d9",
     "#00b2e2",
@@ -41,28 +56,8 @@ COLORS = [
     "#f0959e",
 ]
 
-MAPBOX_TOKEN_PATH = Path(".mapbox_token")
-if MAPBOX_TOKEN_PATH.is_file():
-    px.set_mapbox_access_token(MAPBOX_TOKEN_PATH.read_text(encoding="UTF-8"))
-
-
-def get_membership_list_metrics(members: dict) -> dict[str, dict[str, pd.DataFrame]]:
-    """Scan memb_lists and calculate metrics."""
-    logging.info("Calculating metrics for %s membership lists", len(members))
-    return {
-        column: {
-            date_formatted: members[date_formatted].get(column) for date_formatted, membership_list in members.items() if column in membership_list.columns
-        }
-        for column in set(column for membership_list in members.values() for column in membership_list.columns)
-    }
-
-
-memb_lists = get_membership_lists()
-memb_lists_metrics = get_membership_list_metrics(memb_lists)
-
 
 # Initialize the app
-DBC_CSS = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 app = Dash(
     external_stylesheets=[
         dbc.themes.DARKLY,
@@ -75,18 +70,18 @@ app = Dash(
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
     suppress_callback_exceptions=True,
 )
-load_figure_template(["darkly", "journal"])
-
 app.layout = dbc.Container(
-	[dcc.Location(id="url"), mdc.sidebar(list(memb_lists.keys())), html.Div(id="page-content")],
+	[dcc.Location(id="url"), mdc.sidebar(list(MEMB_LISTS.keys())), html.Div(id="page-content")],
 	className="dbc dbc-ag-grid",
 	fluid=True
 )
+load_figure_template(["darkly", "journal"])
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 
 
 def selected_data(child: str) -> pd.DataFrame:
     """Return a pandas dataframe, either empty or containing a membership list."""
-    return memb_lists[child] if child else pd.DataFrame()
+    return MEMB_LISTS[child] if child else pd.DataFrame()
 
 
 ##
@@ -106,8 +101,8 @@ def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
 
     for selected_column in selected_columns:
         selected_metrics[selected_column] = {}
-        for date in memb_lists_metrics[selected_column]:
-            for value, count in memb_lists_metrics[selected_column][date].value_counts().items():
+        for date in MEMB_METRICS[selected_column]:
+            for value, count in MEMB_METRICS[selected_column][date].value_counts().items():
                 selected_metrics[selected_column].setdefault(value, {}).setdefault(date, count)
 
     timeline_figure.add_traces(
@@ -472,15 +467,15 @@ clientside_callback(
 def render_page_content(pathname: str):
     """Display the correct page based on the user's navigation path."""
     if pathname == "/":
-        return mdc.timeline(list(memb_lists_metrics.keys()))
+        return mdc.timeline(list(MEMB_METRICS.keys()))
     if pathname == "/list":
-        return mdc.member_list(memb_lists)
+        return mdc.member_list(MEMB_LISTS)
     if pathname == "/metrics":
         return mdc.metrics()
     if pathname == "/graphs":
         return mdc.graphs()
     if pathname == "/map":
-        return mdc.member_map(list(memb_lists_metrics.keys()))
+        return mdc.member_map(list(MEMB_METRICS.keys()))
 
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
@@ -494,5 +489,4 @@ def render_page_content(pathname: str):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
     app.run_server(debug=True)
