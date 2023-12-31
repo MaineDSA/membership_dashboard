@@ -14,7 +14,6 @@ from dash import (
     Output,
     callback,
     clientside_callback,
-    dcc,
     html,
 )
 from dash_bootstrap_templates import load_figure_template
@@ -71,7 +70,7 @@ app = Dash(
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
     suppress_callback_exceptions=True,
 )
-app.layout = dbc.Container([dcc.Location(id="url"), mdc.sidebar(list(MEMB_LISTS.keys())), html.Div(id="page-content")], className="dbc dbc-ag-grid", fluid=True)
+app.layout = mdc.layout(list(MEMB_LISTS.keys()))
 load_figure_template(["darkly", "journal"])
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 
@@ -96,7 +95,7 @@ def include_template_if_not_dark(fig: go.Figure, dark_mode: bool) -> go.Figure:
 def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
     """Update the timeline plotting selected columns."""
     fig = go.Figure(layout={"title": "Membership Trends Timeline", "yaxis_title": "Members"})
-    
+
     selected_metrics = {}
     for selected_column in selected_columns:
         selected_metrics[selected_column] = {}

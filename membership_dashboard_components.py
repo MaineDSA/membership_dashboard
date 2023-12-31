@@ -94,6 +94,10 @@ def sidebar(memb_list_keys: list[str]) -> html.Div:
     )
 
 
+def layout(memb_list_keys: list[str]) -> dbc.Container:
+    return dbc.Container([dcc.Location(id="url"), sidebar(memb_list_keys), html.Div(id="page-content")], className="dbc dbc-ag-grid", fluid=True)
+
+
 def timeline(memb_lists_metrics_keys: list[str]) -> html.Div:
     return html.Div(
         id="timeline-container",
