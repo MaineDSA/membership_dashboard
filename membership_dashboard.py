@@ -42,8 +42,8 @@ MAPBOX_TOKEN_PATH = Path(".mapbox_token")
 if MAPBOX_TOKEN_PATH.is_file():
     px.set_mapbox_access_token(MAPBOX_TOKEN_PATH.read_text(encoding="UTF-8"))
 COLORS = [
-    "#ee8cb5",    # A list of colors for graphs.
-    "#c693be",    # The first and eigth hex codes are used for default and comparison graph bars when comparing dates.
+    "#ee8cb5",  # A list of colors for graphs.
+    "#c693be",  # The first and eigth hex codes are used for default and comparison graph bars when comparing dates.
     "#937dc0",
     "#5fa3d9",
     "#00b2e2",
@@ -70,11 +70,7 @@ app = Dash(
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
     suppress_callback_exceptions=True,
 )
-app.layout = dbc.Container(
-	[dcc.Location(id="url"), mdc.sidebar(list(MEMB_LISTS.keys())), html.Div(id="page-content")],
-	className="dbc dbc-ag-grid",
-	fluid=True
-)
+app.layout = dbc.Container([dcc.Location(id="url"), mdc.sidebar(list(MEMB_LISTS.keys())), html.Div(id="page-content")], className="dbc dbc-ag-grid", fluid=True)
 load_figure_template(["darkly", "journal"])
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 
