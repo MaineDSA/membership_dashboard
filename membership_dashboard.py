@@ -55,6 +55,7 @@ COLORS = [
     "#f3aa79",
     "#f0959e",
 ]
+COMPARE_COLORS = [COLORS[0], COLORS[7]]
 
 
 # Initialize the app
@@ -166,18 +167,12 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
     conditional_style = [
         {
             "if": {
-                "filter_query": '{list_date} = "' + date_compare_selected + '"',
+                "filter_query": '{list_date} = "' + query["date"] + '"',
             },
-            "backgroundColor": COLORS[0],
+            "backgroundColor": query["color"],
             "color": "black",
-        },
-        {
-            "if": {
-                "filter_query": '{list_date} = "' + date_selected + '"',
-            },
-            "backgroundColor": COLORS[7],
-            "color": "black",
-        },
+        }
+        for query in [{"date": date_compare_selected, "color": COMPARE_COLORS[0]}, {"date": date_selected, "color": COMPARE_COLORS[1]}]
     ]
 
     return records, conditional_style
@@ -291,7 +286,7 @@ def create_chart(
     active_labels = [str(val) for val in chartdf_vc.values]
 
     if not df_compare_field.empty:
-        color, color_compare = COLORS[7], COLORS[0]
+        color, color_compare = COMPARE_COLORS[1], COMPARE_COLORS[0]
         diff_counts = [count - chartdf_compare_vc.get(val, 0) for val, count in zip(chartdf_vc.index, chartdf_vc.values)]
         active_labels = [f"{count} ({get_positive_sign(diff)}{diff})" for count, diff in zip(chartdf_vc.values, diff_counts)]
 
