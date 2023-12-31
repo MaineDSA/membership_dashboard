@@ -399,7 +399,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
     Input(component_id="map_column", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_map(date_selected: str, selected_column: str, dark_mode: bool):
+def create_map(date_selected: str, selected_column: str, dark_mode: bool) -> px.scatter_mapbox:
     """Set up html data to show a map of Maine DSA members."""
     df_map = selected_data(date_selected)
 
