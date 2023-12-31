@@ -93,30 +93,25 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     for col, default in [
         ("membership_type", "unknown"),
         ("address2", ""),
-        ("do_not_call", False),
-        ("p2ptext_optout", False),
         ("race", "unknown"),
         ("union_member", "unknown"),
         ("accommodations", "no"),
+        ("membership_status", "unknown"),
     ]:
         df[col] = df.get(col, default)
-        df[col] = df[col].fillna(default)
 
     # Standardize membership_status column
-    df["membership_status"] = df.get("membership_status", "unknown").replace({"expired": "lapsed"}).str.lower()
+    df["membership_status"] = df["membership_status"].str.lower().replace({"expired": "lapsed"})
 
     # Standardize accommodations column
-    df["accommodations"] = (
-        df.get("accommodations", "no")
-        .str.lower()
-        .replace(
-            {
-                "none": None,
-                "n/a": None,
-                "no.": None,
-                "no": None,
-            }
-        )
+    df["accommodations"].replace(
+        regex={
+            r"(?i)none": None,
+            r"(?i)n/a": None,
+            r"(?i)no.": None,
+            r"(?i)no": None,
+        },
+        inplace=True,
     )
 
     # Standardize membership_type column
