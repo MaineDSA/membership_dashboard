@@ -54,6 +54,7 @@ def get_geocoding(address: str) -> list[float]:
 
 
 def format_zip_code(zip_code):
+    """Format zip code to 5 characters, zero-pad if necessary"""
     return str(zip_code).zfill(5)
 
 
@@ -123,7 +124,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
 
     # Get lat/lon from address
     if "lat" not in df:
-        tqdm.pandas(unit="comrades", leave=False)
+        tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
         df[["lon", "lat"]] = pd.DataFrame(
             (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding).tolist(), index=df.index
         )
@@ -177,8 +178,8 @@ def integrate_new_membership_lists(memb_list_zips: dict[str, pd.DataFrame], pick
     new_lists = {k: v for k, v in memb_list_zips.items() if k not in pickled_lists}
     logging.info("Found %s new lists", len(new_lists))
     if new_lists:
-        logging.info("Geocoding and cleaning data for new lists.")
-        new_lists = {k_date: data_cleaning(memb_list, k_date) for k_date, memb_list in tqdm(new_lists.items(), unit="list")}
+        logging.info("Cleaning data for new lists.")
+        new_lists = {k_date: data_cleaning(memb_list, k_date) for k_date, memb_list in tqdm(new_lists.items(), unit="list", desc="Scanning Zip Files")}
     return dict(sorted((new_lists | pickled_lists).items(), reverse=True))
 
 
