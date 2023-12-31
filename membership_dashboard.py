@@ -122,7 +122,6 @@ def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
             for count, value in enumerate(timeline_metric)
         ]
     )
-
     fig = include_template_if_not_dark(fig, dark_mode)
 
     return fig
@@ -182,23 +181,19 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dar
     """Construct string showing value and change (if comparison data is provided)."""
     column, value, title = plan
     count = df[column].eq(value).sum()
-
-    indicator = go.Indicator(
-        mode="number",
-        value=count,
-    )
+    indicator_mode = "number"
+    indicator_delta = None
 
     if not df_compare.empty:
         count_compare = df_compare[column].eq(value).sum()
-        indicator = go.Indicator(
-            mode="number+delta",
-            value=count,
-            delta={
-                "position": "top",
-                "reference": count_compare,
-                "valueformat": ".0f",
-            },
-        )
+        indicator_mode = "number+delta"
+        indicator_delta = {"position": "top", "reference": count_compare, "valueformat": ".0f"}
+
+    indicator = go.Indicator(
+        mode=indicator_mode,
+        value=count,
+        delta=indicator_delta,
+    )
 
     fig = go.Figure(data=indicator, layout={"title": title})
     fig = include_template_if_not_dark(fig, dark_mode)
@@ -206,28 +201,30 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dar
     return fig
 
 
+def retention_math(df_status: pd.Series) -> float:
+    """Return the retention rate as a percentage."""
+    migs = df_status.eq("member in good standing").sum()
+    constitutional = df_status.eq("member").sum()
+    return (migs / (constitutional + migs)) * 100
+
+
 def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mode: bool) -> go.Figure:
     """Construct string showing retention rate and change vs another date (if comparison data is provided)."""
-    migs = df["membership_status"].eq("member in good standing").sum()
-    constitutional = df["membership_status"].eq("member").sum()
-    rate = (migs / (constitutional + migs)) * 100
-
-    indicator = go.Indicator(
-        mode="number",
-        value=rate,
-        number={"suffix": "%"},
-    )
+    rate = retention_math(df["membership_status"])
+    indicator_mode = "number"
+    indicator_delta = None
 
     if not df_compare.empty:
-        compare_migs = df_compare["membership_status"].eq("member in good standing").sum()
-        compare_constitutional = df_compare["membership_status"].eq("member").sum()
-        rate_compare = (compare_migs / (compare_constitutional + compare_migs)) * 100
-        indicator = go.Indicator(
-            mode="number+delta",
-            value=rate,
-            delta={"position": "top", "reference": rate_compare, "valueformat": ".2"},
-            number={"suffix": "%"},
-        )
+        rate_compare = retention_math(df_compare["membership_status"])
+        indicator_mode = "number+delta"
+        indicator_delta = {"position": "top", "reference": rate_compare, "valueformat": ".2"}
+
+    indicator = go.Indicator(
+        mode=indicator_mode,
+        value=rate,
+        delta=indicator_delta,
+        number={"suffix": "%"},
+    )
 
     fig = go.Figure(data=indicator, layout={"title": "Retention Rate (MIGS / Constitutional)"})
     fig = include_template_if_not_dark(fig, dark_mode)
