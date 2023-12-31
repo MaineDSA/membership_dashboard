@@ -22,6 +22,9 @@ from dash_bootstrap_templates import load_figure_template
 from scan_membership_lists import get_membership_lists
 
 
+import membership_dashboard_initialization
+
+
 # A list of colors for graphs.
 # The first and eigth hex codes are used for default and comparison graph bars when comparing dates.
 COLORS = [
@@ -75,265 +78,10 @@ app = Dash(
 )
 load_figure_template(["darkly", "journal"])
 
-sidebar_header = dbc.Row(
-    [
-        dbc.Col(
-            html.Img(
-                src=r"https://www.mainedsa.org/wp-content/uploads/2023/07/Maine-DSA-Moose-with-Rose-Logo.svg",
-                alt="Red Maine DSA logo of a moose holding a rose in its mouth under the text Maine DSA",
-            ),
-            align="center",
-        ),
-        dbc.Col(
-            [
-                dbc.Row(
-                    [
-                        dbc.Col(dbc.Label(className="fa fa-sun", html_for="color-mode-switch")),
-                        dbc.Col(
-                            dbc.Switch(
-                                id="color-mode-switch",
-                                value=True,
-                                className="d-inline-block ms-1",
-                                persistence=True,
-                            )
-                        ),
-                        dbc.Col(dbc.Label(className="fa fa-moon", html_for="color-mode-switch")),
-                    ],
-                    className="g-0",
-                )
-            ],
-            width="auto",
-            align="center",
-        ),
-    ]
-)
-
-sidebar = html.Div(
-    id="sidebar",
-    children=[
-        sidebar_header,
-        # we wrap the horizontal rule and short blurb in a div that can be hidden on a small screen
-        html.Div(
-            [
-                html.Hr(),
-                html.P("Membership Dasboard", className="lead"),
-            ],
-            id="blurb",
-        ),
-        dcc.Dropdown(
-            options=list(memb_lists.keys()),
-            value=list(memb_lists.keys())[0],
-            id="list_dropdown",
-        ),
-        html.Div(
-            [
-                html.P("Active List"),
-            ],
-            id="list_dropdown_label",
-        ),
-        dcc.Dropdown(
-            options=list(memb_lists.keys()),
-            id="list_compare_dropdown",
-        ),
-        html.Div(
-            [
-                html.P("Compare To"),
-            ],
-            id="list_compare_dropdown_label",
-        ),
-        dbc.Nav(
-            [
-                dbc.NavLink("Timeline", href="/", active="exact"),
-                dbc.NavLink("List", href="/list", active="exact"),
-                dbc.NavLink("Metrics", href="/metrics", active="exact"),
-                dbc.NavLink("Graphs", href="/graphs", active="exact"),
-                dbc.NavLink("Map", href="/map", active="exact"),
-            ],
-            id="navigation",
-            vertical=True,
-            pills=True,
-        ),
-    ],
-)
-
-content = html.Div(id="page-content")
-
-app.layout = dbc.Container([dcc.Location(id="url"), sidebar, content], className="dbc dbc-ag-grid", fluid=True)
-
-timeline = html.Div(
-    id="timeline-container",
-    children=[
-        dcc.Dropdown(
-            options=list(memb_lists_metrics.keys()),
-            value=["membership_status"],
-            multi=True,
-            id="timeline_columns",
-        ),
-        dcc.Graph(
-            figure={},
-            id="membership_timeline",
-            style={
-                "display": "inline-block",
-                "height": "85vh",
-                "width": "100%",
-                "padding-left": "-1em",
-                "padding-right": "-1em",
-                "padding-bottom": "-1em",
-            },
-        ),
-    ],
-)
-
-member_list = html.Div(
-    id="list-container",
-    children=[
-        dash_table.DataTable(
-            data=memb_lists[list(memb_lists.keys())[0]].to_dict("records"),
-            columns=[{"name": i, "id": i, "selectable": True} for i in memb_lists[list(memb_lists.keys())[0]].columns],
-            sort_action="native",
-            sort_by=[
-                {"column_id": "last_name", "direction": "asc"},
-                {"column_id": "first_name", "direction": "asc"},
-            ],
-            filter_action="native",
-            filter_options={"case": "insensitive"},
-            export_format="csv",
-            page_size=20,
-            style_table={
-                "display": "inline-block",
-                "height": "80vh",
-                "overflowY": "auto",
-                "overflowX": "auto",
-            },
-            id="membership_list",
-        ),
-    ],
-)
-
-metrics = html.Div(
-    id="metrics-container",
-    children=[
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="members_lifetime",
-                        style={"height": "30vh"},
-                    ),
-                    width=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(figure=go.Figure(), id="members_migs", style={"height": "30vh"}),
-                    width=6,
-                ),
-            ],
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="members_expiring",
-                        style={"height": "30vh"},
-                    ),
-                    width=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="members_lapsed",
-                        style={"height": "30vh"},
-                    ),
-                    width=6,
-                ),
-            ]
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="metric_retention",
-                        style={"height": "30vh"},
-                    ),
-                    width=6,
-                ),
-            ]
-        ),
-    ],
-)
-
-graphs = html.Div(
-    id="graphs-container",
-    children=[
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="membership_status",
-                        style={"height": "46vh"},
-                    ),
-                    md=4,
-                ),
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="membership_type",
-                        style={"height": "46vh"},
-                    ),
-                    md=4,
-                ),
-                dbc.Col(
-                    dcc.Graph(figure=go.Figure(), id="union_member", style={"height": "46vh"}),
-                    md=4,
-                ),
-            ],
-            align="center",
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="membership_length",
-                        style={"height": "46vh"},
-                    ),
-                    md=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(figure=go.Figure(), id="race", style={"height": "46vh"}),
-                    md=6,
-                ),
-            ],
-            align="center",
-        ),
-    ],
-)
-
-member_map = html.Div(
-    id="map-container",
-    children=[
-        dcc.Dropdown(
-            options=list(memb_lists_metrics.keys()),
-            value="membership_status",
-            multi=False,
-            id="map_column",
-        ),
-        dcc.Graph(
-            figure=go.Figure(),
-            id="membership_map",
-            style={
-                "display": "inline-block",
-                "height": "85vh",
-                "width": "100%",
-                "padding-left": "-1em",
-                "padding-right": "-1em",
-                "padding-bottom": "-1em",
-            },
-        ),
-    ],
+app.layout = dbc.Container(
+	[dcc.Location(id="url"), membership_dashboard_initialization.sidebar(list(memb_lists.keys())), html.Div(id="page-content")],
+	className="dbc dbc-ag-grid",
+	fluid=True
 )
 
 
@@ -725,15 +473,15 @@ clientside_callback(
 def render_page_content(pathname: str):
     """Display the correct page based on the user's navigation path."""
     if pathname == "/":
-        return timeline
+        return membership_dashboard_initialization.timeline(list(memb_lists_metrics.keys()))
     if pathname == "/list":
-        return member_list
+        return membership_dashboard_initialization.member_list(memb_lists)
     if pathname == "/metrics":
-        return metrics
+        return membership_dashboard_initialization.metrics()
     if pathname == "/graphs":
-        return graphs
+        return membership_dashboard_initialization.graphs()
     if pathname == "/map":
-        return member_map
+        return membership_dashboard_initialization.member_map(list(memb_lists_metrics.keys()))
 
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
