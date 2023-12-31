@@ -1,4 +1,4 @@
-"""Construct a membership dashboard showing various graphs and metrics to illustrate changes over time."""
+"""Components for a membership dashboard showing various graphs and metrics to illustrate changes over time."""
 
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
@@ -14,7 +14,7 @@ def sidebar_header() -> dbc.Row:
         [
             dbc.Col(
                 html.Img(
-                    src=r"https://www.mainedsa.org/wp-content/uploads/2023/07/Maine-DSA-Moose-with-Rose-Logo.svg",
+                    src="https://www.mainedsa.org/wp-content/uploads/2023/07/Maine-DSA-Moose-with-Rose-Logo.svg",
                     alt="Red Maine DSA logo of a moose holding a rose in its mouth under the text Maine DSA",
                 ),
                 align="center",
