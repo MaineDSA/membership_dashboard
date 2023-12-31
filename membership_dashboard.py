@@ -24,8 +24,8 @@ from scan_membership_lists import get_membership_lists
 import membership_dashboard_components as mdc
 
 
-def get_membership_list_metrics(members: dict) -> dict[str, dict[str, pd.DataFrame]]:
-    """Scan MEMB_LISTS and calculate metrics."""
+def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, dict[str, pd.Series]]:
+    """Restructure a dictionary of dataframs keyed to dates into a dictionary of pandas column names containing the columns keyed to each date."""
     logging.info("Calculating metrics for %s membership lists", len(members))
     return {
         column: {
@@ -101,8 +101,8 @@ def include_template_if_not_dark(fig: go.Figure, dark_mode: bool) -> go.Figure:
 def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
     """Update the timeline plotting selected columns."""
     fig = go.Figure(layout={"title": "Membership Trends Timeline", "yaxis_title": "Members"})
+    
     selected_metrics = {}
-
     for selected_column in selected_columns:
         selected_metrics[selected_column] = {}
         for date in MEMB_METRICS[selected_column]:
