@@ -76,11 +76,6 @@ load_figure_template(["darkly", "journal"])
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 
 
-def selected_data(child: str) -> pd.DataFrame:
-    """Return a pandas dataframe, either empty or containing a membership list."""
-    return MEMB_LISTS[child] if child else pd.DataFrame()
-
-
 def include_template_if_not_dark(fig: go.Figure, dark_mode: bool) -> go.Figure:
     """Update the figure template based on the dark mode setting."""
     if not dark_mode:
@@ -135,8 +130,8 @@ def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
 )
 def create_list(date_selected: str, date_compare_selected: str) -> dict:
     """Update the list shown based on the selected membership list date."""
-    df = selected_data(date_selected)
-    df_compare = selected_data(date_compare_selected)
+    df = MEMB_LISTS.get(date_selected, pd.DataFrame())
+    df_compare = MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
 
     if df_compare.empty:
         return df.to_dict("records"), []
@@ -254,8 +249,8 @@ def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bo
     if not date_selected:
         return [""] * len(metrics_plan + 1)
 
-    df = selected_data(date_selected)
-    df_compare = selected_data(date_compare_selected)
+    df = MEMB_LISTS.get(date_selected, pd.DataFrame())
+    df_compare = MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
 
     metric_count_frames = [calculate_metric(df, df_compare, metric_plan, dark_mode) for metric_plan in metrics_plan]
     metric_count_frames.append(calculate_retention_rate(df, df_compare, dark_mode))
@@ -329,8 +324,8 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
     if not date_selected:
         return [go.Figure()] * 5
 
-    df = selected_data(date_selected)
-    df_compare = selected_data(date_compare_selected)
+    df = MEMB_LISTS.get(date_selected, pd.DataFrame())
+    df_compare = MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
 
     def multiple_choice(df: pd.DataFrame, target_column: str, separator: str) -> pd.DataFrame:
         """Split a character-separated list string into an iterable object."""
@@ -392,7 +387,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
 )
 def create_map(date_selected: str, selected_column: str, dark_mode: bool) -> px.scatter_mapbox:
     """Set up html data to show a map of Maine DSA members."""
-    df_map = selected_data(date_selected)
+    df_map = MEMB_LISTS.get(date_selected, pd.DataFrame())
 
     map_figure = px.scatter_mapbox(
         df_map,
