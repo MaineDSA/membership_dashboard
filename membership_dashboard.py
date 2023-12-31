@@ -80,6 +80,13 @@ def selected_data(child: str) -> pd.DataFrame:
     return MEMB_LISTS[child] if child else pd.DataFrame()
 
 
+def include_template_if_not_dark(fig: go.Figure, dark_mode: bool) -> go.Figure:
+    """Update the figure template based on the dark mode setting."""
+    if not dark_mode:
+        fig["layout"]["template"] = pio.templates["journal"]
+    return fig
+
+
 ##
 ## Pages
 ##
@@ -92,7 +99,7 @@ def selected_data(child: str) -> pd.DataFrame:
 )
 def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
     """Update the timeline plotting selected columns."""
-    timeline_figure = go.Figure(layout={"title": "Membership Trends Timeline", "yaxis_title": "Members"})
+    fig = go.Figure(layout={"title": "Membership Trends Timeline", "yaxis_title": "Members"})
     selected_metrics = {}
 
     for selected_column in selected_columns:
@@ -101,7 +108,7 @@ def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
             for value, count in MEMB_METRICS[selected_column][date].value_counts().items():
                 selected_metrics[selected_column].setdefault(value, {}).setdefault(date, count)
 
-    timeline_figure.add_traces(
+    fig.add_traces(
         [
             go.Scatter(
                 name=value,
@@ -115,10 +122,9 @@ def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
         ]
     )
 
-    if not dark_mode:
-        timeline_figure["layout"]["template"] = pio.templates["journal"]
+    fig = include_template_if_not_dark(fig, dark_mode)
 
-    return timeline_figure
+    return fig
 
 
 @callback(
@@ -200,9 +206,7 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dar
         )
 
     fig = go.Figure(data=indicator, layout={"title": title})
-
-    if not dark_mode:
-        fig["layout"]["template"] = pio.templates["journal"]
+    fig = include_template_if_not_dark(fig, dark_mode)
 
     return fig
 
@@ -231,9 +235,7 @@ def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mo
         )
 
     fig = go.Figure(data=indicator, layout={"title": "Retention Rate (MIGS / Constitutional)"})
-
-    if not dark_mode:
-        fig["layout"]["template"] = pio.templates["journal"]
+    fig = include_template_if_not_dark(fig, dark_mode)
 
     return fig
 
@@ -387,11 +389,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         ),
     ]
 
-    if not dark_mode:
-        for chart in charts:
-            chart["layout"]["template"] = pio.templates["journal"]
-
-    return charts
+    return [include_template_if_not_dark(chart, dark_mode) for chart in charts]
 
 
 @callback(
