@@ -271,7 +271,7 @@ def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bo
     return metric_count_frames
 
 
-def is_positive(num: float) -> str:
+def get_positive_sign(num: float) -> str:
     """Return a string indicating if a number is positive."""
     return "+" if num > 0 else ""
 
@@ -293,7 +293,7 @@ def create_chart(
     if not df_compare_field.empty:
         color, color_compare = COLORS[7], COLORS[0]
         diff_counts = [count - chartdf_compare_vc.get(val, 0) for val, count in zip(chartdf_vc.index, chartdf_vc.values)]
-        active_labels = [f"{count} ({is_positive(diff)}{diff})" for count, diff in zip(chartdf_vc.values, diff_counts)]
+        active_labels = [f"{count} ({get_positive_sign(diff)}{diff})" for count, diff in zip(chartdf_vc.values, diff_counts)]
 
     chart = go.Figure(
         data=[
