@@ -9,93 +9,91 @@ from dash import (
 )
 
 
-def sidebar_header() -> dbc.Row:
-    return dbc.Row(
-        [
-            dbc.Col(
-                html.Img(
-                    src="https://www.mainedsa.org/wp-content/uploads/2023/07/Maine-DSA-Moose-with-Rose-Logo.svg",
-                    alt="Red Maine DSA logo of a moose holding a rose in its mouth under the text Maine DSA",
-                ),
-                align="center",
-            ),
-            dbc.Col(
-                [
-                    dbc.Row(
-                        [
-                            dbc.Col(dbc.Label(className="fa fa-sun", html_for="color-mode-switch")),
-                            dbc.Col(
-                                dbc.Switch(
-                                    id="color-mode-switch",
-                                    value=True,
-                                    className="d-inline-block ms-1",
-                                    persistence=True,
-                                )
-                            ),
-                            dbc.Col(dbc.Label(className="fa fa-moon", html_for="color-mode-switch")),
-                        ],
-                        className="g-0",
-                    )
-                ],
-                width="auto",
-                align="center",
-            ),
-        ]
-    )
-
-
-def sidebar(memb_list_keys: list[str]) -> html.Div:
-    return html.Div(
-        id="sidebar",
-        children=[
-            sidebar_header(),
-            # we wrap the horizontal rule and short blurb in a div that can be hidden on a small screen
-            html.Div(
-                [
-                    html.Hr(),
-                    html.P("Membership Dasboard", className="lead"),
-                ],
-                id="blurb",
-            ),
-            dcc.Dropdown(
-                options=memb_list_keys,
-                value=memb_list_keys[0],
-                id="list_dropdown",
-            ),
-            html.Div(
-                [
-                    html.P("Active List"),
-                ],
-                id="list_dropdown_label",
-            ),
-            dcc.Dropdown(
-                options=memb_list_keys,
-                id="list_compare_dropdown",
-            ),
-            html.Div(
-                [
-                    html.P("Compare To"),
-                ],
-                id="list_compare_dropdown_label",
-            ),
-            dbc.Nav(
-                [
-                    dbc.NavLink("Timeline", href="/", active="exact"),
-                    dbc.NavLink("List", href="/list", active="exact"),
-                    dbc.NavLink("Metrics", href="/metrics", active="exact"),
-                    dbc.NavLink("Graphs", href="/graphs", active="exact"),
-                    dbc.NavLink("Map", href="/map", active="exact"),
-                ],
-                id="navigation",
-                vertical=True,
-                pills=True,
-            ),
-        ],
-    )
-
-
 def layout(memb_list_keys: list[str]) -> dbc.Container:
-    return dbc.Container([dcc.Location(id="url"), sidebar(memb_list_keys), html.Div(id="page-content")], className="dbc dbc-ag-grid", fluid=True)
+    def sidebar_header() -> dbc.Row:
+        return dbc.Row(
+            [
+                dbc.Col(
+                    html.Img(
+                        src="https://www.mainedsa.org/wp-content/uploads/2023/07/Maine-DSA-Moose-with-Rose-Logo.svg",
+                        alt="Red Maine DSA logo of a moose holding a rose in its mouth under the text Maine DSA",
+                    ),
+                    align="center",
+                ),
+                dbc.Col(
+                    [
+                        dbc.Row(
+                            [
+                                dbc.Col(dbc.Label(className="fa fa-sun", html_for="color-mode-switch")),
+                                dbc.Col(
+                                    dbc.Switch(
+                                        id="color-mode-switch",
+                                        value=True,
+                                        className="d-inline-block ms-1",
+                                        persistence=True,
+                                    )
+                                ),
+                                dbc.Col(dbc.Label(className="fa fa-moon", html_for="color-mode-switch")),
+                            ],
+                            className="g-0",
+                        )
+                    ],
+                    width="auto",
+                    align="center",
+                ),
+            ]
+        )
+
+    def sidebar() -> html.Div:
+        return html.Div(
+            id="sidebar",
+            children=[
+                sidebar_header(),
+                # we wrap the horizontal rule and short blurb in a div that can be hidden on a small screen
+                html.Div(
+                    [
+                        html.Hr(),
+                        html.P("Membership Dasboard", className="lead"),
+                    ],
+                    id="blurb",
+                ),
+                dcc.Dropdown(
+                    options=memb_list_keys,
+                    value=memb_list_keys[0],
+                    id="list_dropdown",
+                ),
+                html.Div(
+                    [
+                        html.P("Active List"),
+                    ],
+                    id="list_dropdown_label",
+                ),
+                dcc.Dropdown(
+                    options=memb_list_keys,
+                    id="list_compare_dropdown",
+                ),
+                html.Div(
+                    [
+                        html.P("Compare To"),
+                    ],
+                    id="list_compare_dropdown_label",
+                ),
+                dbc.Nav(
+                    [
+                        dbc.NavLink("Timeline", href="/", active="exact"),
+                        dbc.NavLink("List", href="/list", active="exact"),
+                        dbc.NavLink("Metrics", href="/metrics", active="exact"),
+                        dbc.NavLink("Graphs", href="/graphs", active="exact"),
+                        dbc.NavLink("Map", href="/map", active="exact"),
+                    ],
+                    id="navigation",
+                    vertical=True,
+                    pills=True,
+                ),
+            ],
+        )
+
+    return dbc.Container([dcc.Location(id="url"), sidebar(), html.Div(id="page-content")], className="dbc dbc-ag-grid", fluid=True)
 
 
 def timeline(memb_lists_metrics_keys: list[str]) -> html.Div:
