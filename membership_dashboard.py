@@ -269,6 +269,11 @@ def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bo
     return metric_count_frames
 
 
+def is_positive(num: float) -> str:
+    """Return a string indicating if a number is positive."""
+    return "+" if num > 0 else ""
+
+
 def create_chart(
     df_field: pd.DataFrame,
     df_compare_field: pd.DataFrame,
@@ -285,12 +290,8 @@ def create_chart(
 
     if not df_compare_field.empty:
         color, color_compare = COLORS[7], COLORS[0]
-        active_labels = [
-            f"{count} (+{count - chartdf_compare_vc.get(val, 0)})"
-            if count - chartdf_compare_vc.get(val, 0) > 0
-            else f"{count} ({count - chartdf_compare_vc.get(val, 0)})"
-            for val, count in zip(chartdf_vc.index, chartdf_vc.values)
-        ]
+        diff_counts = [count - chartdf_compare_vc.get(val, 0) for val, count in zip(chartdf_vc.index, chartdf_vc.values)]
+        active_labels = [f"{count} ({is_positive(diff)}{diff})" for count, diff in zip(chartdf_vc.values, diff_counts)]
 
     chart = go.Figure(
         data=[
