@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  ruff:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
