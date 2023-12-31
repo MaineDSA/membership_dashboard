@@ -14,7 +14,6 @@ from dash import (
     Output,
     callback,
     clientside_callback,
-    dash_table,
     dcc,
     html,
 )
@@ -22,7 +21,7 @@ from dash_bootstrap_templates import load_figure_template
 from scan_membership_lists import get_membership_lists
 
 
-import membership_dashboard_initialization
+import membership_dashboard_components as mdc
 
 
 # A list of colors for graphs.
@@ -79,7 +78,7 @@ app = Dash(
 load_figure_template(["darkly", "journal"])
 
 app.layout = dbc.Container(
-	[dcc.Location(id="url"), membership_dashboard_initialization.sidebar(list(memb_lists.keys())), html.Div(id="page-content")],
+	[dcc.Location(id="url"), mdc.sidebar(list(memb_lists.keys())), html.Div(id="page-content")],
 	className="dbc dbc-ag-grid",
 	fluid=True
 )
@@ -473,15 +472,15 @@ clientside_callback(
 def render_page_content(pathname: str):
     """Display the correct page based on the user's navigation path."""
     if pathname == "/":
-        return membership_dashboard_initialization.timeline(list(memb_lists_metrics.keys()))
+        return mdc.timeline(list(memb_lists_metrics.keys()))
     if pathname == "/list":
-        return membership_dashboard_initialization.member_list(memb_lists)
+        return mdc.member_list(memb_lists)
     if pathname == "/metrics":
-        return membership_dashboard_initialization.metrics()
+        return mdc.metrics()
     if pathname == "/graphs":
-        return membership_dashboard_initialization.graphs()
+        return mdc.graphs()
     if pathname == "/map":
-        return membership_dashboard_initialization.member_map(list(memb_lists_metrics.keys()))
+        return mdc.member_map(list(memb_lists_metrics.keys()))
 
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
