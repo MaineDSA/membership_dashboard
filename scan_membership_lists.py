@@ -127,20 +127,25 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     return df
 
 
-def scan_membership_list(filename: str, filepath: str) -> pd.DataFrame:
-    """Scan the requested membership list and add data to memb_lists."""
+def scan_memb_list_from_csv(csv_file_data) -> pd.DataFrame:
+    """Convert the provided csv data into a pandas dataframe."""
+    logging.debug("Loading data from csv data")
+    return pd.read_csv(csv_file_data, header=0)
+
+
+def scan_memb_list_from_zip(filename: str, zip_path: str) -> pd.DataFrame:
+    """Scan a zip file containing a csv and return the output of scan_memb_list_from_csv from the csv if the zip file name contains a date."""
     datetime_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[-1], format="%Y%m%d")
-    if not datetime_from_name.date():
+    if not datetime_from_name:
         logging.warning("No date detected in name of %s. Skipping file.", filename)
         return pd.DataFrame()
-    with ZipFile(filepath) as memb_list_zip:
-        with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv") as memb_list:
-            logging.debug("Loading data from %s.csv in %s.", MEMB_LIST_NAME, filename)
-            return pd.read_csv(memb_list, header=0)
+    with ZipFile(zip_path) as memb_list_zip:
+        with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv") as memb_list_csv:
+            return scan_memb_list_from_csv(memb_list_csv)
 
 
 def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
-    """Scan all zip files and call scan_membership_list on each."""
+    """Scan all zip files and call scan_memb_list_from_zip on each."""
     memb_lists = {}
     logging.info("Scanning zipped membership lists in %s/.", MEMB_LIST_NAME)
     files = sorted(glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True), reverse=True)
@@ -149,7 +154,7 @@ def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
         try:
             date_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[-1], format="%Y%m%d").date()
             # Save contents of each zip file into dict keyed to date
-            memb_lists[date_from_name.isoformat()] = scan_membership_list(filename, os.path.abspath(zip_file))
+            memb_lists[date_from_name.isoformat()] = scan_memb_list_from_zip(filename, os.path.abspath(zip_file))
         except (IndexError, ValueError):
             logging.info("No date detected in name of %s. Skipping file.", filename)
     logging.info("Found %s zipped membership lists.", len(memb_lists))
@@ -203,6 +208,6 @@ def get_membership_lists() -> dict[str, pd.DataFrame]:
 
     # Cross-reference with branch_zips.csv
     if BRANCH_ZIPS_PATH.is_file():
-        return tagged_with_branches(memb_lists, BRANCH_ZIPS_PATH)
+        memb_lists = tagged_with_branches(memb_lists, BRANCH_ZIPS_PATH)
 
     return memb_lists
