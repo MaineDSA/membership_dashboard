@@ -1,3 +1,5 @@
+"""Defines a pandas dataframe schema for dsa membership data."""
+
 from pandera import DataFrameSchema, Column, Check, Index
 
 STATE_ABBR = [
@@ -56,19 +58,43 @@ STATE_ABBR = [
 
 
 class MembershipData:
-    DUES_STATUS = ["past_due", "overdue", "never", "lapsed", "active", "canceled_by_admin", "canceled_by_failure", "canceled_by_processor", "canceled_by_user"]
+    YEARLY_DUES_STATUS = [
+        "past_due",
+        "overdue",
+        "never",
+        "lapsed",
+        "active",
+        "canceled_by_admin",
+        "canceled_by_failure",
+        "canceled_by_processor",
+        "canceled_by_user",
+    ]
+    MONTHLY_DUES_STATUS = [
+        "2mo_plus_failed",
+        "past_due",
+        "overdue",
+        "never",
+        "lapsed",
+        "active",
+        "canceled_by_admin",
+        "canceled_by_failure",
+        "canceled_by_processor",
+        "canceled_by_user",
+    ]
     MEMBERSHIP_TYPE = ["yearly", "monthly", "one-time", "lifetime", "income-based"]
     MEMBERSHIP_STATUS = ["member in good standing", "member", "lapsed"]
     UNION_MEMBER_STATUS = [
         "Yes",
         "Yes, current union member",
+        "Yes, retired union member",
         "Currently organizing my workplace",
         "No",
         "No, not a union member",
         "No, but former union member",
+        "unknown",
     ]
-    STUDENT_STATUS = ["No", "Yes", "Yes, college student", "Yes, high school student"]
-    MAILING_PREF = ["Membership card only", "No", "Yes"]
+    STUDENT_STATUS = ["No", "Yes", "Yes, graduate student", "Yes, college student", "Yes, high school student"]
+    MAILING_PREF = ["Membership card only", "No", "no", "Yes"]
 
 
 schema = DataFrameSchema(
@@ -76,7 +102,7 @@ schema = DataFrameSchema(
         "first_name": Column(
             dtype="string",
             checks=None,
-            nullable=False,
+            nullable=True,
             unique=False,
             coerce=True,
             required=True,
@@ -109,6 +135,7 @@ schema = DataFrameSchema(
         "email": Column(
             dtype="string",
             checks=None,
+            default="",
             nullable=False,
             unique=False,
             coerce=True,
@@ -120,6 +147,7 @@ schema = DataFrameSchema(
         "do_not_call": Column(
             dtype="boolean",
             checks=None,
+            default=False,
             nullable=True,
             unique=False,
             coerce=True,
@@ -131,6 +159,7 @@ schema = DataFrameSchema(
         "p2ptext_optout": Column(
             dtype="boolean",
             checks=None,
+            default=False,
             nullable=True,
             unique=False,
             coerce=True,
@@ -185,7 +214,8 @@ schema = DataFrameSchema(
         ),
         "join_date": Column(
             dtype="string",
-            checks=Check.str_matches(r"^\d{4}-0?\d+-0?\d+$"),
+            checks=Check.str_matches(r"^\d{4}-\d{2}-\d{2}$"),
+            default="",
             nullable=False,
             unique=False,
             coerce=True,
@@ -196,7 +226,8 @@ schema = DataFrameSchema(
         ),
         "xdate": Column(
             dtype="string",
-            checks=Check.str_matches(r"^\d{4}-0?\d+-0?\d+$"),
+            checks=Check.str_matches(r"^\d{4}-\d{2}-\d{2}$"),
+            default="",
             nullable=False,
             unique=False,
             coerce=True,
@@ -218,7 +249,7 @@ schema = DataFrameSchema(
         ),
         "monthly_dues_status": Column(
             dtype="string",
-            checks=Check.isin(MembershipData.DUES_STATUS),
+            checks=Check.isin(MembershipData.MONTHLY_DUES_STATUS),
             nullable=True,
             unique=False,
             coerce=True,
@@ -229,7 +260,7 @@ schema = DataFrameSchema(
         ),
         "yearly_dues_status": Column(
             dtype="string",
-            checks=Check.isin(MembershipData.DUES_STATUS),
+            checks=Check.isin(MembershipData.YEARLY_DUES_STATUS),
             nullable=True,
             unique=False,
             coerce=True,
@@ -241,6 +272,7 @@ schema = DataFrameSchema(
         "membership_status": Column(
             dtype="string",
             checks=Check.isin(MembershipData.MEMBERSHIP_STATUS),
+            default="",
             nullable=False,
             unique=False,
             coerce=True,
@@ -252,6 +284,7 @@ schema = DataFrameSchema(
         "memb_status_letter": Column(
             dtype="string",
             checks=None,
+            default="",
             nullable=False,
             unique=False,
             coerce=True,
@@ -263,6 +296,7 @@ schema = DataFrameSchema(
         "union_member": Column(
             dtype="string",
             checks=Check.isin(MembershipData.UNION_MEMBER_STATUS),
+            default="unknown",
             nullable=True,
             unique=False,
             coerce=True,
@@ -373,6 +407,7 @@ schema = DataFrameSchema(
         "city": Column(
             dtype="string",
             checks=None,
+            default="",
             nullable=False,
             unique=False,
             coerce=True,
@@ -384,6 +419,7 @@ schema = DataFrameSchema(
         "state": Column(
             dtype="string",
             checks=Check.isin(STATE_ABBR),
+            default="",
             nullable=False,
             unique=False,
             coerce=True,
@@ -395,6 +431,7 @@ schema = DataFrameSchema(
         "zip": Column(
             dtype="string",
             checks=None,
+            default="",
             nullable=False,
             unique=False,
             coerce=True,
@@ -417,6 +454,7 @@ schema = DataFrameSchema(
         "dsa_chapter": Column(
             dtype="string",
             checks=None,
+            default="",
             nullable=False,
             unique=False,
             coerce=True,
@@ -439,6 +477,7 @@ schema = DataFrameSchema(
         "congressional_district": Column(
             dtype="string",
             checks=None,
+            default="",
             nullable=False,
             unique=False,
             coerce=True,
@@ -450,6 +489,7 @@ schema = DataFrameSchema(
         "membership_length": Column(
             dtype="int32",
             checks=Check.greater_than_or_equal_to(min_value=0.0),
+            default="",
             nullable=False,
             unique=False,
             coerce=True,
