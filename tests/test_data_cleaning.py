@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from ..scan_membership_lists import data_cleaning
+from ..utils.scan_membership_lists import data_cleaning
 
 
 def test_mailing_to_unified_address_conversion():

@@ -3,7 +3,7 @@
 from pathlib import Path
 import pandas as pd
 
-from ..scan_membership_lists import data_cleaning, tagged_with_branches
+from ..utils.scan_membership_lists import data_cleaning, tagged_with_branches
 
 
 def test_branch_zip_tagging():

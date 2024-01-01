@@ -13,6 +13,7 @@ from ratelimit import limits, sleep_and_retry
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
+import pandera as pa
 
 MEMB_LIST_NAME = "fake_membership_list"
 BRANCH_ZIPS_PATH = Path("branch_zips.csv")
@@ -210,4 +211,6 @@ def get_membership_lists() -> dict[str, pd.DataFrame]:
     if BRANCH_ZIPS_PATH.is_file():
         memb_lists = tagged_with_branches(memb_lists, BRANCH_ZIPS_PATH)
 
+    # with open("inferred_schema.py", "w", encoding="UTF-8") as file_out:
+    #    file_out.write(pa.infer_schema(memb_lists["2023-12-01"]).to_script())
     return memb_lists

@@ -1,6 +1,6 @@
 """Perform testing to ensure membership length calculation is correct"""
 
-from ..scan_membership_lists import membership_length
+from ..utils.scan_membership_lists import membership_length
 
 
 def test_membership_length():

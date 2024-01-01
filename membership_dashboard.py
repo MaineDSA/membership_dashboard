@@ -17,10 +17,9 @@ from dash import (
     html,
 )
 from dash_bootstrap_templates import load_figure_template
-from scan_membership_lists import get_membership_lists
 
-
-import membership_dashboard_components as mdc
+from utils.scan_membership_lists import get_membership_lists
+import utils.membership_dashboard_components as mdc
 
 
 def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, dict[str, pd.Series]]:
