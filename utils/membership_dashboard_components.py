@@ -111,7 +111,7 @@ def timeline(memb_lists_metrics_keys: list[str]) -> html.Div:
                 id="membership_timeline",
                 style={
                     "display": "inline-block",
-                    "height": "85vh",
+                    "height": "85svh",
                     "width": "100%",
                     "padding-left": "-1em",
                     "padding-right": "-1em",
@@ -141,7 +141,7 @@ def member_list(memb_lists: dict) -> html.Div:
                 page_size=20,
                 style_table={
                     "display": "inline-block",
-                    "height": "80vh",
+                    "height": "80svh",
                     "overflowY": "auto",
                     "overflowX": "auto",
                 },
@@ -161,12 +161,12 @@ def metrics() -> html.Div:
                         dcc.Graph(
                             figure=go.Figure(),
                             id="members_lifetime",
-                            style={"height": "30vh"},
+                            style={"height": "30svh"},
                         ),
                         width=6,
                     ),
                     dbc.Col(
-                        dcc.Graph(figure=go.Figure(), id="members_migs", style={"height": "30vh"}),
+                        dcc.Graph(figure=go.Figure(), id="members_migs", style={"height": "30svh"}),
                         width=6,
                     ),
                 ],
@@ -177,7 +177,7 @@ def metrics() -> html.Div:
                         dcc.Graph(
                             figure=go.Figure(),
                             id="members_expiring",
-                            style={"height": "30vh"},
+                            style={"height": "30svh"},
                         ),
                         width=6,
                     ),
@@ -185,7 +185,7 @@ def metrics() -> html.Div:
                         dcc.Graph(
                             figure=go.Figure(),
                             id="members_lapsed",
-                            style={"height": "30vh"},
+                            style={"height": "30svh"},
                         ),
                         width=6,
                     ),
@@ -197,7 +197,7 @@ def metrics() -> html.Div:
                         dcc.Graph(
                             figure=go.Figure(),
                             id="metric_retention",
-                            style={"height": "30vh"},
+                            style={"height": "30svh"},
                         ),
                         width=6,
                     ),
@@ -217,7 +217,7 @@ def graphs() -> html.Div:
                         dcc.Graph(
                             figure=go.Figure(),
                             id="membership_status",
-                            style={"height": "46vh"},
+                            style={"height": "46svh"},
                         ),
                         md=4,
                     ),
@@ -225,12 +225,12 @@ def graphs() -> html.Div:
                         dcc.Graph(
                             figure=go.Figure(),
                             id="membership_type",
-                            style={"height": "46vh"},
+                            style={"height": "46svh"},
                         ),
                         md=4,
                     ),
                     dbc.Col(
-                        dcc.Graph(figure=go.Figure(), id="union_member", style={"height": "46vh"}),
+                        dcc.Graph(figure=go.Figure(), id="union_member", style={"height": "46svh"}),
                         md=4,
                     ),
                 ],
@@ -242,12 +242,12 @@ def graphs() -> html.Div:
                         dcc.Graph(
                             figure=go.Figure(),
                             id="membership_length",
-                            style={"height": "46vh"},
+                            style={"height": "46svh"},
                         ),
                         md=6,
                     ),
                     dbc.Col(
-                        dcc.Graph(figure=go.Figure(), id="race", style={"height": "46vh"}),
+                        dcc.Graph(figure=go.Figure(), id="race", style={"height": "46svh"}),
                         md=6,
                     ),
                 ],
@@ -272,7 +272,7 @@ def member_map(memb_lists_metrics_keys: list[str]) -> html.Div:
                 id="membership_map",
                 style={
                     "display": "inline-block",
-                    "height": "85vh",
+                    "height": "85svh",
                     "width": "100%",
                     "padding-left": "-1em",
                     "padding-right": "-1em",
