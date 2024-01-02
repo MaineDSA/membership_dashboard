@@ -41,7 +41,7 @@ def mapbox_geocoder(address: str) -> list[float]:
     return response.geojson()["features"][0]["center"]
 
 
-@lru_cache(maxsize=16_384, typed=False)
+@lru_cache(maxsize=32_768, typed=False)
 def get_geocoding(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
     if not isinstance(address, str) or not MAPBOX_TOKEN_PATH.is_file():
