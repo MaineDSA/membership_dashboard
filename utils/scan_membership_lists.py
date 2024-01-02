@@ -30,16 +30,16 @@ class ListColumnRules:
     FIELD_DROP = [
         "organization",
         "dsa_id",
+        "family_first_name",
+        "family_last_name",
     ]
     FIELD_UPGRADE_PATHS = {
         "accommodations": ["accomodations"],
         "actionkit_id": ["akid", "ak_id"],
-        "address1": ["billing_address1", "mailing_address1", "billing_address_line_1", "address_line_1"],
-        "address2": ["billing_address2", "mailing_address2", "billing_address_line_2", "address_line_2"],
+        "address1": ["billing_address1", "billing_address_line_1", "mailing_address1", "address_line_1"],
+        "address2": ["billing_address2", "billing_address_line_2", "mailing_address2", "address_line_2"],
         "city": ["billing_city", "mailing_city"],
         "dsa_chapter": ["chapter"],
-        "first_name": ["family_first_name"],
-        "last_name": ["family_last_name"],
         "state": ["billing_state", "mailing_state"],
         "union_local": ["union_name_local"],
         "ydsa_chapter": ["ydsa chapter"],
