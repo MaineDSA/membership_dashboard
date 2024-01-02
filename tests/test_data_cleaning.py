@@ -54,3 +54,17 @@ def test_membership_status_column_lowercasing():
     with open("tests/test_harness_assets/fake_membership_list_2021_early.csv") as memb_list:
         person = data_cleaning(scan_memb_list_from_csv(memb_list), "2024-01-01").loc[222251]
         assert person["membership_status"] == "lapsed"
+
+
+def test_membership_length_from_list_date():
+    """Ensure membership length calculation is correct when list date is beore xdate"""
+    with open("tests/test_harness_assets/fake_membership_list_2021_early.csv") as memb_list:
+        person = data_cleaning(scan_memb_list_from_csv(memb_list), "2024-01-01").loc[28855]
+        assert person["membership_length"] == 31
+
+
+def test_membership_length_from_xdate():
+    """Ensure membership length calculation is correct when xdate is before list date"""
+    with open("tests/test_harness_assets/fake_membership_list_2022_late.csv") as memb_list:
+        person = data_cleaning(scan_memb_list_from_csv(memb_list), "2024-01-01").loc[178705]
+        assert person["membership_length"] == 1
