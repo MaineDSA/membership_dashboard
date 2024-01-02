@@ -86,26 +86,26 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     """Clean and standardize dataframe according to specified rules."""
     df.columns = df.columns.str.lower()
     if "family_first_name" in df.columns:
-        df["first_name"] = df.first_name.str.cat(df.family_first_name)
-        df["last_name"] = df.last_name.str.cat(df.family_last_name)
+        df["family_members"] = df.family_first_name.str.cat(df.family_last_name, sep=" ")
 
     for old_name, new_name in ListColumnRules.FIELD_UPGRADE_PAIRS.items():
-        if new_name not in df.columns:
-            df.rename(columns={old_name: new_name}, inplace=True, errors="ignore")
+        if new_name not in df.columns and old_name in df.columns:
+            df[new_name] = df[old_name]
         df.drop(columns=old_name, inplace=True, errors="ignore")
     for field_name in ListColumnRules.FIELD_DROP:
         df.drop(columns=field_name, inplace=True, errors="ignore")
 
     df.set_index("actionkit_id", inplace=True)
-    df["zip"] = df["zip"].apply(format_zip_code)
+    df["zip"] = df.zip.apply(format_zip_code)
     df["join_date"] = df.join_date.apply(standardize_dates)
     df["xdate"] = df.xdate.apply(standardize_dates)
-    df["city"] = df["city"].str.lower()
+    df["city"] = df.city.str.title()
     if "union_member" in df.columns:
         df["union_member"].replace({0: "No", 1: "Yes, current union member", 2: "Yes, retired union member"}, inplace=True)
     df["membership_length"] = df.join_date.apply(membership_length, list_date=list_date)
-    df["membership_status"] = df["membership_status"].replace("expired", "lapsed").str.lower()
-    df["membership_type"] = df["membership_type"].replace("annual", "yearly").str.lower()
+    df["membership_status"] = df.membership_status.replace("expired", "lapsed").str.lower()
+    df["memb_status_letter"] = df["membership_status"].replace({"member in good standing": "M", "member": "M", "lapsed": "L"})
+    df["membership_type"] = df.membership_type.replace("annual", "yearly").str.lower()
     df["membership_type"].where(df.xdate != "2099-11-01", "lifetime", inplace=True)
     if "lat" not in df:
         tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
