@@ -8,6 +8,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
+from dash_bootstrap_templates import load_figure_template
 from dash import (
     Dash,
     Input,
@@ -16,7 +17,6 @@ from dash import (
     clientside_callback,
     html,
 )
-from dash_bootstrap_templates import load_figure_template
 
 from utils.scan_membership_lists import get_membership_lists
 import utils.membership_dashboard_components as mdc
@@ -132,7 +132,7 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
     df_compare = MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
 
     if df_compare.empty:
-        return df.to_dict("records"), []
+        return df.reset_index(drop=False).to_dict("records"), []
 
     # Add list date to column to facilitate comparison
     df["list_date"] = date_selected
