@@ -49,9 +49,12 @@ class ListColumnRules:
     FIELD_UPGRADE_PAIRS = {old: new for new, old_names in FIELD_UPGRADE_PATHS.items() for old in old_names}
 
 
-def membership_length(date: str, **kwargs) -> int:
-    """Return an integer representing how many years between the supplied dates."""
-    return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(days=365)
+def membership_length(join_date: pd.Series, xdate: pd.Series, list_date: str) -> pd.Series:
+    """Calculate how many years are between the supplied dates."""
+    start_date = pd.to_datetime(join_date)
+    end_date = pd.to_datetime(xdate).clip(upper=pd.to_datetime(list_date))
+    years = (end_date - start_date) / pd.Timedelta(days=365)
+    return years.astype(int)
 
 
 @sleep_and_retry
@@ -102,7 +105,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     df["city"] = df.city.str.title()
     if "union_member" in df.columns:
         df["union_member"].replace({0: "No", 1: "Yes, current union member", 2: "Yes, retired union member"}, inplace=True)
-    df["membership_length"] = df.join_date.apply(membership_length, list_date=list_date)
+    df["membership_length"] = membership_length(df["join_date"], df["xdate"], list_date)
     df["membership_status"] = df.membership_status.replace("expired", "lapsed").str.lower()
     df["memb_status_letter"] = df["membership_status"].replace({"member in good standing": "M", "member": "M", "lapsed": "L"})
     df["membership_type"] = df.membership_type.replace("annual", "yearly").str.lower()
