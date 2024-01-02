@@ -11,9 +11,7 @@ from functools import lru_cache
 from mapbox import Geocoder
 from ratelimit import limits, sleep_and_retry
 from tqdm import tqdm
-import numpy as np
 import pandas as pd
-import pandera as pa
 
 MEMB_LIST_NAME = "fake_membership_list"
 BRANCH_ZIPS_PATH = Path("branch_zips.csv")
@@ -115,10 +113,6 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
         inplace=True,
     )
 
-    # Standardize membership_type column
-    df["membership_type"] = np.where(df["xdate"] == "2099-11-01", "lifetime", df["membership_type"].replace({"annual": "yearly"}).str.lower())
-
-    # Get lat/lon from address
     if "lat" not in df:
         tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
         df[["lon", "lat"]] = pd.DataFrame(
@@ -193,7 +187,8 @@ def branch_name_from_zip(zip_code: str, branch_zips: pd.DataFrame) -> str:
 def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: Path):
     """Add branch column to each membership list, filling with data cross-referenced from a provided csv via branch_name_from_zip()"""
     branch_zips = pd.read_csv(branch_zip_path, dtype={"zip": str}, index_col="zip")
-    for _, memb_list in memb_lists.items():
+    for date, memb_list in memb_lists.items():
+        logging.debug("Tagging %s membership list with branches based on current zip code assignments.", date)
         memb_list["branch"] = memb_list["zip"].apply(branch_name_from_zip, branch_zips=branch_zips)
     return memb_lists
 
@@ -203,14 +198,11 @@ def get_membership_lists() -> dict[str, pd.DataFrame]:
     memb_list_zips = scan_all_membership_lists()
     pickled_lists = get_pickled_dict()
     memb_lists = integrate_new_membership_lists(memb_list_zips, pickled_lists)
-
     with open(os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
+        logging.info("Saving all lists into pickle for quicker access next time.")
         pickle.dump(memb_lists, pickled_file)
-
     # Cross-reference with branch_zips.csv
     if BRANCH_ZIPS_PATH.is_file():
+        logging.info("Tagging each membership list based on current branch zip code assignments.")
         memb_lists = tagged_with_branches(memb_lists, BRANCH_ZIPS_PATH)
-
-    # with open("inferred_schema.py", "w", encoding="UTF-8") as file_out:
-    #    file_out.write(pa.infer_schema(memb_lists["2023-12-01"]).to_script())
     return memb_lists
