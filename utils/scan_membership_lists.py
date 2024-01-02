@@ -36,10 +36,8 @@ def membership_length(date: str, **kwargs) -> int:
 def mapbox_geocoder(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API"""
     response = geocoder.forward(address, country=["us"])
-
     if "features" not in response.geojson():
         return [0, 0]
-
     return response.geojson()["features"][0]["center"]
 
 
@@ -48,7 +46,6 @@ def get_geocoding(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
     if not isinstance(address, str) or not MAPBOX_TOKEN_PATH.is_file():
         return [0, 0]
-
     return mapbox_geocoder(address)
 
 
@@ -59,7 +56,6 @@ def format_zip_code(zip_code):
 
 def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     """Clean and standardize dataframe according to specified rules."""
-    # Ensure column names are lowercase
     df.columns = df.columns.str.lower()
 
     # Rename the old columns to new names
@@ -124,8 +120,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
 
 def scan_memb_list_from_csv(csv_file_data) -> pd.DataFrame:
     """Convert the provided csv data into a pandas dataframe."""
-    logging.debug("Loading data from csv data")
-    return pd.read_csv(csv_file_data, header=0)
+    return pd.read_csv(csv_file_data, dtype={"zip": str}, header=0)
 
 
 def scan_memb_list_from_zip(filename: str, zip_path: str) -> pd.DataFrame:
@@ -151,7 +146,7 @@ def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
             # Save contents of each zip file into dict keyed to date
             memb_lists[date_from_name.isoformat()] = scan_memb_list_from_zip(filename, os.path.abspath(zip_file))
         except (IndexError, ValueError):
-            logging.info("No date detected in name of %s. Skipping file.", filename)
+            logging.warning("Could not extract list from %s. Skipping file.", filename)
     logging.info("Found %s zipped membership lists.", len(memb_lists))
     return memb_lists
 
@@ -161,7 +156,6 @@ def get_pickled_dict() -> dict[str, pd.DataFrame]:
     pickled_file_path = os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl")
     if not os.path.exists(pickled_file_path):
         return {}
-
     with open(pickled_file_path, "rb") as pickled_file:
         pickled_dict = pickle.load(pickled_file)
         logging.info("Found %s pickled membership lists.", len(pickled_dict))
@@ -171,9 +165,8 @@ def get_pickled_dict() -> dict[str, pd.DataFrame]:
 def integrate_new_membership_lists(memb_list_zips: dict[str, pd.DataFrame], pickled_lists: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     """Use pre-calculated data from pickle, clean data from new membership lists, and combine them into a complete, date-sorted dict"""
     new_lists = {k: v for k, v in memb_list_zips.items() if k not in pickled_lists}
-    logging.info("Found %s new lists", len(new_lists))
     if new_lists:
-        logging.info("Cleaning data for new lists.")
+        logging.info("Cleaning data for %s new lists.", len(new_lists))
         new_lists = {k_date: data_cleaning(memb_list, k_date) for k_date, memb_list in tqdm(new_lists.items(), unit="list", desc="Scanning Zip Files")}
     return dict(sorted((new_lists | pickled_lists).items(), reverse=True))
 
