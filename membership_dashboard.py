@@ -18,6 +18,7 @@ from dash import (
     html,
 )
 
+from utils.list_schema import schema
 from utils.scan_membership_lists import get_membership_lists
 import utils.membership_dashboard_components as mdc
 
@@ -447,9 +448,9 @@ clientside_callback(
 def render_page_content(pathname: str):
     """Display the correct page based on the user's navigation path."""
     if pathname == "/":
-        return mdc.timeline(list(MEMB_METRICS.keys()))
+        return mdc.timeline(schema)
     if pathname == "/list":
-        return mdc.member_list(MEMB_LISTS)
+        return mdc.member_list(MEMB_LISTS, schema)
     if pathname == "/metrics":
         return mdc.metrics()
     if pathname == "/graphs":
