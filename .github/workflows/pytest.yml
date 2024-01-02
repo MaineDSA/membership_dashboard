@@ -31,9 +31,12 @@ jobs:
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
-        pip3 install pytest pytest-emoji
+        pip3 install pytest pytest-emoji pytest-md
         if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
 
-    - name: Run tests with pytest
-      run: |
-        pytest tests/
+    - name: Test code with pytest
+      uses: pavelzw/pytest-action@v2
+      with:
+        emoji: true
+        verbose: false
+        job-summary: true
