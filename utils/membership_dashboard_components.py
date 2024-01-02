@@ -1,12 +1,9 @@
 """Components for a membership dashboard showing various graphs and metrics to illustrate changes over time."""
 
+from dash import dash_table, dcc, html
+from pandera import DataFrameSchema
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
-from dash import (
-    dash_table,
-    dcc,
-    html,
-)
 
 
 def layout(memb_list_keys: list[str]) -> dbc.Container:
@@ -96,12 +93,12 @@ def layout(memb_list_keys: list[str]) -> dbc.Container:
     return dbc.Container([dcc.Location(id="url"), sidebar(), html.Div(id="page-content")], className="dbc dbc-ag-grid", fluid=True)
 
 
-def timeline(memb_lists_metrics_keys: list[str]) -> html.Div:
+def timeline(schema: DataFrameSchema) -> html.Div:
     return html.Div(
         id="timeline-container",
         children=[
             dcc.Dropdown(
-                options=memb_lists_metrics_keys,
+                options=[column for column in schema.columns],
                 value=["membership_status"],
                 multi=True,
                 id="timeline_columns",
@@ -122,14 +119,14 @@ def timeline(memb_lists_metrics_keys: list[str]) -> html.Div:
     )
 
 
-def member_list(memb_lists: dict) -> html.Div:
+def member_list(memb_lists: dict, schema: DataFrameSchema) -> html.Div:
     memb_list_keys = list(memb_lists.keys())
     return html.Div(
         id="list-container",
         children=[
             dash_table.DataTable(
                 data=memb_lists[memb_list_keys[0]].to_dict("records"),
-                columns=[{"name": i, "id": i, "selectable": True} for i in memb_lists[list(memb_lists.keys())[0]].columns],
+                columns=[{"name": i, "id": i, "selectable": True} for i in schema.columns],
                 sort_action="native",
                 sort_by=[
                     {"column_id": "last_name", "direction": "asc"},
