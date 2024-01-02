@@ -26,6 +26,29 @@ if MAPBOX_TOKEN_PATH.is_file():
     geocoder = Geocoder(access_token=MAPBOX_TOKEN_PATH.read_text(encoding="UTF-8"))
 
 
+class ListColumnRules:
+    FIELD_DROP = [
+        "organization",
+        "dsa_id",
+    ]
+    FIELD_UPGRADE_PATHS = {
+        "accommodations": ["accomodations"],
+        "actionkit_id": ["akid", "ak_id"],
+        "address1": ["billing_address1", "mailing_address1", "billing_address_line_1", "address_line_1"],
+        "address2": ["billing_address2", "mailing_address2", "billing_address_line_2", "address_line_2"],
+        "city": ["billing_city", "mailing_city"],
+        "dsa_chapter": ["chapter"],
+        "first_name": ["family_first_name"],
+        "last_name": ["family_last_name"],
+        "state": ["billing_state", "mailing_state"],
+        "union_local": ["union_name_local"],
+        "ydsa_chapter": ["ydsa chapter"],
+        "yearly_dues_status": ["annual_recurring_dues_status"],
+        "zip": ["billing_zip", "mailing_zip"],
+    }
+    FIELD_UPGRADE_PAIRS = {old: new for new, old_names in FIELD_UPGRADE_PATHS.items() for old in old_names}
+
+
 def membership_length(date: str, **kwargs) -> int:
     """Return an integer representing how many years between the supplied dates."""
     return (pd.to_datetime(kwargs["list_date"]) - pd.to_datetime(date)) // pd.Timedelta(days=365)
@@ -54,61 +77,36 @@ def format_zip_code(zip_code):
     return str(zip_code).zfill(5)
 
 
+def standardize_dates(date: str) -> str:
+    """Standardize date format to YYYY-MM-DD"""
+    return pd.to_datetime(date).date().isoformat()
+
+
 def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     """Clean and standardize dataframe according to specified rules."""
     df.columns = df.columns.str.lower()
+    if "family_first_name" in df.columns:
+        df["first_name"] = df.first_name.str.cat(df.family_first_name)
+        df["last_name"] = df.last_name.str.cat(df.family_last_name)
 
-    # Rename the old columns to new names
-    for old, new in {
-        "akid": "actionkit_id",
-        "ak_id": "actionkit_id",
-        "accomodations": "accommodations",
-        "annual_recurring_dues_status": "yearly_dues_status",
-        # before fall of 2023
-        "mailing_address1": "address1",
-        "mailing_address2": "address2",
-        "mailing_city": "city",
-        "mailing_state": "state",
-        "mailing_zip": "zip",
-        # old 2020-era lists
-        "address_line_1": "address1",
-        "address_line_2": "address2",
-    }.items():
-        if (new not in df.columns) & (old in df.columns):
-            df.rename(columns={old: new}, inplace=True)
-
-    df["zip"] = df["zip"].apply(format_zip_code)
+    for old_name, new_name in ListColumnRules.FIELD_UPGRADE_PAIRS.items():
+        if new_name not in df.columns:
+            df.rename(columns={old_name: new_name}, inplace=True, errors="ignore")
+        df.drop(columns=old_name, inplace=True, errors="ignore")
+    for field_name in ListColumnRules.FIELD_DROP:
+        df.drop(columns=field_name, inplace=True, errors="ignore")
 
     df.set_index("actionkit_id", inplace=True)
-
-    # Apply the membership_length function to join_date
-    df["membership_length"] = df["join_date"].apply(membership_length, list_date=list_date)
-
-    # Standardize other columns
-    for col, default in [
-        ("membership_type", "unknown"),
-        ("address2", ""),
-        ("race", "unknown"),
-        ("union_member", "unknown"),
-        ("accommodations", "no"),
-        ("membership_status", "unknown"),
-    ]:
-        df[col] = df.get(col, default)
-
-    # Standardize membership_status column
-    df["membership_status"] = df["membership_status"].str.lower().replace({"expired": "lapsed"})
-
-    # Standardize accommodations column
-    df["accommodations"].replace(
-        regex={
-            r"(?i)none": None,
-            r"(?i)n/a": None,
-            r"(?i)no.": None,
-            r"(?i)no": None,
-        },
-        inplace=True,
-    )
-
+    df["zip"] = df["zip"].apply(format_zip_code)
+    df["join_date"] = df.join_date.apply(standardize_dates)
+    df["xdate"] = df.xdate.apply(standardize_dates)
+    df["city"] = df["city"].str.lower()
+    if "union_member" in df.columns:
+        df["union_member"].replace({0: "No", 1: "Yes, current union member", 2: "Yes, retired union member"}, inplace=True)
+    df["membership_length"] = df.join_date.apply(membership_length, list_date=list_date)
+    df["membership_status"] = df["membership_status"].replace("expired", "lapsed").str.lower()
+    df["membership_type"] = df["membership_type"].replace("annual", "yearly").str.lower()
+    df["membership_type"].where(df.xdate != "2099-11-01", "lifetime", inplace=True)
     if "lat" not in df:
         tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
         df[["lon", "lat"]] = pd.DataFrame(
