@@ -105,9 +105,10 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
         df["union_member"].replace({0: "No", 1: "Yes, current union member", 2: "Yes, retired union member"}, inplace=True)
 
     df["join_date"] = pd.to_datetime(df["join_date"], format="mixed")
+    df["join_year"] = pd.PeriodIndex(df["join_date"], freq="Y").to_timestamp()
+    df["join_quarter"] = pd.PeriodIndex(df["join_date"], freq="Q").to_timestamp()
     df["xdate"] = pd.to_datetime(df["xdate"], format="mixed")
 
-    df["membership_length"] = membership_length(df["join_date"], df["xdate"], list_date)
     df["membership_length_months"] = membership_length_months(df["join_date"], df["xdate"], list_date)
     df["membership_length_years"] = df.membership_length_months // 12
 
