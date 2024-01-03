@@ -254,14 +254,14 @@ def graphs() -> html.Div:
     )
 
 
-def member_map(memb_lists_metrics_keys: list[str]) -> html.Div:
+def member_map(schema: DataFrameSchema) -> html.Div:
     return html.Div(
         id="map-container",
         children=[
             dcc.Dropdown(
-                options=memb_lists_metrics_keys,
-                value="membership_status",
-                multi=False,
+                options=[column for column in schema.columns],
+                value=["membership_status"],
+                multi=True,
                 id="map_column",
             ),
             dcc.Graph(

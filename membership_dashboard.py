@@ -28,10 +28,7 @@ def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, d
     logging.info("Calculating metrics for %s membership lists", len(members))
     columns = set(column for memb_list in members.values() for column in memb_list.columns)
     return {
-        column: {
-            list_date: members[list_date].get(column) for list_date, memb_list in members.items() if column in memb_list.columns
-        }
-        for column in columns
+        column: {list_date: members[list_date].get(column) for list_date, memb_list in members.items() if column in memb_list.columns} for column in columns
     }
 
 
@@ -452,12 +449,14 @@ def render_page_content(pathname: str):
         return mdc.timeline(schema)
     if pathname == "/list":
         return mdc.member_list(MEMB_LISTS, schema)
-    if pathname == "/metrics":
-        return mdc.metrics()
     if pathname == "/graphs":
         return mdc.graphs()
+    if pathname == "/metrics":
+        return mdc.metrics()
+    if pathname == "/retention":
+        return mdc.retention()
     if pathname == "/map":
-        return mdc.member_map(list(MEMB_METRICS.keys()))
+        return mdc.member_map(schema)
 
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
