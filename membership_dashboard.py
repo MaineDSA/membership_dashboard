@@ -454,10 +454,8 @@ def render_page_content(pathname: str):
     if pathname == "/metrics":
         return mdc.metrics()
     if pathname == "/retention":
-        return html.P(
-            "Implementation of detailed retention graphs is planned. Stay tuned."
-        )
-        #return mdc.retention()
+        return html.P("Implementation of detailed retention graphs is planned. Stay tuned.")
+        # return mdc.retention()
     if pathname == "/map":
         return mdc.member_map(schema)
 
