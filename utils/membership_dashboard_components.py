@@ -6,7 +6,7 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 
 
-def layout(memb_list_keys: list[str]) -> dbc.Container:
+def layout(memb_list_keys: list[str], navlinks: dict[str : dict[str, str]]) -> dbc.Container:
     def sidebar_header() -> dbc.Row:
         return dbc.Row(
             [
@@ -76,13 +76,7 @@ def layout(memb_list_keys: list[str]) -> dbc.Container:
                     id="list_compare_dropdown_label",
                 ),
                 dbc.Nav(
-                    [
-                        dbc.NavLink("Timeline", href="/", active="exact"),
-                        dbc.NavLink("List", href="/list", active="exact"),
-                        dbc.NavLink("Metrics", href="/metrics", active="exact"),
-                        dbc.NavLink("Graphs", href="/graphs", active="exact"),
-                        dbc.NavLink("Map", href="/map", active="exact"),
-                    ],
+                    [dbc.NavLink(nav_data["name"], href=nav_link, active="exact") for nav_link, nav_data in navlinks.items()],
                     id="navigation",
                     vertical=True,
                     pills=True,
@@ -119,13 +113,12 @@ def timeline(schema: DataFrameSchema) -> html.Div:
     )
 
 
-def member_list(memb_lists: dict, schema: DataFrameSchema) -> html.Div:
-    memb_list_keys = list(memb_lists.keys())
+def member_list(schema: DataFrameSchema) -> html.Div:
     return html.Div(
         id="list-container",
         children=[
             dash_table.DataTable(
-                data=memb_lists[memb_list_keys[0]].to_dict("records"),
+                data=[],
                 columns=[{"name": i, "id": i, "selectable": True} for i in schema.columns],
                 sort_action="native",
                 sort_by=[
@@ -143,6 +136,56 @@ def member_list(memb_lists: dict, schema: DataFrameSchema) -> html.Div:
                     "overflowX": "auto",
                 },
                 id="membership_list",
+            ),
+        ],
+    )
+
+
+def graphs() -> html.Div:
+    return html.Div(
+        id="graphs-container",
+        children=[
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Graph(
+                            figure=go.Figure(),
+                            id="membership_status",
+                            style={"height": "46svh"},
+                        ),
+                        md=4,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(
+                            figure=go.Figure(),
+                            id="membership_type",
+                            style={"height": "46svh"},
+                        ),
+                        md=4,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="union_member", style={"height": "46svh"}),
+                        md=4,
+                    ),
+                ],
+                align="center",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Graph(
+                            figure=go.Figure(),
+                            id="membership_length",
+                            style={"height": "46svh"},
+                        ),
+                        md=6,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="race", style={"height": "46svh"}),
+                        md=6,
+                    ),
+                ],
+                align="center",
             ),
         ],
     )
@@ -204,31 +247,27 @@ def metrics() -> html.Div:
     )
 
 
-def graphs() -> html.Div:
+def retention() -> html.Div:
     return html.Div(
-        id="graphs-container",
+        id="retention-container",
         children=[
             dbc.Row(
                 [
                     dbc.Col(
                         dcc.Graph(
                             figure=go.Figure(),
-                            id="membership_status",
+                            id="retention_count_years",
                             style={"height": "46svh"},
                         ),
-                        md=4,
+                        md=6,
                     ),
                     dbc.Col(
                         dcc.Graph(
                             figure=go.Figure(),
-                            id="membership_type",
+                            id="retention_count_months",
                             style={"height": "46svh"},
                         ),
-                        md=4,
-                    ),
-                    dbc.Col(
-                        dcc.Graph(figure=go.Figure(), id="union_member", style={"height": "46svh"}),
-                        md=4,
+                        md=6,
                     ),
                 ],
                 align="center",
@@ -238,13 +277,17 @@ def graphs() -> html.Div:
                     dbc.Col(
                         dcc.Graph(
                             figure=go.Figure(),
-                            id="membership_length",
+                            id="retention_percent_years",
                             style={"height": "46svh"},
                         ),
                         md=6,
                     ),
                     dbc.Col(
-                        dcc.Graph(figure=go.Figure(), id="race", style={"height": "46svh"}),
+                        dcc.Graph(
+                            figure=go.Figure(),
+                            id="retention_percent_months",
+                            style={"height": "46svh"},
+                        ),
                         md=6,
                     ),
                 ],
