@@ -1,6 +1,7 @@
 """Components for a membership dashboard showing various graphs and metrics to illustrate changes over time."""
 
 from dash import dash_table, dcc, html
+import pandas as pd
 from pandera import DataFrameSchema
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
@@ -248,25 +249,33 @@ def metrics() -> html.Div:
 
 
 def retention() -> html.Div:
+    earliest_year = 1982
+    current_year = int(pd.to_datetime("today").date().strftime("%Y"))
+    years_between = {i: "{}".format(i) for i in range(earliest_year, current_year, 4)}
     return html.Div(
         id="retention-container",
         children=[
             dbc.Row(
+                dbc.Col(
+                    dcc.RangeSlider(
+                        min=earliest_year,
+                        max=current_year,
+                        step=1,
+                        marks=years_between,
+                        value=[2016, current_year],
+                        id="rentention_years_slider",
+                        tooltip={"placement": "bottom"},
+                    ),
+                ),
+            ),
+            dbc.Row(
                 [
                     dbc.Col(
-                        dcc.Graph(
-                            figure=go.Figure(),
-                            id="retention_count_years",
-                            style={"height": "46svh"},
-                        ),
+                        dcc.Graph(figure=go.Figure(), id="retention_count_years", style={"height": "43svh"}),
                         md=6,
                     ),
                     dbc.Col(
-                        dcc.Graph(
-                            figure=go.Figure(),
-                            id="retention_count_months",
-                            style={"height": "46svh"},
-                        ),
+                        dcc.Graph(figure=go.Figure(), id="retention_count_months", style={"height": "43svh"}),
                         md=6,
                     ),
                 ],
@@ -275,19 +284,24 @@ def retention() -> html.Div:
             dbc.Row(
                 [
                     dbc.Col(
-                        dcc.Graph(
-                            figure=go.Figure(),
-                            id="retention_percent_years",
-                            style={"height": "46svh"},
-                        ),
+                        dcc.Graph(figure=go.Figure(), id="retention_percent_years", style={"height": "43svh"}),
                         md=6,
                     ),
                     dbc.Col(
-                        dcc.Graph(
-                            figure=go.Figure(),
-                            id="retention_percent_months",
-                            style={"height": "46svh"},
-                        ),
+                        dcc.Graph(figure=go.Figure(), id="retention_percent_months", style={"height": "43svh"}),
+                        md=6,
+                    ),
+                ],
+                align="center",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="retention_nth_year_year", style={"height": "43svh"}),
+                        md=6,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="retention_nth_year_quarter", style={"height": "43svh"}),
                         md=6,
                     ),
                 ],

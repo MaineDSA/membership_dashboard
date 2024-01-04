@@ -17,6 +17,16 @@ def retention_year(df: pd.DataFrame):
     )
 
 
+def retention_mos(df: pd.DataFrame):
+    return (
+        df.pivot_table(index=[JOIN_YEAR], columns=[MEMBERSHIP_LENGTH_MONTHS], values=COUNTING_COLUMN, fill_value=0, aggfunc=len)
+        .transpose()[::-1]
+        .cumsum()[::-1]
+        .transpose()
+        .replace(to_replace=0, value=None)
+    )
+
+
 def retention_pct_year(df: pd.DataFrame):
     pivot = df.pivot_table(index=[JOIN_YEAR], columns=[MEMBERSHIP_LENGTH_YEARS], values=COUNTING_COLUMN, fill_value=0, aggfunc=len).transpose()[::-1]
     return (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None)
@@ -27,6 +37,6 @@ def retention_pct_mos(df: pd.DataFrame):
     return (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None)
 
 
-def retention_pct_year_quarter(df: pd.DataFrame):
+def retention_pct_quarter(df: pd.DataFrame):
     pivot = df.pivot_table(index=[JOIN_QUARTER], columns=[MEMBERSHIP_LENGTH_YEARS], values=COUNTING_COLUMN, fill_value=0, aggfunc=len).transpose()[::-1]
     return (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None).interpolate(limit=1, limit_area="inside")
