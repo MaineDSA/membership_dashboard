@@ -43,4 +43,6 @@ def retention_pct_mos(df: pd.DataFrame):
 
 def retention_pct_quarter(df: pd.DataFrame):
     pivot = df.pivot_table(index=[JOIN_QUARTER], columns=[MEMBERSHIP_LENGTH_YEARS], values=COUNTING_COLUMN, fill_value=0, aggfunc=len).transpose()[::-1]
-    return (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None).interpolate(limit=1, limit_area="inside")
+    return (
+        (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None).infer_objects(copy=False).interpolate(limit=1, limit_area="inside")
+    )
