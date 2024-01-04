@@ -392,55 +392,81 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
     Output(component_id="retention_percent_months", component_property="figure"),
     Output(component_id="retention_nth_year_year", component_property="figure"),
     Output(component_id="retention_nth_year_quarter", component_property="figure"),
+    Output(component_id="retention_year_over_year_year", component_property="figure"),
+    Output(component_id="retention_year_over_year_month", component_property="figure"),
+    Output(component_id="rentention_tenure_current", component_property="figure"),
+    Output(component_id="rentention_tenure_former", component_property="figure"),
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="rentention_years_slider", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [go.Figure] * 6:
+def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [go.Figure] * 8:
     """Update the retention graphs shown based on the selected membership list date."""
     if not date_selected:
-        return [go.Figure()] * 6
+        return [go.Figure()] * 8
 
     df = MEMB_LISTS.get(date_selected, pd.DataFrame())
     df = df.loc[(df["join_year"] >= pd.to_datetime(years[0], format="%Y")) & (df["join_year"] <= pd.to_datetime(years[1], format="%Y"))]
+
     df_ry = retention_year(df)
     df_rm = retention_mos(df)
     df_rpy = retention_pct_year(df)
     df_rpm = retention_pct_mos(df)
     df_rpq = retention_pct_quarter(df)
 
+    df_ml_vc = df[df["memb_status_letter"] == "M"]["membership_length_years"].value_counts()
+    df_ll_vc = df[df["memb_status_letter"] == "L"]["membership_length_years"].value_counts()
+
+    color_len = len(COLORS)
+
     charts = [
         go.Figure(
-            data=[go.Scatter(x=df_ry.columns, y=df_ry.loc[i], mode="lines+markers", name=str(i.year)) for i in df_ry.index],
+            data=[
+                go.Scatter(x=df_ry.columns, y=df_ry.loc[year], mode="lines+markers", name=str(year.year), line={"color": COLORS[i % color_len]})
+                for i, year in enumerate(df_ry.index)
+            ],
             layout=go.Layout(
                 title="Member Retention (annual cohort)",
-                xaxis=dict(title="Years since joining", range=[1, df_ry.columns.max()]),
-                yaxis=dict(title="# of cohort retained", range=[0, df_ry.max().max()]),
+                xaxis={"title": "Years since joining", "range": [1, df_ry.columns.max()]},
+                yaxis={"title": "# of cohort retained", "range": [0, df_ry.max().max()]},
             ),
         ),
         go.Figure(
-            data=[go.Scatter(x=df_rm.columns, y=df_rm.loc[i], mode="lines", name=str(i.year)) for i in df_rm.index],
+            data=[
+                go.Scatter(x=df_rm.columns, y=df_rm.loc[year], mode="lines", name=str(year.year), line={"color": COLORS[i % color_len]})
+                for i, year in enumerate(df_rm.index)
+            ],
             layout=go.Layout(
                 xaxis={"title": "Months since joining", "range": [12, df_rm.columns.max()]},
                 yaxis={"title": "# of cohort retained", "range": [0, df_rm.max().max()]},
             ),
         ),
         go.Figure(
-            data=[go.Scatter(x=df_rpy.columns, y=df_rpy.loc[i], mode="lines+markers", name=str(i.year)) for i in df_rpy.index],
+            data=[
+                go.Scatter(x=df_rpy.columns, y=df_rpy.loc[year], mode="lines+markers", name=str(year.year), line={"color": COLORS[i % color_len]})
+                for i, year in enumerate(df_rpy.index)
+            ],
             layout=go.Layout(
                 xaxis={"title": "Years since joining", "range": [1, df_rpy.columns.max()]},
                 yaxis={"title": "% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
             ),
         ),
         go.Figure(
-            data=[go.Scatter(x=df_rpm.columns, y=df_rpm.loc[i], mode="lines", name=str(i.year)) for i in df_rpm.index],
+            data=[
+                go.Scatter(x=df_rpm.columns, y=df_rpm.loc[year], mode="lines", name=str(year.year), line={"color": COLORS[i % color_len]})
+                for i, year in enumerate(df_rpm.index)
+            ],
             layout=go.Layout(
                 xaxis={"title": "Months since joining", "range": [12, df_rpm.columns.max()]},
                 yaxis={"title": "% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
             ),
         ),
         go.Figure(
-            data=[go.Scatter(x=df_rpy.index, y=df_rpy[c], mode="lines+markers", name=c) for c in df_rpy.columns if c not in [0,1]],
+            data=[
+                go.Scatter(x=df_rpy.index, y=df_rpy[c], mode="lines+markers", name=c, line={"color": COLORS[c % color_len]})
+                for c in df_rpy.columns
+                if c not in [0, 1]
+            ],
             layout=go.Layout(
                 title="Nth year Retention Rates over Time (join-date Cohort)",
                 xaxis={"title": "Cohort (year joined)"},
@@ -449,10 +475,84 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
             ),
         ),
         go.Figure(
-            data=[go.Scatter(x=df_rpq.index, y=df_rpq[c], mode="lines+markers", name=c) for c in df_rpq.columns if c not in [0,1]],
+            data=[
+                go.Scatter(x=df_rpq.index, y=df_rpq[c], mode="lines+markers", name=c, line={"color": COLORS[c % color_len]})
+                for c in df_rpq.columns
+                if c not in [0, 1]
+            ],
             layout=go.Layout(
                 xaxis={"title": "Cohort (by quarter)"},
                 yaxis={"title": "% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
+                legend={"title": "Years since joined", "x": 1, "y": 1},
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Scatter(
+                    x=df_ry.columns,
+                    y=df_ry.loc[year].pct_change(fill_method=None),
+                    mode="markers+lines",
+                    name=str(year.year),
+                    line={"color": COLORS[i % color_len]},
+                )
+                for i, year in enumerate(df_ry.index)
+            ],
+            layout=go.Layout(
+                title="Year-Over-Year Retention (annual cohort)",
+                xaxis={"title": "Years since joining", "range": [1, df_ry.columns.max()]},
+                yaxis={"title": "YOY % change", "tickformat": ",.0%"},
+                legend={"x": 1, "y": 1},
+                hovermode="closest",
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Scatter(
+                    x=df_rpm.columns,
+                    y=df_rpm.loc[year].pct_change(periods=12, fill_method=None),
+                    mode="lines",
+                    name=str(year.year),
+                    line={"color": COLORS[i % color_len]},
+                )
+                for i, year in enumerate(df_rpm.index)
+            ],
+            layout=go.Layout(
+                xaxis={"title": "Months since joining", "range": [12, df_rpm.columns.max()]},
+                yaxis={"title": "YOY % change", "tickformat": ",.0%"},
+                legend={"x": 1, "y": 1},
+                hovermode="closest",
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Bar(
+                    name="Current members",
+                    x=df_ml_vc.index,
+                    y=df_ml_vc.values,
+                    # text=chartdf_compare_vc.values,
+                    marker_color=COLORS,
+                ),
+            ],
+            layout=go.Layout(
+                title="Tenure of Members",
+                xaxis={"title": "Years since joining"},
+                yaxis={"title": "% of current members", "tickformat": ".0%"},
+                legend={"title": "Years since joined", "x": 1, "y": 1},
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Bar(
+                    name="Current members",
+                    x=df_ll_vc.index,
+                    y=df_ll_vc.values,
+                    # text=chartdf_compare_vc.values,
+                    marker_color=COLORS,
+                ),
+            ],
+            layout=go.Layout(
+                xaxis={"title": "Years since joining"},
+                yaxis={"title": "% of former members", "tickformat": ".0%"},
                 legend={"title": "Years since joined", "x": 1, "y": 1},
             ),
         ),

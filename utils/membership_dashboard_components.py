@@ -262,7 +262,7 @@ def retention() -> html.Div:
                         max=current_year,
                         step=1,
                         marks=years_between,
-                        value=[2016, current_year],
+                        value=[2015, current_year],
                         id="rentention_years_slider",
                         tooltip={"placement": "bottom"},
                     ),
@@ -302,6 +302,32 @@ def retention() -> html.Div:
                     ),
                     dbc.Col(
                         dcc.Graph(figure=go.Figure(), id="retention_nth_year_quarter", style={"height": "43svh"}),
+                        md=6,
+                    ),
+                ],
+                align="center",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="retention_year_over_year_year", style={"height": "43svh"}),
+                        md=6,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="retention_year_over_year_month", style={"height": "43svh"}),
+                        md=6,
+                    ),
+                ],
+                align="center",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="rentention_tenure_current", style={"height": "43svh"}),
+                        md=6,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="rentention_tenure_former", style={"height": "43svh"}),
                         md=6,
                     ),
                 ],
