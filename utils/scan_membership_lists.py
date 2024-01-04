@@ -19,14 +19,17 @@ MEMB_LIST_CONFIG_PATH = Path(".list_name")
 if MEMB_LIST_CONFIG_PATH.is_file():
     MEMB_LIST_NAME = MEMB_LIST_CONFIG_PATH.read_text(encoding="UTF-8")
 
-logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 geocoder = Geocoder()
 MAPBOX_TOKEN_PATH = Path(".mapbox_token")
 if MAPBOX_TOKEN_PATH.is_file():
     geocoder = Geocoder(access_token=MAPBOX_TOKEN_PATH.read_text(encoding="UTF-8"))
 
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
+
 
 class ListColumnRules:
+    """Define rules for cleaning and standardizing the columns of a membership list"""
+
     FIELD_DROP = [
         "organization",
         "dsa_id",
@@ -49,12 +52,15 @@ class ListColumnRules:
     FIELD_UPGRADE_PAIRS = {old: new for new, old_names in FIELD_UPGRADE_PATHS.items() for old in old_names}
 
 
-def membership_length(join_date: pd.Series, xdate: pd.Series, list_date: str) -> pd.Series:
-    """Calculate how many years are between the supplied dates."""
-    start_date = pd.to_datetime(join_date)
-    end_date = pd.to_datetime(xdate).clip(upper=pd.to_datetime(list_date))
-    years = (end_date - start_date) / pd.Timedelta(days=365)
-    return years.astype(int)
+def membership_length_months(join_date: pd.Series, xdate: pd.Series, list_date: str):
+    """Calculate how many months are between the supplied dates, with a third date limiting the end date."""
+    end_date = xdate.clip(upper=pd.to_datetime(list_date))
+    return 12 * (end_date.dt.year - join_date.dt.year) + (end_date.dt.month - join_date.dt.month)
+
+
+def membership_length_years(join_date: pd.Series, xdate: pd.Series, list_date: str) -> pd.Series:
+    """Calculate how many years are between the supplied dates, with a third date limiting the end date."""
+    return membership_length_months(join_date, xdate, list_date) // 12
 
 
 @sleep_and_retry
@@ -80,11 +86,6 @@ def format_zip_code(zip_code):
     return str(zip_code).zfill(5)
 
 
-def standardize_dates(date: str) -> str:
-    """Standardize date format to YYYY-MM-DD"""
-    return pd.to_datetime(date).date().isoformat()
-
-
 def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     """Clean and standardize dataframe according to specified rules."""
     df.columns = df.columns.str.lower()
@@ -99,17 +100,27 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
         df.drop(columns=field_name, inplace=True, errors="ignore")
 
     df.set_index("actionkit_id", inplace=True)
+
     df["zip"] = df.zip.apply(format_zip_code)
-    df["join_date"] = df.join_date.apply(standardize_dates)
-    df["xdate"] = df.xdate.apply(standardize_dates)
     df["city"] = df.city.str.title()
+
     if "union_member" in df.columns:
         df["union_member"].replace({0: "No", 1: "Yes, current union member", 2: "Yes, retired union member"}, inplace=True)
-    df["membership_length"] = membership_length(df["join_date"], df["xdate"], list_date)
+
+    df["join_date"] = pd.to_datetime(df["join_date"], format="mixed")
+    df["join_year"] = pd.PeriodIndex(df["join_date"], freq="Y").to_timestamp()
+    df["join_quarter"] = pd.PeriodIndex(df["join_date"], freq="Q").to_timestamp()
+    df["xdate"] = pd.to_datetime(df["xdate"], format="mixed")
+
+    df["membership_length_months"] = membership_length_months(df["join_date"], df["xdate"], list_date)
+    df["membership_length_years"] = df.membership_length_months // 12
+
     df["membership_status"] = df.membership_status.replace("expired", "lapsed").str.lower()
     df["memb_status_letter"] = df["membership_status"].replace({"member in good standing": "M", "member": "M", "lapsed": "L"})
+
     df["membership_type"] = df.membership_type.replace("annual", "yearly").str.lower()
     df["membership_type"].where(df.xdate != "2099-11-01", "lifetime", inplace=True)
+
     if "lat" not in df:
         tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
         df[["lon", "lat"]] = pd.DataFrame(
@@ -136,16 +147,16 @@ def scan_memb_list_from_zip(filename: str, zip_path: str) -> pd.DataFrame:
 
 
 def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
-    """Scan all zip files and call scan_memb_list_from_zip on each."""
+    """Scan all zip files and call scan_memb_list_from_zip on each, returning the results."""
     memb_lists = {}
     logging.info("Scanning zipped membership lists in %s/.", MEMB_LIST_NAME)
     files = sorted(glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True), reverse=True)
     for zip_file in files:
         filename = os.path.basename(zip_file)
         try:
-            date_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[-1], format="%Y%m%d").date()
-            # Save contents of each zip file into dict keyed to date
-            memb_lists[date_from_name.isoformat()] = scan_memb_list_from_zip(filename, os.path.abspath(zip_file))
+            date_from_filename = os.path.splitext(filename)[0].split("_")[-1]
+            list_date_iso = pd.to_datetime(date_from_filename, format="%Y%m%d").date().isoformat()
+            memb_lists[list_date_iso] = scan_memb_list_from_zip(filename, os.path.abspath(zip_file))
         except (IndexError, ValueError):
             logging.warning("Could not extract list from %s. Skipping file.", filename)
     logging.info("Found %s zipped membership lists.", len(memb_lists))
@@ -195,7 +206,6 @@ def get_membership_lists() -> dict[str, pd.DataFrame]:
     with open(os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
         logging.info("Saving all lists into pickle for quicker access next time.")
         pickle.dump(memb_lists, pickled_file)
-    # Cross-reference with branch_zips.csv
     if BRANCH_ZIPS_PATH.is_file():
         logging.info("Tagging each membership list based on current branch zip code assignments.")
         memb_lists = tagged_with_branches(memb_lists, BRANCH_ZIPS_PATH)

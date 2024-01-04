@@ -20,6 +20,7 @@ from dash import (
 
 from utils.list_schema import schema
 from utils.scan_membership_lists import get_membership_lists
+from utils.membership_retention import retention_year, retention_mos, retention_pct_year, retention_pct_mos, retention_pct_quarter
 import utils.membership_dashboard_components as mdc
 
 
@@ -53,6 +54,14 @@ COLORS = [
     "#f0959e",
 ]
 COMPARE_COLORS = [COLORS[0], COLORS[7]]
+PAGES = {
+    "/": {"name": "Timeline", "schema": True, "generator": mdc.timeline},
+    "/list": {"name": "List", "schema": True, "generator": mdc.member_list},
+    "/metrics": {"name": "Metrics", "generator": mdc.metrics},
+    "/graphs": {"name": "Graphs", "generator": mdc.graphs},
+    "/retention": {"name": "Retention", "generator": mdc.retention},
+    "/map": {"name": "Map", "schema": True, "generator": mdc.member_map},
+}
 
 
 # Initialize the app
@@ -68,7 +77,7 @@ app = Dash(
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
     suppress_callback_exceptions=True,
 )
-app.layout = mdc.layout(list(MEMB_LISTS.keys()))
+app.layout = mdc.layout(list(MEMB_LISTS.keys()), PAGES)
 load_figure_template(["darkly", "journal"])
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 
@@ -133,7 +142,6 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
     if df_compare.empty:
         return df.reset_index(drop=False).to_dict("records"), []
 
-    # Add list date to column to facilitate comparison
     df["list_date"] = date_selected
     df_compare["list_date"] = date_compare_selected
 
@@ -154,7 +162,6 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
         )
     ).to_dict("records")
 
-    # Define the conditional styling rule
     conditional_style = [
         {
             "if": {
@@ -358,8 +365,8 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
             True,
         ),
         create_chart(
-            membersdf["membership_length"].clip(upper=8) if "membership_length" in df else pd.DataFrame(),
-            membersdf_compare["membership_length"].clip(upper=8) if "membership_length" in membersdf_compare else pd.DataFrame(),
+            membersdf["membership_length_years"].clip(upper=8) if "membership_length_years" in df else pd.DataFrame(),
+            membersdf_compare["membership_length_years"].clip(upper=8) if "membership_length_years" in membersdf_compare else pd.DataFrame(),
             "Length of Membership of Constitutional Members (0 - 8+yrs)",
             "Members",
             False,
@@ -370,6 +377,186 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
             "Racial Demographics of Constitutional Members",
             "Members",
             True,
+        ),
+    ]
+
+    return [include_template_if_not_dark(chart, dark_mode) for chart in charts]
+
+
+@callback(
+    Output(component_id="retention_count_years", component_property="figure"),
+    Output(component_id="retention_count_months", component_property="figure"),
+    Output(component_id="retention_percent_years", component_property="figure"),
+    Output(component_id="retention_percent_months", component_property="figure"),
+    Output(component_id="retention_nth_year_year", component_property="figure"),
+    Output(component_id="retention_nth_year_quarter", component_property="figure"),
+    Output(component_id="retention_year_over_year_year", component_property="figure"),
+    Output(component_id="retention_year_over_year_month", component_property="figure"),
+    Output(component_id="rentention_tenure_current", component_property="figure"),
+    Output(component_id="rentention_tenure_former", component_property="figure"),
+    Input(component_id="list_dropdown", component_property="value"),
+    Input(component_id="rentention_years_slider", component_property="value"),
+    Input(component_id="color-mode-switch", component_property="value"),
+)
+def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [go.Figure] * 8:
+    """Update the retention graphs shown based on the selected membership list date."""
+    if not date_selected:
+        return [go.Figure()] * 8
+
+    df = MEMB_LISTS.get(date_selected, pd.DataFrame())
+    df_df = df.loc[(df["join_year"] >= pd.to_datetime(years[0], format="%Y")) & (df["join_year"] <= pd.to_datetime(years[1], format="%Y"))]
+
+    df_ry = retention_year(df_df)
+    df_rm = retention_mos(df_df)
+    df_rpy = retention_pct_year(df_df)
+    df_rpm = retention_pct_mos(df_df)
+    df_rpq = retention_pct_quarter(df_df)
+
+    df_ml_vc = df[df["memb_status_letter"] == "M"]["membership_length_years"].clip(upper=8).value_counts(normalize=True)
+    df_ll_vc = df[df["memb_status_letter"] == "L"]["membership_length_years"].clip(upper=8).value_counts(normalize=True)
+
+    color_len = len(COLORS)
+
+    charts = [
+        go.Figure(
+            data=[
+                go.Scatter(x=df_ry.columns, y=df_ry.loc[year], mode="lines+markers", name=str(year.year), line={"color": COLORS[i % color_len]})
+                for i, year in enumerate(df_ry.index)
+            ],
+            layout=go.Layout(
+                title="Member Retention (annual cohort)",
+                xaxis={"title": "Years since joining", "range": [1, df_ry.columns.max()]},
+                yaxis={"title": r"# of cohort retained", "range": [0, df_ry.max().max()]},
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Scatter(x=df_rm.columns, y=df_rm.loc[year], mode="lines", name=str(year.year), line={"color": COLORS[i % color_len]})
+                for i, year in enumerate(df_rm.index)
+            ],
+            layout=go.Layout(
+                xaxis={"title": "Months since joining", "range": [12, df_rm.columns.max()]},
+                yaxis={"title": r"# of cohort retained", "range": [0, df_rm.max().max()]},
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Scatter(x=df_rpy.columns, y=df_rpy.loc[year], mode="lines+markers", name=str(year.year), line={"color": COLORS[i % color_len]})
+                for i, year in enumerate(df_rpy.index)
+            ],
+            layout=go.Layout(
+                xaxis={"title": "Years since joining", "range": [1, df_rpy.columns.max()]},
+                yaxis={"title": r"% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Scatter(x=df_rpm.columns, y=df_rpm.loc[year], mode="lines", name=str(year.year), line={"color": COLORS[i % color_len]})
+                for i, year in enumerate(df_rpm.index)
+            ],
+            layout=go.Layout(
+                xaxis={"title": "Months since joining", "range": [12, df_rpm.columns.max()]},
+                yaxis={"title": r"% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Scatter(x=df_rpy.index, y=df_rpy[c], mode="lines+markers", name=c, line={"color": COLORS[c % color_len]})
+                for c in df_rpy.columns
+                if c not in [0, 1]
+            ],
+            layout=go.Layout(
+                title="Nth year Retention Rates over Time (join-date cohort)",
+                xaxis={"title": "Cohort (year joined)"},
+                yaxis={"title": r"% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
+                legend={"title": "Years since joined", "x": 1, "y": 1},
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Scatter(x=df_rpq.index, y=df_rpq[c], mode="lines+markers", name=c, line={"color": COLORS[c % color_len]})
+                for c in df_rpq.columns
+                if c not in [0, 1]
+            ],
+            layout=go.Layout(
+                xaxis={"title": "Cohort (by quarter)"},
+                yaxis={"title": r"% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
+                legend={"title": "Years since joined", "x": 1, "y": 1},
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Scatter(
+                    x=df_ry.columns,
+                    y=df_ry.loc[year].pct_change(fill_method=None),
+                    mode="markers+lines",
+                    name=str(year.year),
+                    line={"color": COLORS[i % color_len]},
+                )
+                for i, year in enumerate(df_ry.index)
+            ],
+            layout=go.Layout(
+                title="Year-Over-Year Retention (annual cohort)",
+                xaxis={"title": "Years since joining", "range": [1, df_ry.columns.max()]},
+                yaxis={"title": r"YOY % change", "tickformat": ".0%"},
+                legend={"x": 1, "y": 1},
+                hovermode="closest",
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Scatter(
+                    x=df_rpm.columns,
+                    y=df_rpm.loc[year].pct_change(periods=12, fill_method=None),
+                    mode="lines",
+                    name=str(year.year),
+                    line={"color": COLORS[i % color_len]},
+                )
+                for i, year in enumerate(df_rpm.index)
+            ],
+            layout=go.Layout(
+                xaxis={"title": "Months since joining", "range": [12, df_rpm.columns.max()]},
+                yaxis={"title": r"YOY % change", "tickformat": ".0%"},
+                legend={"x": 1, "y": 1},
+                hovermode="closest",
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Bar(
+                    name="Current members",
+                    x=df_ml_vc.index,
+                    y=df_ml_vc.values,
+                    text=df_ml_vc.values,
+                    texttemplate="%{value:.0%}",
+                    hovertemplate="%{label}, %{value:.0%}",
+                    marker_color=COLORS,
+                ),
+            ],
+            layout=go.Layout(
+                title="Tenure of Members",
+                xaxis={"title": "Years since joining"},
+                yaxis={"title": r"% of current members", "tickformat": ".0%"},
+                legend={"x": 1, "y": 1},
+            ),
+        ),
+        go.Figure(
+            data=[
+                go.Bar(
+                    name="Current members",
+                    x=df_ll_vc.index,
+                    y=df_ll_vc.values,
+                    text=df_ll_vc.values,
+                    texttemplate="%{value:.0%}",
+                    hovertemplate="%{label}, %{value:.0%}",
+                    marker_color=COLORS,
+                ),
+            ],
+            layout=go.Layout(
+                xaxis={"title": "Years after joining"},
+                yaxis={"title": r"% of former members", "tickformat": ".0%"},
+                legend={"x": 1, "y": 1},
+            ),
         ),
     ]
 
@@ -398,7 +585,7 @@ def create_map(date_selected: str, selected_column: str, dark_mode: bool) -> px.
             "email": True,
             "membership_type": True,
             "membership_status": True,
-            "membership_length": True,
+            "membership_length_years": True,
             "join_date": True,
             "xdate": True,
             "lat": False,
@@ -445,31 +632,20 @@ clientside_callback(
 )
 def render_page_content(pathname: str):
     """Display the correct page based on the user's navigation path."""
-    if pathname == "/":
-        return mdc.timeline(schema)
-    if pathname == "/list":
-        return mdc.member_list(MEMB_LISTS, schema)
-    if pathname == "/graphs":
-        return mdc.graphs()
-    if pathname == "/metrics":
-        return mdc.metrics()
-    if pathname == "/retention":
-        return html.P(
-            "Implementation of detailed retention graphs is planned. Stay tuned."
+    if pathname not in PAGES:
+        return html.Div(
+            [
+                html.H1("404: Not found", className="text-danger"),
+                html.Hr(),
+                html.P(f"The pathname {pathname} was not recognised..."),
+            ],
+            className="p-3 bg-light rounded-3",
         )
-        #return mdc.retention()
-    if pathname == "/map":
-        return mdc.member_map(schema)
 
-    # If the user tries to reach a different page, return a 404 message
-    return html.Div(
-        [
-            html.H1("404: Not found", className="text-danger"),
-            html.Hr(),
-            html.P(f"The pathname {pathname} was not recognised..."),
-        ],
-        className="p-3 bg-light rounded-3",
-    )
+    page = PAGES[pathname]
+    if "schema" in page:
+        return page["generator"](schema)
+    return page["generator"]()
 
 
 if __name__ == "__main__":

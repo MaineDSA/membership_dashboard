@@ -1,12 +1,13 @@
 """Components for a membership dashboard showing various graphs and metrics to illustrate changes over time."""
 
 from dash import dash_table, dcc, html
+import pandas as pd
 from pandera import DataFrameSchema
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 
 
-def layout(memb_list_keys: list[str]) -> dbc.Container:
+def layout(memb_list_keys: list[str], navlinks: dict[str : dict[str, str]]) -> dbc.Container:
     def sidebar_header() -> dbc.Row:
         return dbc.Row(
             [
@@ -76,13 +77,7 @@ def layout(memb_list_keys: list[str]) -> dbc.Container:
                     id="list_compare_dropdown_label",
                 ),
                 dbc.Nav(
-                    [
-                        dbc.NavLink("Timeline", href="/", active="exact"),
-                        dbc.NavLink("List", href="/list", active="exact"),
-                        dbc.NavLink("Metrics", href="/metrics", active="exact"),
-                        dbc.NavLink("Graphs", href="/graphs", active="exact"),
-                        dbc.NavLink("Map", href="/map", active="exact"),
-                    ],
+                    [dbc.NavLink(nav_data["name"], href=nav_link, active="exact") for nav_link, nav_data in navlinks.items()],
                     id="navigation",
                     vertical=True,
                     pills=True,
@@ -119,13 +114,12 @@ def timeline(schema: DataFrameSchema) -> html.Div:
     )
 
 
-def member_list(memb_lists: dict, schema: DataFrameSchema) -> html.Div:
-    memb_list_keys = list(memb_lists.keys())
+def member_list(schema: DataFrameSchema) -> html.Div:
     return html.Div(
         id="list-container",
         children=[
             dash_table.DataTable(
-                data=memb_lists[memb_list_keys[0]].to_dict("records"),
+                data=[],
                 columns=[{"name": i, "id": i, "selectable": True} for i in schema.columns],
                 sort_action="native",
                 sort_by=[
@@ -143,6 +137,56 @@ def member_list(memb_lists: dict, schema: DataFrameSchema) -> html.Div:
                     "overflowX": "auto",
                 },
                 id="membership_list",
+            ),
+        ],
+    )
+
+
+def graphs() -> html.Div:
+    return html.Div(
+        id="graphs-container",
+        children=[
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Graph(
+                            figure=go.Figure(),
+                            id="membership_status",
+                            style={"height": "46svh"},
+                        ),
+                        md=4,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(
+                            figure=go.Figure(),
+                            id="membership_type",
+                            style={"height": "46svh"},
+                        ),
+                        md=4,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="union_member", style={"height": "46svh"}),
+                        md=4,
+                    ),
+                ],
+                align="center",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Graph(
+                            figure=go.Figure(),
+                            id="membership_length",
+                            style={"height": "46svh"},
+                        ),
+                        md=6,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="race", style={"height": "46svh"}),
+                        md=6,
+                    ),
+                ],
+                align="center",
             ),
         ],
     )
@@ -204,31 +248,35 @@ def metrics() -> html.Div:
     )
 
 
-def graphs() -> html.Div:
+def retention() -> html.Div:
+    earliest_year = 1982
+    current_year = int(pd.to_datetime("today").date().strftime("%Y"))
+    years_between = {i: "{}".format(i) for i in range(earliest_year, current_year, 4)}
     return html.Div(
-        id="graphs-container",
+        id="retention-container",
         children=[
+            dbc.Row(
+                dbc.Col(
+                    dcc.RangeSlider(
+                        min=earliest_year,
+                        max=current_year,
+                        step=1,
+                        marks=years_between,
+                        value=[2016, current_year],
+                        id="rentention_years_slider",
+                        tooltip={"placement": "bottom"},
+                    ),
+                ),
+            ),
             dbc.Row(
                 [
                     dbc.Col(
-                        dcc.Graph(
-                            figure=go.Figure(),
-                            id="membership_status",
-                            style={"height": "46svh"},
-                        ),
-                        md=4,
+                        dcc.Graph(figure=go.Figure(), id="retention_count_years", style={"height": "43svh"}),
+                        md=6,
                     ),
                     dbc.Col(
-                        dcc.Graph(
-                            figure=go.Figure(),
-                            id="membership_type",
-                            style={"height": "46svh"},
-                        ),
-                        md=4,
-                    ),
-                    dbc.Col(
-                        dcc.Graph(figure=go.Figure(), id="union_member", style={"height": "46svh"}),
-                        md=4,
+                        dcc.Graph(figure=go.Figure(), id="retention_count_months", style={"height": "43svh"}),
+                        md=6,
                     ),
                 ],
                 align="center",
@@ -236,15 +284,50 @@ def graphs() -> html.Div:
             dbc.Row(
                 [
                     dbc.Col(
-                        dcc.Graph(
-                            figure=go.Figure(),
-                            id="membership_length",
-                            style={"height": "46svh"},
-                        ),
+                        dcc.Graph(figure=go.Figure(), id="retention_percent_years", style={"height": "43svh"}),
                         md=6,
                     ),
                     dbc.Col(
-                        dcc.Graph(figure=go.Figure(), id="race", style={"height": "46svh"}),
+                        dcc.Graph(figure=go.Figure(), id="retention_percent_months", style={"height": "43svh"}),
+                        md=6,
+                    ),
+                ],
+                align="center",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="retention_nth_year_year", style={"height": "43svh"}),
+                        md=6,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="retention_nth_year_quarter", style={"height": "43svh"}),
+                        md=6,
+                    ),
+                ],
+                align="center",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="retention_year_over_year_year", style={"height": "43svh"}),
+                        md=6,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="retention_year_over_year_month", style={"height": "43svh"}),
+                        md=6,
+                    ),
+                ],
+                align="center",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="rentention_tenure_current", style={"height": "43svh"}),
+                        md=6,
+                    ),
+                    dbc.Col(
+                        dcc.Graph(figure=go.Figure(), id="rentention_tenure_former", style={"height": "43svh"}),
                         md=6,
                     ),
                 ],

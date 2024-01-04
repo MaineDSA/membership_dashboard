@@ -58,6 +58,8 @@ STATE_ABBR = [
 
 
 class MembershipData:
+    """Represents the allowed values for some columns of data"""
+
     YEARLY_DUES_STATUS = [
         "past_due",
         "overdue",
@@ -191,7 +193,7 @@ schema = DataFrameSchema(
             title="Work Phone",
         ),
         "join_date": Column(
-            dtype="string",
+            dtype="datetime64",
             checks=Check.str_matches(r"^\d{4}-\d{2}-\d{2}$"),
             default="",
             nullable=False,
@@ -200,7 +202,7 @@ schema = DataFrameSchema(
             title="Membership Original Join Date",
         ),
         "xdate": Column(
-            dtype="string",
+            dtype="datetime64",
             checks=Check.str_matches(r"^\d{4}-\d{2}-\d{2}$"),
             default="",
             nullable=False,
@@ -392,9 +394,18 @@ schema = DataFrameSchema(
             description=None,
             title="Congressional District",
         ),
-        "membership_length": Column(
+        "membership_length_years": Column(
             dtype="int32",
-            checks=Check.greater_than_or_equal_to(min_value=0.0),
+            checks=Check.greater_than_or_equal_to(min_value=0),
+            default="",
+            nullable=False,
+            coerce=True,
+            description="Does not account for gaps in membership.",
+            title="Membership Length (Years)",
+        ),
+        "membership_length_months": Column(
+            dtype="int32",
+            checks=Check.greater_than_or_equal_to(min_value=0),
             default="",
             nullable=False,
             coerce=True,
