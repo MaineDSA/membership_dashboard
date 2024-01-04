@@ -58,6 +58,7 @@ STATE_ABBR = [
 
 
 class MembershipData:
+    """Represents the allowed values for some columns of data"""
     YEARLY_DUES_STATUS = [
         "past_due",
         "overdue",

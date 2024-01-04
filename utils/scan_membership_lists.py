@@ -27,6 +27,7 @@ if MAPBOX_TOKEN_PATH.is_file():
 
 
 class ListColumnRules:
+    """Define rules for cleaning and standardizing the columns of a membership list"""
     FIELD_DROP = [
         "organization",
         "dsa_id",
@@ -144,7 +145,7 @@ def scan_memb_list_from_zip(filename: str, zip_path: str) -> pd.DataFrame:
 
 
 def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
-    """Scan all zip files and call scan_memb_list_from_zip on each."""
+    """Scan all zip files and call scan_memb_list_from_zip on each, returning the results."""
     memb_lists = {}
     logging.info("Scanning zipped membership lists in %s/.", MEMB_LIST_NAME)
     files = sorted(glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True), reverse=True)
@@ -153,7 +154,6 @@ def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
         try:
             date_from_filename = os.path.splitext(filename)[0].split("_")[-1]
             list_date_iso = pd.to_datetime(date_from_filename, format="%Y%m%d").date().isoformat()
-            # Save contents of each zip file into dict keyed to date
             memb_lists[list_date_iso] = scan_memb_list_from_zip(filename, os.path.abspath(zip_file))
         except (IndexError, ValueError):
             logging.warning("Could not extract list from %s. Skipping file.", filename)
@@ -204,7 +204,6 @@ def get_membership_lists() -> dict[str, pd.DataFrame]:
     with open(os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
         logging.info("Saving all lists into pickle for quicker access next time.")
         pickle.dump(memb_lists, pickled_file)
-    # Cross-reference with branch_zips.csv
     if BRANCH_ZIPS_PATH.is_file():
         logging.info("Tagging each membership list based on current branch zip code assignments.")
         memb_lists = tagged_with_branches(memb_lists, BRANCH_ZIPS_PATH)

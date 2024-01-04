@@ -142,7 +142,6 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
     if df_compare.empty:
         return df.reset_index(drop=False).to_dict("records"), []
 
-    # Add list date to column to facilitate comparison
     df["list_date"] = date_selected
     df_compare["list_date"] = date_compare_selected
 
@@ -163,7 +162,6 @@ def create_list(date_selected: str, date_compare_selected: str) -> dict:
         )
     ).to_dict("records")
 
-    # Define the conditional styling rule
     conditional_style = [
         {
             "if": {

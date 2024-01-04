@@ -1,3 +1,5 @@
+"""Provides utility functions for calculating membership retention of various cohorts with varying levels of resolution"""
+
 import pandas as pd
 
 COUNTING_COLUMN = "zip"
@@ -12,6 +14,7 @@ MEMBERSHIP_LENGTH_MONTHS = "membership_length_months"
 
 
 def retention_year(df: pd.DataFrame):
+    """Calculate membership retention based on year each member joined, with a resolution of years"""
     return (
         df.pivot_table(index=[JOIN_YEAR], columns=[MEMBERSHIP_LENGTH_YEARS], values=COUNTING_COLUMN, fill_value=0, aggfunc=len)
         .transpose()[::-1]
@@ -22,6 +25,7 @@ def retention_year(df: pd.DataFrame):
 
 
 def retention_mos(df: pd.DataFrame):
+    """Calculate membership retention based on year each member joined, with a resolution of months"""
     return (
         df.pivot_table(index=[JOIN_YEAR], columns=[MEMBERSHIP_LENGTH_MONTHS], values=COUNTING_COLUMN, fill_value=0, aggfunc=len)
         .transpose()[::-1]
@@ -32,16 +36,19 @@ def retention_mos(df: pd.DataFrame):
 
 
 def retention_pct_year(df: pd.DataFrame):
+    """Calculate percentage of membership retention based on year each member joined, with a resolution of years"""
     pivot = df.pivot_table(index=[JOIN_YEAR], columns=[MEMBERSHIP_LENGTH_YEARS], values=COUNTING_COLUMN, fill_value=0, aggfunc=len).transpose()[::-1]
     return (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None)
 
 
 def retention_pct_mos(df: pd.DataFrame):
+    """Calculate percentage of membership retention based on year each member joined, with a resolution of months"""
     pivot = df.pivot_table(index=[JOIN_YEAR], columns=[MEMBERSHIP_LENGTH_MONTHS], values=COUNTING_COLUMN, fill_value=0, aggfunc=len).transpose()[::-1]
     return (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None)
 
 
 def retention_pct_quarter(df: pd.DataFrame):
+    """Calculate percentage of membership retention based on quich quarter each member joined, with a resolution of years"""
     pivot = df.pivot_table(index=[JOIN_QUARTER], columns=[MEMBERSHIP_LENGTH_YEARS], values=COUNTING_COLUMN, fill_value=0, aggfunc=len).transpose()[::-1]
     return (
         (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None).infer_objects(copy=False).interpolate(limit=1, limit_area="inside")
