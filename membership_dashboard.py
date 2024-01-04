@@ -426,7 +426,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
             layout=go.Layout(
                 title="Member Retention (annual cohort)",
                 xaxis={"title": "Years since joining", "range": [1, df_ry.columns.max()]},
-                yaxis={"title": "# of cohort retained", "range": [0, df_ry.max().max()]},
+                yaxis={"title": r"# of cohort retained", "range": [0, df_ry.max().max()]},
             ),
         ),
         go.Figure(
@@ -436,7 +436,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
             ],
             layout=go.Layout(
                 xaxis={"title": "Months since joining", "range": [12, df_rm.columns.max()]},
-                yaxis={"title": "# of cohort retained", "range": [0, df_rm.max().max()]},
+                yaxis={"title": r"# of cohort retained", "range": [0, df_rm.max().max()]},
             ),
         ),
         go.Figure(
@@ -446,7 +446,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
             ],
             layout=go.Layout(
                 xaxis={"title": "Years since joining", "range": [1, df_rpy.columns.max()]},
-                yaxis={"title": "% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
+                yaxis={"title": r"% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
             ),
         ),
         go.Figure(
@@ -456,7 +456,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
             ],
             layout=go.Layout(
                 xaxis={"title": "Months since joining", "range": [12, df_rpm.columns.max()]},
-                yaxis={"title": "% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
+                yaxis={"title": r"% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
             ),
         ),
         go.Figure(
@@ -468,7 +468,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
             layout=go.Layout(
                 title="Nth year Retention Rates over Time (join-date Cohort)",
                 xaxis={"title": "Cohort (year joined)"},
-                yaxis={"title": "% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
+                yaxis={"title": r"% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
                 legend={"title": "Years since joined", "x": 1, "y": 1},
             ),
         ),
@@ -480,7 +480,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
             ],
             layout=go.Layout(
                 xaxis={"title": "Cohort (by quarter)"},
-                yaxis={"title": "% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
+                yaxis={"title": r"% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
                 legend={"title": "Years since joined", "x": 1, "y": 1},
             ),
         ),
@@ -498,7 +498,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
             layout=go.Layout(
                 title="Year-Over-Year Retention (annual cohort)",
                 xaxis={"title": "Years since joining", "range": [1, df_ry.columns.max()]},
-                yaxis={"title": "YOY % change", "tickformat": ",.0%"},
+                yaxis={"title": r"YOY % change", "tickformat": ",.0%"},
                 legend={"x": 1, "y": 1},
                 hovermode="closest",
             ),
@@ -516,7 +516,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
             ],
             layout=go.Layout(
                 xaxis={"title": "Months since joining", "range": [12, df_rpm.columns.max()]},
-                yaxis={"title": "YOY % change", "tickformat": ",.0%"},
+                yaxis={"title": r"YOY % change", "tickformat": ",.0%"},
                 legend={"x": 1, "y": 1},
                 hovermode="closest",
             ),
@@ -536,7 +536,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
             layout=go.Layout(
                 title="Tenure of Members",
                 xaxis={"title": "Years since joining"},
-                yaxis={"title": "% of current members", "tickformat": ".0%"},
+                yaxis={"title": r"% of current members", "tickformat": ".0%"},
                 legend={"title": "Years since joined", "x": 1, "y": 1},
             ),
         ),
@@ -554,7 +554,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
             ],
             layout=go.Layout(
                 xaxis={"title": "Years since joining"},
-                yaxis={"title": "% of former members", "tickformat": ".0%"},
+                yaxis={"title": r"% of former members", "tickformat": ".0%"},
                 legend={"title": "Years since joined", "x": 1, "y": 1},
             ),
         ),
