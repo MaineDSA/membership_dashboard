@@ -404,16 +404,16 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
         return [go.Figure()] * 8
 
     df = MEMB_LISTS.get(date_selected, pd.DataFrame())
-    df = df.loc[(df["join_year"] >= pd.to_datetime(years[0], format="%Y")) & (df["join_year"] <= pd.to_datetime(years[1], format="%Y"))]
+    df_df = df.loc[(df["join_year"] >= pd.to_datetime(years[0], format="%Y")) & (df["join_year"] <= pd.to_datetime(years[1], format="%Y"))]
 
-    df_ry = retention_year(df)
-    df_rm = retention_mos(df)
-    df_rpy = retention_pct_year(df)
-    df_rpm = retention_pct_mos(df)
-    df_rpq = retention_pct_quarter(df)
+    df_ry = retention_year(df_df)
+    df_rm = retention_mos(df_df)
+    df_rpy = retention_pct_year(df_df)
+    df_rpm = retention_pct_mos(df_df)
+    df_rpq = retention_pct_quarter(df_df)
 
-    df_ml_vc = df[df["memb_status_letter"] == "M"]["membership_length_years"].value_counts(normalize=True)
-    df_ll_vc = df[df["memb_status_letter"] == "L"]["membership_length_years"].value_counts(normalize=True)
+    df_ml_vc = df[df["memb_status_letter"] == "M"]["membership_length_years"].clip(upper=8).value_counts(normalize=True)
+    df_ll_vc = df[df["memb_status_letter"] == "L"]["membership_length_years"].clip(upper=8).value_counts(normalize=True)
 
     color_len = len(COLORS)
 
@@ -537,7 +537,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                 title="Tenure of Members",
                 xaxis={"title": "Years since joining"},
                 yaxis={"title": r"% of current members", "tickformat": ".0%"},
-                legend={"title": "Years since joined", "x": 1, "y": 1},
+                legend={"x": 1, "y": 1},
             ),
         ),
         go.Figure(
@@ -553,9 +553,9 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                 ),
             ],
             layout=go.Layout(
-                xaxis={"title": "Years since joining"},
+                xaxis={"title": "Years after joining"},
                 yaxis={"title": r"% of former members", "tickformat": ".0%"},
-                legend={"title": "Years since joined", "x": 1, "y": 1},
+                legend={"x": 1, "y": 1},
             ),
         ),
     ]
