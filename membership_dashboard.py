@@ -466,7 +466,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                 if c not in [0, 1]
             ],
             layout=go.Layout(
-                title="Nth year Retention Rates over Time (join-date Cohort)",
+                title="Nth year Retention Rates over Time (join-date cohort)",
                 xaxis={"title": "Cohort (year joined)"},
                 yaxis={"title": r"% of cohort retained", "tickformat": ".0%", "range": [0, 1]},
                 legend={"title": "Years since joined", "x": 1, "y": 1},
