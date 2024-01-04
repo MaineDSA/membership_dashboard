@@ -262,7 +262,7 @@ def retention() -> html.Div:
                         max=current_year,
                         step=1,
                         marks=years_between,
-                        value=[2015, current_year],
+                        value=[2016, current_year],
                         id="rentention_years_slider",
                         tooltip={"placement": "bottom"},
                     ),

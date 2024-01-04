@@ -7,6 +7,10 @@ MEMBERSHIP_LENGTH_YEARS = "membership_length_years"
 MEMBERSHIP_LENGTH_MONTHS = "membership_length_months"
 
 
+# These functions are based on the work of @bunsenmcdubbs:
+# https://github.com/bunsenmcdubbs/dsa_retention/blob/main/retention.ipynb
+
+
 def retention_year(df: pd.DataFrame):
     return (
         df.pivot_table(index=[JOIN_YEAR], columns=[MEMBERSHIP_LENGTH_YEARS], values=COUNTING_COLUMN, fill_value=0, aggfunc=len)
