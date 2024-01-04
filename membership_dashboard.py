@@ -412,8 +412,8 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
     df_rpm = retention_pct_mos(df)
     df_rpq = retention_pct_quarter(df)
 
-    df_ml_vc = df[df["memb_status_letter"] == "M"]["membership_length_years"].value_counts()
-    df_ll_vc = df[df["memb_status_letter"] == "L"]["membership_length_years"].value_counts()
+    df_ml_vc = df[df["memb_status_letter"] == "M"]["membership_length_years"].value_counts(normalize=True)
+    df_ll_vc = df[df["memb_status_letter"] == "L"]["membership_length_years"].value_counts(normalize=True)
 
     color_len = len(COLORS)
 
@@ -527,7 +527,8 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                     name="Current members",
                     x=df_ml_vc.index,
                     y=df_ml_vc.values,
-                    # text=chartdf_compare_vc.values,
+                    text=df_ml_vc.values,
+                    texttemplate="%{value:.2%}",
                     marker_color=COLORS,
                 ),
             ],
@@ -544,7 +545,8 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                     name="Current members",
                     x=df_ll_vc.index,
                     y=df_ll_vc.values,
-                    # text=chartdf_compare_vc.values,
+                    text=df_ll_vc.values,
+                    texttemplate="%{value:.2%}",
                     marker_color=COLORS,
                 ),
             ],
