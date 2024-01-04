@@ -19,15 +19,17 @@ MEMB_LIST_CONFIG_PATH = Path(".list_name")
 if MEMB_LIST_CONFIG_PATH.is_file():
     MEMB_LIST_NAME = MEMB_LIST_CONFIG_PATH.read_text(encoding="UTF-8")
 
-logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 geocoder = Geocoder()
 MAPBOX_TOKEN_PATH = Path(".mapbox_token")
 if MAPBOX_TOKEN_PATH.is_file():
     geocoder = Geocoder(access_token=MAPBOX_TOKEN_PATH.read_text(encoding="UTF-8"))
 
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
+
 
 class ListColumnRules:
     """Define rules for cleaning and standardizing the columns of a membership list"""
+
     FIELD_DROP = [
         "organization",
         "dsa_id",
