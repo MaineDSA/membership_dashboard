@@ -404,12 +404,13 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
         return [go.Figure()] * 8
 
     df = MEMB_LISTS.get(date_selected, pd.DataFrame())
+    df = df.loc[df["membership_type"] != "lifetime"]
     df_df = df.loc[(df["join_year"] >= pd.to_datetime(years[0], format="%Y")) & (df["join_year"] <= pd.to_datetime(years[1], format="%Y"))]
-    df_df.loc[df_df["memb_status_letter"] == "M", "membership_length_months"] = df_df["membership_length_years"].multiply(12)
+    df_df.loc[df_df["membership_status"] == "member in good standing", "membership_length_months"] = df_df["membership_length_years"].multiply(12)
 
-    df_ry = retention_year(df_df)
+    df_ry = retention_year(df)
     df_rm = retention_mos(df_df)
-    df_rpy = retention_pct_year(df_df)
+    df_rpy = retention_pct_year(df)
     df_rpm = retention_pct_mos(df_df)
     df_rpq = retention_pct_quarter(df_df)
 
@@ -498,7 +499,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
             ],
             layout=go.Layout(
                 title="Year-Over-Year Retention (annual cohort)",
-                xaxis={"title": "Years since joining", "range": [1, df_ry.columns.max()]},
+                xaxis={"title": "Years since joining", "range": [2, df_ry.columns.max()]},
                 yaxis={"title": r"YOY % change", "tickformat": ".0%"},
                 legend={"x": 1, "y": 1},
                 hovermode="closest",
@@ -516,7 +517,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                 for i, year in enumerate(df_rpm.index)
             ],
             layout=go.Layout(
-                xaxis={"title": "Months since joining", "range": [12, df_rpm.columns.max()]},
+                xaxis={"title": "Months since joining", "range": [24, df_rpm.columns.max()]},
                 yaxis={"title": r"YOY % change", "tickformat": ".0%"},
                 legend={"x": 1, "y": 1},
                 hovermode="closest",
