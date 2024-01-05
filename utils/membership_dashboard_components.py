@@ -269,7 +269,7 @@ def retention() -> html.Div:
                         step=1,
                         marks=years_between,
                         value=[default_start_year, default_end_year],
-                        id="rentention_years_slider",
+                        id="retention_years_slider",
                         tooltip={"placement": "bottom"},
                     ),
                 ),
@@ -329,11 +329,11 @@ def retention() -> html.Div:
             dbc.Row(
                 [
                     dbc.Col(
-                        dcc.Graph(figure=go.Figure(), id="rentention_tenure_current", style={"height": "43svh"}),
+                        dcc.Graph(figure=go.Figure(), id="retention_tenure_current", style={"height": "43svh"}),
                         md=6,
                     ),
                     dbc.Col(
-                        dcc.Graph(figure=go.Figure(), id="rentention_tenure_former", style={"height": "43svh"}),
+                        dcc.Graph(figure=go.Figure(), id="retention_tenure_former", style={"height": "43svh"}),
                         md=6,
                     ),
                 ],

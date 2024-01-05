@@ -385,10 +385,10 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
     Output(component_id="retention_nth_year_quarter", component_property="figure"),
     Output(component_id="retention_year_over_year_year", component_property="figure"),
     Output(component_id="retention_year_over_year_month", component_property="figure"),
-    Output(component_id="rentention_tenure_current", component_property="figure"),
-    Output(component_id="rentention_tenure_former", component_property="figure"),
+    Output(component_id="retention_tenure_current", component_property="figure"),
+    Output(component_id="retention_tenure_former", component_property="figure"),
     Input(component_id="list_dropdown", component_property="value"),
-    Input(component_id="rentention_years_slider", component_property="value"),
+    Input(component_id="retention_years_slider", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
 def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [go.Figure] * 10:
