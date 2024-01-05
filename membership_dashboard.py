@@ -81,11 +81,21 @@ load_figure_template(["darkly", "journal"])
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 
 
-def include_template_if_not_dark(fig: go.Figure, dark_mode: bool) -> go.Figure:
+def with_template_if_dark(fig: go.Figure, dark_mode: bool) -> go.Figure:
     """Update the figure template based on the dark mode setting."""
     if not dark_mode:
         fig["layout"]["template"] = pio.templates["journal"]
     return fig
+
+
+def calculate_selected_metrics(selected_columns: list[str]) -> dict:
+    selected_metrics = {}
+    for selected_column in selected_columns:
+        selected_metrics[selected_column] = {}
+        for date in MEMB_METRICS[selected_column]:
+            for value, count in MEMB_METRICS[selected_column][date].value_counts().items():
+                selected_metrics[selected_column].setdefault(value, {}).setdefault(date, count)
+    return selected_metrics
 
 
 @callback(
@@ -95,31 +105,24 @@ def include_template_if_not_dark(fig: go.Figure, dark_mode: bool) -> go.Figure:
 )
 def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
     """Update the timeline plotting selected columns."""
-    fig = go.Figure(layout={"title": "Membership Trends Timeline", "yaxis_title": "Members"})
+    fig = go.Figure(layout={
+        "title": "Membership Trends Timeline",
+        "yaxis_title": "Members"
+    })
 
-    selected_metrics = {}
-    for selected_column in selected_columns:
-        selected_metrics[selected_column] = {}
-        for date in MEMB_METRICS[selected_column]:
-            for value, count in MEMB_METRICS[selected_column][date].value_counts().items():
-                selected_metrics[selected_column].setdefault(value, {}).setdefault(date, count)
-
-    fig.add_traces(
-        [
-            go.Scatter(
-                name=value,
-                x=list(timeline_metric[value].keys()),
-                y=list(timeline_metric[value].values()),
-                mode="lines",
-                marker_color=COLORS[count % len(COLORS)],
+    selected_metrics = calculate_selected_metrics(selected_columns)
+    for _, timeline_metric in selected_metrics.items():
+        for count, value in enumerate(timeline_metric):
+            fig.add_trace(
+                go.Scatter(
+                    name=value,
+                    x=list(timeline_metric[value].keys()),
+                    y=list(timeline_metric[value].values()),
+                    mode="lines",
+                    marker_color=COLORS[count % len(COLORS)]
+                )
             )
-            for _, timeline_metric in selected_metrics.items()
-            for count, value in enumerate(timeline_metric)
-        ]
-    )
-    fig = include_template_if_not_dark(fig, dark_mode)
-
-    return fig
+    return with_template_if_dark(fig, dark_mode)
 
 
 @callback(
@@ -189,9 +192,8 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dar
     )
 
     fig = go.Figure(data=indicator, layout={"title": title})
-    fig = include_template_if_not_dark(fig, dark_mode)
 
-    return fig
+    return with_template_if_dark(fig, dark_mode)
 
 
 def retention_math(df_status: pd.Series) -> float:
@@ -220,9 +222,7 @@ def calculate_retention_rate(df: pd.DataFrame, df_compare: pd.DataFrame, dark_mo
     )
 
     fig = go.Figure(data=indicator, layout={"title": "Retention Rate (MIGS / Constitutional)"})
-    fig = include_template_if_not_dark(fig, dark_mode)
-
-    return fig
+    return with_template_if_dark(fig, dark_mode)
 
 
 @callback(
@@ -374,7 +374,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         ),
     ]
 
-    return [include_template_if_not_dark(chart, dark_mode) for chart in charts]
+    return [with_template_if_dark(chart, dark_mode) for chart in charts]
 
 
 @callback(
@@ -556,7 +556,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
         ),
     ]
 
-    return [include_template_if_not_dark(chart, dark_mode) for chart in charts]
+    return [with_template_if_dark(chart, dark_mode) for chart in charts]
 
 
 @callback(
