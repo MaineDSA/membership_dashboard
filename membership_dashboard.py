@@ -63,7 +63,6 @@ PAGES = {
     "/map": {"name": "Map", "schema": True, "generator": mdc.member_map},
 }
 
-
 # Initialize the app
 app = Dash(
     external_stylesheets=[
@@ -87,11 +86,6 @@ def include_template_if_not_dark(fig: go.Figure, dark_mode: bool) -> go.Figure:
     if not dark_mode:
         fig["layout"]["template"] = pio.templates["journal"]
     return fig
-
-
-##
-## Pages
-##
 
 
 @callback(
@@ -251,7 +245,7 @@ def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bo
     ]
 
     if not date_selected:
-        return [""] * len(metrics_plan + 1)
+        return [go.Figure()] * (len(metrics_plan) + 1)
 
     df = MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_compare = MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
@@ -331,9 +325,9 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
     df = MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_compare = MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
 
-    def multiple_choice(df: pd.DataFrame, target_column: str, separator: str) -> pd.DataFrame:
+    def multiple_choice(df_mc: pd.DataFrame, target_column: str, separator: str) -> pd.DataFrame:
         """Split a character-separated list string into an iterable object."""
-        return df.assign(**{target_column: df[target_column].str.split(separator)}).explode(target_column).reset_index(drop=True)
+        return df_mc.assign(**{target_column: df_mc[target_column].str.split(separator)}).explode(target_column).reset_index(drop=True)
 
     membersdf = df.query('membership_status != "lapsed" and membership_status != "expired"')
     membersdf_compare = (
@@ -398,10 +392,10 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
     Input(component_id="rentention_years_slider", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [go.Figure] * 8:
+def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [go.Figure] * 10:
     """Update the retention graphs shown based on the selected membership list date."""
     if not date_selected:
-        return [go.Figure()] * 8
+        return [go.Figure()] * 10
 
     df = MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_df = df.loc[df["membership_type"] != "lifetime"]
@@ -607,11 +601,6 @@ def create_map(date_selected: str, selected_column: str, dark_mode: bool) -> px.
     map_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
     return map_figure
-
-
-##
-## Sidebar
-##
 
 
 clientside_callback(
