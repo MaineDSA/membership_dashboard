@@ -88,13 +88,12 @@ def with_template_if_dark(fig: go.Figure, dark_mode: bool) -> go.Figure:
     return fig
 
 
-def calculate_timeline_data(selected_columns: list[str]) -> dict[str, dict[str, int]]:
+def value_counts_by_date(column: str) -> dict[str, int]:
+    """Returns data from MEMB_METRICS stored as date>column>value in format column>date>value for use in creating timeline traces"""
     metrics = {}
-    for column in selected_columns:
-        metrics[column] = {}
-        for date in MEMB_METRICS[column]:
-            for value, count in MEMB_METRICS[column][date].value_counts().items():
-                metrics[column].setdefault(value, {}).setdefault(date, count)
+    for date in MEMB_METRICS[column]:
+        for value, count in MEMB_METRICS[column][date].value_counts().items():
+            metrics.setdefault(value, {}).setdefault(date, count)
     return metrics
 
 
@@ -107,7 +106,7 @@ def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
     """Update the timeline plotting selected columns."""
     fig = go.Figure(layout={"title": "Membership Trends Timeline", "yaxis_title": "Members"})
 
-    selected_metrics = calculate_timeline_data(selected_columns)
+    selected_metrics = {column: value_counts_by_date(column) for column in selected_columns}
     fig.add_traces(
         [
             go.Scatter(
