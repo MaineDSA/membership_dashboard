@@ -13,7 +13,7 @@ def layout(memb_list_keys: list[str], navlinks: dict[str : dict[str, str]]) -> d
             [
                 dbc.Col(
                     html.Img(
-                        src="https://www.mainedsa.org/wp-content/uploads/2023/07/Maine-DSA-Moose-with-Rose-Logo.svg",
+                        src="/assets/logo.svg",
                         alt="Red Maine DSA logo of a moose holding a rose in its mouth under the text Maine DSA",
                     ),
                     align="center",
