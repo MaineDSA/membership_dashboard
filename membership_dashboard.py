@@ -18,10 +18,10 @@ from dash import (
     html,
 )
 
+import utils.membership_dashboard_components as mdc
 from utils.list_schema import schema
 from utils.scan_membership_lists import get_membership_lists
 from utils.membership_retention import retention_year, retention_mos, retention_pct_year, retention_pct_mos, retention_pct_quarter
-import utils.membership_dashboard_components as mdc
 
 
 def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, dict[str, pd.Series]]:

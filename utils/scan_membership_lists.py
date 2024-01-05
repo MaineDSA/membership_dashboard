@@ -52,15 +52,14 @@ class ListColumnRules:
     FIELD_UPGRADE_PAIRS = {old: new for new, old_names in FIELD_UPGRADE_PATHS.items() for old in old_names}
 
 
-def membership_length_months(join_date: pd.Series, xdate: pd.Series, list_date: str):
+def membership_length_months(join_date: pd.Series, xdate: pd.Series):
     """Calculate how many months are between the supplied dates, with a third date limiting the end date."""
-    end_date = xdate.clip(upper=pd.to_datetime(list_date))
-    return 12 * (end_date.dt.year - join_date.dt.year) + (end_date.dt.month - join_date.dt.month)
+    return 12 * (xdate.dt.year - join_date.dt.year) + (xdate.dt.month - join_date.dt.month)
 
 
-def membership_length_years(join_date: pd.Series, xdate: pd.Series, list_date: str) -> pd.Series:
+def membership_length_years(join_date: pd.Series, xdate: pd.Series) -> pd.Series:
     """Calculate how many years are between the supplied dates, with a third date limiting the end date."""
-    return membership_length_months(join_date, xdate, list_date) // 12
+    return membership_length_months(join_date, xdate) // 12
 
 
 @sleep_and_retry
@@ -86,7 +85,7 @@ def format_zip_code(zip_code):
     return str(zip_code).zfill(5)
 
 
-def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
+def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     """Clean and standardize dataframe according to specified rules."""
     df.columns = df.columns.str.lower()
     if "family_first_name" in df.columns:
@@ -112,7 +111,7 @@ def data_cleaning(df: pd.DataFrame, list_date: str) -> pd.DataFrame:
     df["join_quarter"] = pd.PeriodIndex(df["join_date"], freq="Q").to_timestamp()
     df["xdate"] = pd.to_datetime(df["xdate"], format="mixed")
 
-    df["membership_length_months"] = membership_length_months(df["join_date"], df["xdate"], list_date)
+    df["membership_length_months"] = membership_length_months(df["join_date"], df["xdate"])
     df["membership_length_years"] = df.membership_length_months // 12
 
     df["membership_status"] = df.membership_status.replace("expired", "lapsed").str.lower()
@@ -179,7 +178,7 @@ def integrate_new_membership_lists(memb_list_zips: dict[str, pd.DataFrame], pick
     new_lists = {k: v for k, v in memb_list_zips.items() if k not in pickled_lists}
     if new_lists:
         logging.info("Cleaning data for %s new lists.", len(new_lists))
-        new_lists = {k_date: data_cleaning(memb_list, k_date) for k_date, memb_list in tqdm(new_lists.items(), unit="list", desc="Scanning Zip Files")}
+        new_lists = {k_date: data_cleaning(memb_list) for k_date, memb_list in tqdm(new_lists.items(), unit="list", desc="Scanning Zip Files")}
     return dict(sorted((new_lists | pickled_lists).items(), reverse=True))
 
 
