@@ -50,9 +50,11 @@ The dashboard provides the following features:
 Feel free to explore the code and modify it according to your needs!
 
 ## Screenshots (based on random testing data for demonstration/development purposes)
-![Screenshot from 2023-12-09 22-40-04](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/a9dadd59-e995-4a4b-b732-88f94e157e84)
-![Screenshot from 2023-12-09 22-40-14](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/c179e4ae-b300-4131-9647-f5df9be6511e)
-![Screenshot from 2023-12-09 22-40-31](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/294e89d5-2d65-4156-b8f5-7fd170d457c1)
-![Screenshot from 2023-12-09 22-40-53](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/30895742-4fda-43d1-a66c-729da1193a4a)
-![Screenshot from 2023-12-09 22-42-01](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/f0be090b-4188-439f-8b27-b4e567bb81c7)
-![Screenshot from 2023-12-09 22-42-11](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/b6449275-6c87-445e-bda9-47591d430c97)
+![timeline](https://github.com/MaineDSA/membership_dashboard/assets/1916835/032d5eaf-34f1-4bd7-96ec-d9927d243d05)
+![member list](https://github.com/MaineDSA/membership_dashboard/assets/1916835/394b6855-434f-4162-937f-a77e62395b8c)
+![metrics](https://github.com/MaineDSA/membership_dashboard/assets/1916835/65ae26bd-9776-4536-8a38-4ca2aa8a673c)
+![graphs](https://github.com/MaineDSA/membership_dashboard/assets/1916835/4ef8ecbb-c4f5-4141-8414-58b81b5ffe90)
+![retention graphs 1](https://github.com/MaineDSA/membership_dashboard/assets/1916835/bc65a45a-8343-4dad-8c01-7a91b7517833)
+![retention graphs 2](https://github.com/MaineDSA/membership_dashboard/assets/1916835/25eac558-4a29-4069-b000-e2639fc405c8)
+![map](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/f0be090b-4188-439f-8b27-b4e567bb81c7)
+![light mode](https://github.com/MaineDSA/MembershipDashboard/assets/1916835/b6449275-6c87-445e-bda9-47591d430c97)
