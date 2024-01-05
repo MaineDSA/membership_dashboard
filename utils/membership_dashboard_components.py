@@ -1,9 +1,10 @@
 """Components for a membership dashboard showing various graphs and metrics to illustrate changes over time."""
 
 from dash import dash_table, dcc, html
-import pandas as pd
+from pandas.tseries.offsets import DateOffset
 from pandera import DataFrameSchema
 import dash_bootstrap_components as dbc
+import pandas as pd
 import plotly.graph_objects as go
 
 
@@ -249,9 +250,14 @@ def metrics() -> html.Div:
 
 
 def retention() -> html.Div:
+    today_date = pd.to_datetime("today")
     earliest_year = 1982
-    current_year = int(pd.to_datetime("today").date().strftime("%Y"))
-    years_between = {i: "{}".format(i) for i in range(earliest_year, current_year, 4)}
+    today_year = int(today_date.date().strftime("%Y"))
+
+    default_start_year = 2016
+    default_end_date = pd.to_datetime("today") - DateOffset(months=14)
+    default_end_year = int(default_end_date.date().strftime("%Y"))
+    years_between = {i: "{}".format(i) for i in range(earliest_year, today_year, 4)}
     return html.Div(
         id="retention-container",
         children=[
@@ -259,10 +265,10 @@ def retention() -> html.Div:
                 dbc.Col(
                     dcc.RangeSlider(
                         min=earliest_year,
-                        max=current_year,
+                        max=today_year,
                         step=1,
                         marks=years_between,
-                        value=[2016, current_year],
+                        value=[default_start_year, default_end_year],
                         id="rentention_years_slider",
                         tooltip={"placement": "bottom"},
                     ),
