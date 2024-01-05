@@ -404,13 +404,13 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
         return [go.Figure()] * 8
 
     df = MEMB_LISTS.get(date_selected, pd.DataFrame())
-    df = df.loc[df["membership_type"] != "lifetime"]
-    df_df = df.loc[(df["join_year"] >= pd.to_datetime(years[0], format="%Y")) & (df["join_year"] <= pd.to_datetime(years[1], format="%Y"))]
+    df_df = df.loc[df["membership_type"] != "lifetime"]
+    df_df = df_df.loc[(df["join_year"] >= pd.to_datetime(years[0], format="%Y")) & (df_df["join_year"] <= pd.to_datetime(years[1], format="%Y"))]
     df_df.loc[df_df["membership_status"] == "member in good standing", "membership_length_months"] = df_df["membership_length_years"].multiply(12)
 
-    df_ry = retention_year(df)
+    df_ry = retention_year(df_df)
     df_rm = retention_mos(df_df)
-    df_rpy = retention_pct_year(df)
+    df_rpy = retention_pct_year(df_df)
     df_rpm = retention_pct_mos(df_df)
     df_rpq = retention_pct_quarter(df_df)
 
