@@ -128,7 +128,7 @@ def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="list_compare_dropdown", component_property="value"),
 )
-def create_list(date_selected: str, date_compare_selected: str) -> dict:
+def create_list(date_selected: str, date_compare_selected: str) -> (dict, list):
     """Update the list shown based on the selected membership list date."""
     df = MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_compare = MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
