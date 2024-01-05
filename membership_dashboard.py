@@ -111,17 +111,19 @@ def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
     })
 
     selected_metrics = calculate_selected_metrics(selected_columns)
-    for _, timeline_metric in selected_metrics.items():
-        for count, value in enumerate(timeline_metric):
-            fig.add_trace(
-                go.Scatter(
-                    name=value,
-                    x=list(timeline_metric[value].keys()),
-                    y=list(timeline_metric[value].values()),
-                    mode="lines",
-                    marker_color=COLORS[count % len(COLORS)]
-                )
+    fig.add_traces(
+        [
+            go.Scatter(
+                name=value,
+                x=list(timeline_metric[value].keys()),
+                y=list(timeline_metric[value].values()),
+                mode="lines",
+                marker_color=COLORS[count % len(COLORS)],
             )
+            for _, timeline_metric in selected_metrics.items()
+            for count, value in enumerate(timeline_metric)
+        ]
+    )
     return with_template_if_dark(fig, dark_mode)
 
 
