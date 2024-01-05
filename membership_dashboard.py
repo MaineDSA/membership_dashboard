@@ -405,6 +405,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
 
     df = MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_df = df.loc[(df["join_year"] >= pd.to_datetime(years[0], format="%Y")) & (df["join_year"] <= pd.to_datetime(years[1], format="%Y"))]
+    df_df.loc[df_df['memb_status_letter'] == 'M', 'membership_length_months'] = df_df["membership_length_years"].multiply(12)
 
     df_ry = retention_year(df_df)
     df_rm = retention_mos(df_df)
