@@ -34,7 +34,6 @@ def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, d
 
 
 MEMB_LISTS = get_membership_lists()
-MEMB_METRICS = get_membership_list_metrics(MEMB_LISTS)
 DBC_CSS = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 MAPBOX_TOKEN_PATH = Path(".mapbox_token")
 if MAPBOX_TOKEN_PATH.is_file():
@@ -88,11 +87,11 @@ def with_template_if_dark(fig: go.Figure, dark_mode: bool) -> go.Figure:
     return fig
 
 
-def value_counts_by_date(column: str) -> dict[str, int]:
+def value_counts_by_date(date_counts: dict) -> dict[str, int]:
     """Returns data from MEMB_METRICS stored as date>column>value in format column>date>value for use in creating timeline traces"""
     metrics = {}
-    for date in MEMB_METRICS[column]:
-        for value, count in MEMB_METRICS[column][date].value_counts().items():
+    for date, values in date_counts.items():
+        for value, count in values.value_counts().items():
             metrics.setdefault(value, {}).setdefault(date, count)
     return metrics
 
@@ -106,7 +105,9 @@ def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
     """Update the timeline plotting selected columns."""
     fig = go.Figure(layout={"title": "Membership Trends Timeline", "yaxis_title": "Members"})
 
-    selected_metrics = {column: value_counts_by_date(column) for column in selected_columns}
+    membership_value_counts = get_membership_list_metrics(MEMB_LISTS)
+    selected_metrics = {column: value_counts_by_date(membership_value_counts[column]) for column in selected_columns}
+
     fig.add_traces(
         [
             go.Scatter(

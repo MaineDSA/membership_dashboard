@@ -8,6 +8,9 @@ import pandas as pd
 import plotly.graph_objects as go
 
 
+# from utils.list_schema import MembershipData
+
+
 def layout(memb_list_keys: list[str], navlinks: dict[str : dict[str, str]]) -> dbc.Container:
     def sidebar_header() -> dbc.Row:
         return dbc.Row(
@@ -93,23 +96,43 @@ def timeline(schema: DataFrameSchema) -> html.Div:
     return html.Div(
         id="timeline-container",
         children=[
-            dcc.Dropdown(
-                options=[column for column in schema.columns],
-                value=["membership_status"],
-                multi=True,
-                id="timeline_columns",
+            dbc.Row(
+                [
+                    # dbc.Col(
+                    #    dcc.Checklist(
+                    #        MembershipData.MEMBERSHIP_STATUS,
+                    #        MembershipData.MEMBERSHIP_STATUS,
+                    #        id="timeline_status_filter",
+                    #        inline=True
+                    #    ),
+                    #    width="auto",
+                    # ),
+                    dbc.Col(
+                        dcc.Dropdown(
+                            options=[column for column in schema.columns],
+                            value=["membership_status"],
+                            multi=True,
+                            id="timeline_columns",
+                        ),
+                    ),
+                ],
+                align="center",
             ),
-            dcc.Graph(
-                figure={},
-                id="membership_timeline",
-                style={
-                    "display": "inline-block",
-                    "height": "85svh",
-                    "width": "100%",
-                    "padding-left": "-1em",
-                    "padding-right": "-1em",
-                    "padding-bottom": "-1em",
-                },
+            dbc.Row(
+                dbc.Col(
+                    dcc.Graph(
+                        figure={},
+                        id="membership_timeline",
+                        style={
+                            "display": "inline-block",
+                            "height": "85svh",
+                            "width": "100%",
+                            "padding-left": "-1em",
+                            "padding-right": "-1em",
+                            "padding-bottom": "-1em",
+                        },
+                    ),
+                ),
             ),
         ],
     )
