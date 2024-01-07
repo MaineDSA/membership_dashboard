@@ -88,7 +88,7 @@ def with_template_if_dark(fig: go.Figure, dark_mode: bool) -> go.Figure:
 
 
 def value_counts_by_date(date_counts: dict) -> dict[str, int]:
-    """Returns data from MEMB_METRICS stored as date>column>value in format column>date>value for use in creating timeline traces"""
+    """Returns data from date_counts in format column>date>value (instead of date>column>value) for use in creating timeline traces"""
     metrics = {}
     for date, values in date_counts.items():
         for value, count in values.value_counts().items():
@@ -99,15 +99,16 @@ def value_counts_by_date(date_counts: dict) -> dict[str, int]:
 @callback(
     Output(component_id="membership_timeline", component_property="figure"),
     Input(component_id="timeline_columns", component_property="value"),
+    Input(component_id="timeline_status_filter", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_timeline(selected_columns: list[str], dark_mode: bool) -> go.Figure:
+def create_timeline(selected_columns: list[str], selected_statuses: list[str], dark_mode: bool) -> go.Figure:
     """Update the timeline plotting selected columns."""
-    fig = go.Figure(layout={"title": "Membership Trends Timeline", "yaxis_title": "Members"})
-
-    membership_value_counts = get_membership_list_metrics(MEMB_LISTS)
+    membership_lists = {date: membership_list.loc[membership_list["membership_status"].isin(selected_statuses)] for date, membership_list in MEMB_LISTS.items()}
+    membership_value_counts = get_membership_list_metrics(membership_lists)
     selected_metrics = {column: value_counts_by_date(membership_value_counts[column]) for column in selected_columns}
 
+    fig = go.Figure(layout={"title": "Membership Trends Timeline", "yaxis_title": "Members"})
     fig.add_traces(
         [
             go.Scatter(
@@ -562,11 +563,13 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
     Output(component_id="membership_map", component_property="figure"),
     Input(component_id="list_dropdown", component_property="value"),
     Input(component_id="map_column", component_property="value"),
+    Input(component_id="map_status_filter", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_map(date_selected: str, selected_column: str, dark_mode: bool) -> px.scatter_mapbox:
+def create_map(date_selected: str, selected_column: str, selected_statuses: list[str], dark_mode: bool) -> px.scatter_mapbox:
     """Set up html data to show a map of Maine DSA members."""
     df_map = MEMB_LISTS.get(date_selected, pd.DataFrame())
+    df_map = df_map.loc[df_map["membership_status"].isin(selected_statuses)]
 
     map_figure = px.scatter_mapbox(
         df_map,
