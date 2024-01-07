@@ -14,12 +14,12 @@ from ratelimit import limits, sleep_and_retry
 from tqdm import tqdm
 
 MEMB_LIST_NAME = "fake_membership_list"
-BRANCH_ZIPS_PATH = Path(PurePath(os.getcwd()).parent, "branch_zips.csv")
-MEMB_LIST_CONFIG_PATH = Path(PurePath(os.getcwd()).parent, ".list_name")
+BRANCH_ZIPS_PATH = Path(PurePath(__file__).parents[2], "branch_zips.csv")
+MEMB_LIST_CONFIG_PATH = Path(PurePath(__file__).parents[2], ".list_name")
 if MEMB_LIST_CONFIG_PATH.is_file():
     MEMB_LIST_NAME = MEMB_LIST_CONFIG_PATH.read_text(encoding="UTF-8")
 geocoder = Geocoder()
-MAPBOX_TOKEN_PATH = Path(PurePath(os.getcwd()).parent, ".mapbox_token")
+MAPBOX_TOKEN_PATH = Path(PurePath(__file__).parents[2], ".mapbox_token")
 if MAPBOX_TOKEN_PATH.is_file():
     geocoder = Geocoder(access_token=MAPBOX_TOKEN_PATH.read_text(encoding="UTF-8"))
 
@@ -173,7 +173,7 @@ def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
 
 def get_pickled_dict() -> dict[str, pd.DataFrame]:
     """Return the last scanned membership lists."""
-    pickled_file_path = Path(PurePath(os.getcwd()).parent, MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl")
+    pickled_file_path = Path(PurePath(__file__).parents[2], MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl")
     if not pickled_file_path.is_file():
         return {}
     with open(pickled_file_path, "rb") as pickled_file:
@@ -214,7 +214,7 @@ def get_membership_lists() -> dict[str, pd.DataFrame]:
     memb_list_zips = scan_all_membership_lists()
     pickled_lists = get_pickled_dict()
     memb_lists = integrate_new_membership_lists(memb_list_zips, pickled_lists)
-    with open(Path(PurePath(os.getcwd()).parent, MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
+    with open(Path(PurePath(__file__).parents[2], MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
         logging.info("Saving all lists into pickle for quicker access next time.")
         pickle.dump(memb_lists, pickled_file)
     if BRANCH_ZIPS_PATH.is_file():
