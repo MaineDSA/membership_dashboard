@@ -1,8 +1,9 @@
 """Validate schema of imported lists using pandera"""
 
 from glob import glob
-from ..utils.list_schema import schema
-from ..utils.scan_membership_lists import data_cleaning, scan_memb_list_from_csv
+
+from src.utils.scan_lists import data_cleaning, scan_memb_list_from_csv
+from src.utils.schema import schema
 
 
 def test_schema():

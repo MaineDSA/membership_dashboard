@@ -1,6 +1,6 @@
 """Perform testing to ensure the data cleaning functions work as expected so that membership lists of different ages can be compared"""
 
-from ..utils.scan_membership_lists import data_cleaning, scan_memb_list_from_csv
+from src.utils.scan_lists import data_cleaning, scan_memb_list_from_csv
 
 
 def test_mailing_to_unified_address_conversion():

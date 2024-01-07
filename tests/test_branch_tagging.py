@@ -2,11 +2,7 @@
 
 from pathlib import Path
 
-from ..utils.scan_membership_lists import (
-    data_cleaning,
-    tagged_with_branches,
-    scan_memb_list_from_csv,
-)
+from src.utils.scan_lists import data_cleaning, tagged_with_branches, scan_memb_list_from_csv
 
 TEST_BRANCH_ZIP_CSV = Path("tests/test_harness_assets/fake_branch_zips.csv")
 

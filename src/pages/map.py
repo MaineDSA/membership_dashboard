@@ -7,12 +7,13 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
-from components.colors import COLORS
-from components.sidebar import sidebar
-from components.status_filter import status_filter_col
 from dash import Input, Output, callback, dcc, html
-from utils.scan_lists import MEMB_LISTS
-from utils.schema import schema
+
+from src.components.colors import COLORS
+from src.components.sidebar import sidebar
+from src.components.status_filter import status_filter_col
+from src.utils.scan_lists import MEMB_LISTS
+from src.utils.schema import schema
 
 dash.register_page(__name__, path="/map", title=f"Membership Dashboard: {__name__.title()}", order=5)
 

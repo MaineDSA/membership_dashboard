@@ -1,7 +1,8 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html
-from utils.scan_lists import MEMB_LISTS
+
+from src.utils.scan_lists import MEMB_LISTS
 
 member_list_keys = list(MEMB_LISTS.keys())
 

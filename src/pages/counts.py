@@ -2,10 +2,11 @@ import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objects as go
-from components.dark_mode import with_template_if_dark
-from components.sidebar import sidebar
 from dash import Input, Output, callback, dcc, html
-from utils.scan_lists import MEMB_LISTS
+
+from src.components.dark_mode import with_template_if_dark
+from src.components.sidebar import sidebar
+from src.utils.scan_lists import MEMB_LISTS
 
 dash.register_page(__name__, path="/counts", title=f"Membership Dashboard: {__name__.title()}", order=2)
 

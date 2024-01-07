@@ -3,14 +3,15 @@ import logging
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
-from components.colors import COLORS
-from components.dark_mode import with_template_if_dark
-from components.sidebar import sidebar
-from components.status_filter import status_filter_col
 from dash import Input, Output, callback, dcc, html
 from plotly import graph_objects as go
-from utils.scan_lists import MEMB_LISTS
-from utils.schema import schema
+
+from src.components.colors import COLORS
+from src.components.dark_mode import with_template_if_dark
+from src.components.sidebar import sidebar
+from src.components.status_filter import status_filter_col
+from src.utils.scan_lists import MEMB_LISTS
+from src.utils.schema import schema
 
 dash.register_page(__name__, path="/", title=f"Membership Dashboard: {__name__.title()}", order=0)
 

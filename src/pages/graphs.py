@@ -2,11 +2,12 @@ import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objects as go
-from components.colors import COLORS, COMPARE_COLORS
-from components.dark_mode import with_template_if_dark
-from components.sidebar import sidebar
 from dash import Input, Output, callback, dcc, html
-from utils.scan_lists import MEMB_LISTS
+
+from src.components.colors import COLORS, COMPARE_COLORS
+from src.components.dark_mode import with_template_if_dark
+from src.components.sidebar import sidebar
+from src.utils.scan_lists import MEMB_LISTS
 
 dash.register_page(__name__, path="/graphs", title=f"Membership Dashboard: {__name__.title()}", order=3)
 

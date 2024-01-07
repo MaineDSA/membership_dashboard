@@ -2,13 +2,14 @@ import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objects as go
-from components.colors import COLORS
-from components.dark_mode import with_template_if_dark
-from components.sidebar import sidebar
 from dash import Input, Output, callback, dcc, html
 from pandas.tseries.offsets import DateOffset
-from utils.retention import retention_year, retention_mos, retention_pct_year, retention_pct_mos, retention_pct_quarter
-from utils.scan_lists import MEMB_LISTS
+
+from src.components.colors import COLORS
+from src.components.dark_mode import with_template_if_dark
+from src.components.sidebar import sidebar
+from src.utils.retention import retention_year, retention_mos, retention_pct_year, retention_pct_mos, retention_pct_quarter
+from src.utils.scan_lists import MEMB_LISTS
 
 dash.register_page(__name__, path="/retention", title=f"Membership Dashboard: {__name__.title()}", order=4)
 

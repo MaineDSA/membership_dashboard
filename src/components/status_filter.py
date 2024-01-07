@@ -1,7 +1,7 @@
 import dash_bootstrap_components as dbc
 from dash import dcc
 
-from utils.schema import ColumnValidation
+from src.utils.schema import ColumnValidation
 
 
 def status_filter() -> dcc.Checklist:
