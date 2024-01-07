@@ -1,0 +1,35 @@
+#sidebar {
+    text-align: center;
+    padding: 2rem 1rem;
+    outline: 1px solid var(--bs-secondary);
+}
+
+#sidebar h2 {
+    text-align: left;
+    margin-bottom: 0;
+}
+
+#page-content {
+    padding: 2rem 1rem;
+}
+
+.nav-pills .nav-link {
+    color: var(--bs-body-color);
+}
+
+@media (min-width: 48em) {
+    #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 20rem;
+        text-align: left;
+    }
+
+    /* set margins of the main content so that it doesn't overlap the sidebar */
+    #page-content {
+        margin-left: 22rem;
+        margin-right: 2rem;
+    }
+}

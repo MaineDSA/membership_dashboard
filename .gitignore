@@ -1,12 +1,6 @@
 # Inputs, Outputs, Private Data
-.list_name
-.mapbox_token
 branch_zips.csv
 *_membership_list*/*
-*.pkl
-*.zip
-research/*
-.ruff_cache
 
 
 # Byte-compiled / optimized / DLL files
@@ -75,6 +69,9 @@ db.sqlite3-journal
 # Flask stuff:
 instance/
 .webassets-cache
+
+# Ruff
+.ruff_cache
 
 # Scrapy stuff:
 .scrapy

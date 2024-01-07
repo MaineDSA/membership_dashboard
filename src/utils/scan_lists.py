@@ -1,26 +1,25 @@
 """Parse all membership lists into pandas dataframes for display on dashboard"""
 
-from glob import glob
-from pathlib import Path
-from zipfile import ZipFile
 import logging
 import os
 import pickle
-
 from functools import lru_cache
+from glob import glob
+from pathlib import Path, PurePath
+from zipfile import ZipFile
+
+import pandas as pd
 from mapbox import Geocoder
 from ratelimit import limits, sleep_and_retry
 from tqdm import tqdm
-import pandas as pd
 
 MEMB_LIST_NAME = "fake_membership_list"
-BRANCH_ZIPS_PATH = Path("branch_zips.csv")
-MEMB_LIST_CONFIG_PATH = Path(".list_name")
+BRANCH_ZIPS_PATH = Path(PurePath(os.getcwd()).parent, "branch_zips.csv")
+MEMB_LIST_CONFIG_PATH = Path(PurePath(os.getcwd()).parent, ".list_name")
 if MEMB_LIST_CONFIG_PATH.is_file():
     MEMB_LIST_NAME = MEMB_LIST_CONFIG_PATH.read_text(encoding="UTF-8")
-
 geocoder = Geocoder()
-MAPBOX_TOKEN_PATH = Path(".mapbox_token")
+MAPBOX_TOKEN_PATH = Path(PurePath(os.getcwd()).parent, ".mapbox_token")
 if MAPBOX_TOKEN_PATH.is_file():
     geocoder = Geocoder(access_token=MAPBOX_TOKEN_PATH.read_text(encoding="UTF-8"))
 
@@ -39,8 +38,18 @@ class ListColumnRules:
     FIELD_UPGRADE_PATHS = {
         "accommodations": ["accomodations"],
         "actionkit_id": ["akid", "ak_id"],
-        "address1": ["billing_address1", "billing_address_line_1", "mailing_address1", "address_line_1"],
-        "address2": ["billing_address2", "billing_address_line_2", "mailing_address2", "address_line_2"],
+        "address1": [
+            "billing_address1",
+            "billing_address_line_1",
+            "mailing_address1",
+            "address_line_1",
+        ],
+        "address2": [
+            "billing_address2",
+            "billing_address_line_2",
+            "mailing_address2",
+            "address_line_2",
+        ],
         "city": ["billing_city", "mailing_city"],
         "dsa_chapter": ["chapter"],
         "state": ["billing_state", "mailing_state"],
@@ -104,7 +113,10 @@ def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     df["city"] = df.city.str.title()
 
     if "union_member" in df.columns:
-        df["union_member"].replace({0: "No", 1: "Yes, current union member", 2: "Yes, retired union member"}, inplace=True)
+        df["union_member"].replace(
+            {0: "No", 1: "Yes, current union member", 2: "Yes, retired union member"},
+            inplace=True,
+        )
 
     df["join_date"] = pd.to_datetime(df["join_date"], format="mixed")
     df["join_year"] = pd.PeriodIndex(df["join_date"], freq="Y").to_timestamp()
@@ -123,7 +135,8 @@ def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     if "lat" not in df:
         tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
         df[["lon", "lat"]] = pd.DataFrame(
-            (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding).tolist(), index=df.index
+            (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding).tolist(),
+            index=df.index,
         )
 
     return df
@@ -134,14 +147,10 @@ def scan_memb_list_from_csv(csv_file_data) -> pd.DataFrame:
     return pd.read_csv(csv_file_data, dtype={"zip": str}, header=0)
 
 
-def scan_memb_list_from_zip(filename: str, zip_path: str) -> pd.DataFrame:
+def scan_memb_list_from_zip(zip_path: str) -> pd.DataFrame:
     """Scan a zip file containing a csv and return the output of scan_memb_list_from_csv from the csv if the zip file name contains a date."""
-    datetime_from_name = pd.to_datetime(os.path.splitext(filename)[0].split("_")[-1], format="%Y%m%d")
-    if not datetime_from_name:
-        logging.warning("No date detected in name of %s. Skipping file.", filename)
-        return pd.DataFrame()
     with ZipFile(zip_path) as memb_list_zip:
-        with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv") as memb_list_csv:
+        with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv", "r") as memb_list_csv:
             return scan_memb_list_from_csv(memb_list_csv)
 
 
@@ -149,13 +158,13 @@ def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
     """Scan all zip files and call scan_memb_list_from_zip on each, returning the results."""
     memb_lists = {}
     logging.info("Scanning zipped membership lists in %s/.", MEMB_LIST_NAME)
-    files = sorted(glob(os.path.join(MEMB_LIST_NAME, "**/*.zip"), recursive=True), reverse=True)
+    files = sorted(glob(str(Path(PurePath(os.getcwd()).parent, MEMB_LIST_NAME, "**/*.zip")), recursive=True), reverse=True)
     for zip_file in files:
-        filename = os.path.basename(zip_file)
+        filename = Path(zip_file).name
         try:
-            date_from_filename = os.path.splitext(filename)[0].split("_")[-1]
+            date_from_filename = str(PurePath(filename).stem).split("_")[-1]
             list_date_iso = pd.to_datetime(date_from_filename, format="%Y%m%d").date().isoformat()
-            memb_lists[list_date_iso] = scan_memb_list_from_zip(filename, os.path.abspath(zip_file))
+            memb_lists[list_date_iso] = scan_memb_list_from_zip(str(Path(zip_file).absolute()))
         except (IndexError, ValueError):
             logging.warning("Could not extract list from %s. Skipping file.", filename)
     logging.info("Found %s zipped membership lists.", len(memb_lists))
@@ -164,8 +173,8 @@ def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
 
 def get_pickled_dict() -> dict[str, pd.DataFrame]:
     """Return the last scanned membership lists."""
-    pickled_file_path = os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl")
-    if not os.path.exists(pickled_file_path):
+    pickled_file_path = Path(PurePath(os.getcwd()).parent, MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl")
+    if not pickled_file_path.is_file():
         return {}
     with open(pickled_file_path, "rb") as pickled_file:
         pickled_dict = pickle.load(pickled_file)
@@ -192,7 +201,10 @@ def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: P
     """Add branch column to each membership list, filling with data cross-referenced from a provided csv via branch_name_from_zip()"""
     branch_zips = pd.read_csv(branch_zip_path, dtype={"zip": str}, index_col="zip")
     for date, memb_list in memb_lists.items():
-        logging.debug("Tagging %s membership list with branches based on current zip code assignments.", date)
+        logging.debug(
+            "Tagging %s membership list with branches based on current zip code assignments.",
+            date,
+        )
         memb_list["branch"] = memb_list["zip"].apply(branch_name_from_zip, branch_zips=branch_zips)
     return memb_lists
 
@@ -202,10 +214,13 @@ def get_membership_lists() -> dict[str, pd.DataFrame]:
     memb_list_zips = scan_all_membership_lists()
     pickled_lists = get_pickled_dict()
     memb_lists = integrate_new_membership_lists(memb_list_zips, pickled_lists)
-    with open(os.path.join(MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
+    with open(Path(PurePath(os.getcwd()).parent, MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
         logging.info("Saving all lists into pickle for quicker access next time.")
         pickle.dump(memb_lists, pickled_file)
     if BRANCH_ZIPS_PATH.is_file():
         logging.info("Tagging each membership list based on current branch zip code assignments.")
         memb_lists = tagged_with_branches(memb_lists, BRANCH_ZIPS_PATH)
     return memb_lists
+
+
+MEMB_LISTS = get_membership_lists()

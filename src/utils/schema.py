@@ -57,7 +57,7 @@ STATE_ABBR = [
 ]
 
 
-class MembershipData:
+class ColumnValidation:
     """Represents the allowed values for some columns of data"""
 
     YEARLY_DUES_STATUS = [
@@ -95,7 +95,13 @@ class MembershipData:
         "No, but former union member",
         "unknown",
     ]
-    STUDENT_STATUS = ["No", "Yes", "Yes, graduate student", "Yes, college student", "Yes, high school student"]
+    STUDENT_STATUS = [
+        "No",
+        "Yes",
+        "Yes, graduate student",
+        "Yes, college student",
+        "Yes, high school student",
+    ]
     MAILING_PREF = ["Membership card only", "No", "no", "Yes"]
 
 
@@ -212,7 +218,7 @@ schema = DataFrameSchema(
         ),
         "membership_type": Column(
             dtype="string",
-            checks=Check.isin(MembershipData.MEMBERSHIP_TYPE),
+            checks=Check.isin(ColumnValidation.MEMBERSHIP_TYPE),
             nullable=True,
             coerce=True,
             description=None,
@@ -220,7 +226,7 @@ schema = DataFrameSchema(
         ),
         "monthly_dues_status": Column(
             dtype="string",
-            checks=Check.isin(MembershipData.MONTHLY_DUES_STATUS),
+            checks=Check.isin(ColumnValidation.MONTHLY_DUES_STATUS),
             nullable=True,
             coerce=True,
             description=None,
@@ -228,7 +234,7 @@ schema = DataFrameSchema(
         ),
         "yearly_dues_status": Column(
             dtype="string",
-            checks=Check.isin(MembershipData.YEARLY_DUES_STATUS),
+            checks=Check.isin(ColumnValidation.YEARLY_DUES_STATUS),
             nullable=True,
             coerce=True,
             description=None,
@@ -236,7 +242,7 @@ schema = DataFrameSchema(
         ),
         "membership_status": Column(
             dtype="string",
-            checks=Check.isin(MembershipData.MEMBERSHIP_STATUS),
+            checks=Check.isin(ColumnValidation.MEMBERSHIP_STATUS),
             default="",
             nullable=False,
             coerce=True,
@@ -254,7 +260,7 @@ schema = DataFrameSchema(
         ),
         "union_member": Column(
             dtype="string",
-            checks=Check.isin(MembershipData.UNION_MEMBER_STATUS),
+            checks=Check.isin(ColumnValidation.UNION_MEMBER_STATUS),
             default="unknown",
             nullable=True,
             coerce=True,
@@ -295,7 +301,7 @@ schema = DataFrameSchema(
         ),
         "student_yes_no": Column(
             dtype="string",
-            checks=Check.isin(MembershipData.STUDENT_STATUS),
+            checks=Check.isin(ColumnValidation.STUDENT_STATUS),
             nullable=True,
             coerce=True,
             description=None,
@@ -311,7 +317,7 @@ schema = DataFrameSchema(
         ),
         "mailing_pref": Column(
             dtype="string",
-            checks=Check.isin(MembershipData.MAILING_PREF),
+            checks=Check.isin(ColumnValidation.MAILING_PREF),
             nullable=True,
             coerce=True,
             description=None,
