@@ -9,19 +9,15 @@ from pathlib import Path, PurePath
 from zipfile import ZipFile
 
 import pandas as pd
+from dotenv import dotenv_values
 from mapbox import Geocoder
 from ratelimit import limits, sleep_and_retry
 from tqdm import tqdm
 
-MEMB_LIST_NAME = "fake_membership_list"
+config = dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
+geocoder = Geocoder(access_token=config.get("MAPBOX"))
 BRANCH_ZIPS_PATH = Path(PurePath(__file__).parents[2], "branch_zips.csv")
-MEMB_LIST_CONFIG_PATH = Path(PurePath(__file__).parents[2], ".list_name")
-if MEMB_LIST_CONFIG_PATH.is_file():
-    MEMB_LIST_NAME = MEMB_LIST_CONFIG_PATH.read_text(encoding="UTF-8")
-geocoder = Geocoder()
-MAPBOX_TOKEN_PATH = Path(PurePath(__file__).parents[2], ".mapbox_token")
-if MAPBOX_TOKEN_PATH.is_file():
-    geocoder = Geocoder(access_token=MAPBOX_TOKEN_PATH.read_text(encoding="UTF-8"))
+MEMBER_LIST_NAME = config.get("LIST", "fake_membership_list")
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 
@@ -84,7 +80,7 @@ def mapbox_geocoder(address: str) -> list[float]:
 @lru_cache(maxsize=32_768, typed=False)
 def get_geocoding(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
-    if not isinstance(address, str) or not MAPBOX_TOKEN_PATH.is_file():
+    if not isinstance(address, str) or "MAPBOX" not in config:
         return [0, 0]
     return mapbox_geocoder(address)
 
@@ -150,15 +146,15 @@ def scan_memb_list_from_csv(csv_file_data) -> pd.DataFrame:
 def scan_memb_list_from_zip(zip_path: str) -> pd.DataFrame:
     """Scan a zip file containing a csv and return the output of scan_memb_list_from_csv from the csv if the zip file name contains a date."""
     with ZipFile(zip_path) as memb_list_zip:
-        with memb_list_zip.open(f"{MEMB_LIST_NAME}.csv", "r") as memb_list_csv:
+        with memb_list_zip.open(f"{MEMBER_LIST_NAME}.csv", "r") as memb_list_csv:
             return scan_memb_list_from_csv(memb_list_csv)
 
 
 def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
     """Scan all zip files and call scan_memb_list_from_zip on each, returning the results."""
     memb_lists = {}
-    logging.info("Scanning zipped membership lists in %s/.", MEMB_LIST_NAME)
-    files = sorted(glob(str(Path(PurePath(os.getcwd()).parent, MEMB_LIST_NAME, "**/*.zip")), recursive=True), reverse=True)
+    logging.info("Scanning zipped membership lists in %s/.", MEMBER_LIST_NAME)
+    files = sorted(glob(str(Path(PurePath(os.getcwd()).parent, MEMBER_LIST_NAME, "**/*.zip")), recursive=True), reverse=True)
     for zip_file in files:
         filename = Path(zip_file).name
         try:
@@ -173,7 +169,7 @@ def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
 
 def get_pickled_dict() -> dict[str, pd.DataFrame]:
     """Return the last scanned membership lists."""
-    pickled_file_path = Path(PurePath(__file__).parents[2], MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl")
+    pickled_file_path = Path(PurePath(__file__).parents[2], MEMBER_LIST_NAME, f"{MEMBER_LIST_NAME}.pkl")
     if not pickled_file_path.is_file():
         return {}
     with open(pickled_file_path, "rb") as pickled_file:
@@ -214,7 +210,7 @@ def get_membership_lists() -> dict[str, pd.DataFrame]:
     memb_list_zips = scan_all_membership_lists()
     pickled_lists = get_pickled_dict()
     memb_lists = integrate_new_membership_lists(memb_list_zips, pickled_lists)
-    with open(Path(PurePath(__file__).parents[2], MEMB_LIST_NAME, f"{MEMB_LIST_NAME}.pkl"), "wb") as pickled_file:
+    with open(Path(PurePath(__file__).parents[2], MEMBER_LIST_NAME, f"{MEMBER_LIST_NAME}.pkl"), "wb") as pickled_file:
         logging.info("Saving all lists into pickle for quicker access next time.")
         pickle.dump(memb_lists, pickled_file)
     if BRANCH_ZIPS_PATH.is_file():

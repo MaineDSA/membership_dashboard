@@ -1,4 +1,3 @@
-import os
 from pathlib import Path, PurePath
 
 import dash
@@ -8,6 +7,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 from dash import Input, Output, callback, dcc, html
+from dotenv import dotenv_values
 
 from src.components.colors import COLORS
 from src.components.sidebar import sidebar
@@ -17,9 +17,10 @@ from src.utils.schema import schema
 
 dash.register_page(__name__, path="/map", title=f"Membership Dashboard: {__name__.title()}", order=5)
 
-MAPBOX_TOKEN_PATH = Path(PurePath(os.getcwd()).parent, ".mapbox_token")
-if MAPBOX_TOKEN_PATH.is_file():
-    px.set_mapbox_access_token(MAPBOX_TOKEN_PATH.read_text(encoding="UTF-8"))
+config = dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
+
+if "MAPBOX" in config:
+    px.set_mapbox_access_token(config.get("MAPBOX"))
 
 membership_map = html.Div(
     children=[
