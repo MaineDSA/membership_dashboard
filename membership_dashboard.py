@@ -572,10 +572,10 @@ def create_map(date_selected: str, selected_column: str, selected_statuses: list
     df_map = df_map.loc[df_map["membership_status"].isin(selected_statuses)]
 
     map_figure = px.scatter_mapbox(
-        df_map,
+        df_map.reset_index(drop=False),
         lat="lat",
         lon="lon",
-        hover_name=df_map.index,
+        hover_name="actionkit_id",
         hover_data={
             "first_name": True,
             "last_name": True,
@@ -589,7 +589,7 @@ def create_map(date_selected: str, selected_column: str, selected_statuses: list
             "lat": False,
             "lon": False,
         },
-        color=df_map[selected_column],
+        color=selected_column,
         color_discrete_sequence=COLORS,
         zoom=6,
         height=1100,
