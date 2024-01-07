@@ -6,5 +6,6 @@ pandas==2.1.4
 pandera==0.18.0
 plotly==5.18.0
 pytest==7.4.4
+python-dotenv==1.0.0
 ratelimit==2.2.1
 tqdm==4.66.1
