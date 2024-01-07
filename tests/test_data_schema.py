@@ -3,8 +3,8 @@
 from glob import glob
 from pathlib import Path, PurePath
 
-from ..src.utils.scan_lists import data_cleaning, scan_memb_list_from_csv
-from ..src.utils.schema import schema
+from src.utils.scan_lists import data_cleaning, scan_memb_list_from_csv
+from src.utils.schema import schema
 
 
 def test_schema():
