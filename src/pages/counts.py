@@ -64,7 +64,7 @@ membership_counts = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_counts, width=10)])
+    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_counts, width=10)], className="dbc")
 
 
 def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dark_mode: bool) -> go.Figure:

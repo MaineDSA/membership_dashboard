@@ -33,12 +33,11 @@ membership_list = html.Div(
             id="list",
         ),
     ],
-    className="dbc",
 )
 
 
-def layout():
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_list, width=10)])
+def layout() -> dbc.Row:
+    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_list, width=10)], className="dbc")
 
 
 @callback(

@@ -83,7 +83,7 @@ def sidebar() -> html.Div:
                             pills=True,
                         ),
                     ]
-                )
+                ),
             ),
         ],
     )

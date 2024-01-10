@@ -28,9 +28,7 @@ membership_map = html.Div(
             [
                 status_filter_col(),
                 dbc.Col(
-                    dcc.Dropdown(
-                        options=list(column for column in schema.columns), value="membership_status", multi=False, id="selected-column", className="dbc"
-                    ),
+                    dcc.Dropdown(options=list(column for column in schema.columns), value="membership_status", multi=False, id="selected-column"),
                 ),
             ],
             align="center",
@@ -48,7 +46,6 @@ membership_map = html.Div(
                         "padding-right": "-1em",
                         "padding-bottom": "-1em",
                     },
-                    className="dbc",
                 ),
             ),
         ),
@@ -57,7 +54,7 @@ membership_map = html.Div(
 
 
 def layout():
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_map, width=10)])
+    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_map, width=10)], className="dbc")
 
 
 @callback(

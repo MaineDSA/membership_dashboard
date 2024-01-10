@@ -34,7 +34,6 @@ membership_retention = html.Div(
                     value=[default_start_year, default_end_year],
                     id="retention-years-slider",
                     tooltip={"placement": "bottom"},
-                    className="dbc",
                 ),
             ),
         ),
@@ -148,7 +147,7 @@ membership_retention = html.Div(
 
 
 def layout():
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_retention, width=10)])
+    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_retention, width=10)], className="dbc")
 
 
 @callback(

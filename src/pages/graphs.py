@@ -64,7 +64,7 @@ membership_graphs = html.Div(
 
 
 def layout():
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_graphs, width=10)])
+    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_graphs, width=10)], className="dbc")
 
 
 def get_positive_sign(num: float) -> str:

@@ -21,9 +21,7 @@ membership_timeline = html.Div(
             [
                 status_filter_col(),
                 dbc.Col(
-                    dcc.Dropdown(
-                        options=list(column for column in schema.columns), value=["membership_status"], multi=True, id="selected-columns", className="dbc"
-                    ),
+                    dcc.Dropdown(options=list(column for column in schema.columns), value=["membership_status"], multi=True, id="selected-columns"),
                 ),
             ],
             align="center",
@@ -49,7 +47,7 @@ membership_timeline = html.Div(
 
 
 def layout():
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_timeline, width=10)])
+    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_timeline, width=10)], className="dbc")
 
 
 def value_counts_by_date(date_counts: dict) -> dict[str, int]:
