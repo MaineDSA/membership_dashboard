@@ -1,40 +1,40 @@
 name: Ruff
 
-on:
-  push:
-    paths:
-      - '**.py' # Run if pushed commits include a change to a Python (.py) file.
-      - '.github/workflows/lint-python.yml' # Run if pushed commits include a change to a github actions workflow file.
-      - 'requirements.txt' # Run if pushed commits include a change to the Python requirements.txt file.
-      - 'pyproject.toml' # Run if ruff config changes.
-  pull_request:
-    paths:
-      - '**.py' # Run if pushed commits include a change to a Python (.py) file.
-      - '.github/workflows/lint-python.yml' # Run if pushed commits include a change to a github actions workflow file.
-      - 'requirements.txt' # Run if pushed commits include a change to the Python requirements.txt file.
-      - 'pyproject.toml' # Run if ruff config changes.
+on: 
+  push: 
+    paths: 
+      - '**.py' # Run if pushed commits include a change to any Python (.py) file.
+      - '.github/workflows/lint-python.yml' # Run if pushed commits include a change to this workflow file.
+      - 'pyproject.toml' # Run if project configuration file changes.
+
+  pull_request: 
+    paths: 
+      - '**.py' # Run if pushed commits include a change to any Python (.py) file.
+      - '.github/workflows/lint-python.yml' # Run if pushed commits include a change to this workflow file.
+      - 'pyproject.toml' # Run if project configuration file changes.
+
   workflow_dispatch:
 
-jobs:
-  ruff:
+jobs: 
+  ruff: 
     runs-on: "ubuntu-latest"
-    strategy:
-      matrix:
+    strategy: 
+      matrix: 
         python-version: ["3.12", "3.11", "3.10", "3.9"]
-    steps:
-    - uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+    steps: 
+      - uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: |
-        python3 -m pip install --upgrade pip
-        pip3 install ruff
-        if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with: 
+          python-version: ${{ matrix.python-version }}
 
-    - name: Linting the code with ruff
-      run: |
-        ruff check $(git ls-files '*.py')
+      - name: Install dependencies
+        run: |
+          pip3 install -U pip
+          pip3 install .[github-actions]
+
+      - name: Linting the code with ruff
+        run: |
+          ruff check $(git ls-files '*.py') --diff | pdiff

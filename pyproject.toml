@@ -1,8 +1,37 @@
 [tool.ruff]
 line-length = 160
-target-version = "py39"
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F"]
 extend-select = ["B", "W", "C"]
 ignore = ["C400", "C401"]
+
+[project]
+name = "membership_dashboard"
+version = "1.0.0-dev1"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { "file" = "LICENSE" }
+authors = [{ "name" = "bmos", "email" = "wil.t.dsa@pm.me" }]
+urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
+dependencies = [
+    "dash==2.14.2",
+    "dash-bootstrap-components==1.5.0",
+    "dash-bootstrap-templates==1.1.1",
+    "mapbox==0.18.1",
+    "pandas==2.1.4",
+    "pandera==0.18.0",
+    "plotly==5.18.0",
+    "pytest==7.4.4",
+    "python-dotenv==1.0.0",
+    "ratelimit==2.2.1",
+    "ruff==0.1.11",
+    "tqdm==4.66.1"
+]
+
+[project.optional-dependencies]
+github-actions = [
+    "pytest-emoji==0.2.0",
+    "pytest-md==0.2.0",
+    "pdiff==1.1.4"
+]

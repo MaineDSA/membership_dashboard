@@ -1,42 +1,43 @@
 name: Pytest
 
-on:
-  push:
-    paths:
-      - '**.py' # Run if pushed commits include a change to a Python (.py) file.
-      - '.github/workflows/pytest.yml' # Run if pushed commits include a change to a github actions workflow file.
-      - 'requirements.txt' # Run if pushed commits include a change to the Python requirements.txt file.
-  pull_request:
-    paths:
-      - '**.py' # Run if pushed commits include a change to a Python (.py) file.
-      - '.github/workflows/pytest.yml' # Run if pushed commits include a change to a github actions workflow file.
-      - 'requirements.txt' # Run if pushed commits include a change to the Python requirements.txt file.
+on: 
+  push: 
+    paths: 
+      - '**.py' # Run if pushed commits include a change to any Python (.py) file.
+      - '.github/workflows/pytest.yml' # Run if pushed commits include a change to this workflow file.
+      - 'pyproject.toml' # Run if project configuration file changes.
+
+  pull_request: 
+    paths: 
+      - '**.py' # Run if pushed commits include a change to any Python (.py) file.
+      - '.github/workflows/pytest.yml' # Run if pushed commits include a change to this workflow file.
+      - 'pyproject.toml' # Run if project configuration file changes.
+
   workflow_dispatch:
 
-jobs:
-  pytest:
+jobs: 
+  pytest: 
     runs-on: "ubuntu-latest"
-    strategy:
-      matrix:
+    strategy: 
+      matrix: 
         python-version: ["3.12", "3.11", "3.10", "3.9"]
 
-    steps:
-    - uses: actions/checkout@v4
+    steps: 
+      - uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with: 
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies
-      run: |
-        python3 -m pip install --upgrade pip
-        pip3 install pytest pytest-emoji pytest-md
-        if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
+      - name: Install dependencies
+        run: |
+          pip3 install -U pip
+          pip3 install .[github-actions]
 
-    - name: Test code with pytest
-      uses: pavelzw/pytest-action@v2
-      with:
-        emoji: true
-        verbose: false
-        job-summary: true
+      - name: Test code with pytest
+        uses: pavelzw/pytest-action@v2
+        with: 
+          emoji: true
+          verbose: false
+          job-summary: true
