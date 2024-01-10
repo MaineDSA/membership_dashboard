@@ -33,5 +33,5 @@ dependencies = [
 github-actions = [
     "pytest-emoji==0.2.0",
     "pytest-md==0.2.0",
-    "pdiff==1.1.4"
+    "ydiff==1.2"
 ]
