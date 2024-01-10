@@ -40,7 +40,7 @@ membership_map = html.Div(
                     id="map",
                     style={
                         "display": "inline-block",
-                        "height": "85svh",
+                        "height": "91svh",
                         "width": "100%",
                         "padding-left": "-1em",
                         "padding-right": "-1em",
@@ -54,7 +54,7 @@ membership_map = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_map, width=10)], className="dbc")
+    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_map, width=10)], className="dbc", style={"margin": "1em"})
 
 
 @callback(

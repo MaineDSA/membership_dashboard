@@ -25,7 +25,7 @@ membership_counts = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="count-lifetime",
-                        style={"height": "46svh"},
+                        style={"height": "30svh"},
                     ),
                     width=6,
                 ),
@@ -33,7 +33,7 @@ membership_counts = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="count-migs",
-                        style={"height": "46svh"},
+                        style={"height": "30svh"},
                     ),
                     width=6,
                 ),
@@ -45,7 +45,7 @@ membership_counts = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="count-expiring",
-                        style={"height": "46svh"},
+                        style={"height": "30svh"},
                     ),
                     width=6,
                 ),
@@ -53,7 +53,7 @@ membership_counts = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="count-lapsed",
-                        style={"height": "46svh"},
+                        style={"height": "30svh"},
                     ),
                     width=6,
                 ),
@@ -64,7 +64,7 @@ membership_counts = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_counts, width=10)], className="dbc")
+    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_counts, width=10)], className="dbc", style={"margin": "1em"})
 
 
 def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dark_mode: bool) -> go.Figure:

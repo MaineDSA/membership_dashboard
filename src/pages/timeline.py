@@ -33,7 +33,7 @@ membership_timeline = html.Div(
                     id="timeline",
                     style={
                         "display": "inline-block",
-                        "height": "85svh",
+                        "height": "91svh",
                         "width": "100%",
                         "padding-left": "-1em",
                         "padding-right": "-1em",
@@ -47,7 +47,7 @@ membership_timeline = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_timeline, width=10)], className="dbc")
+    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_timeline, width=10)], className="dbc", style={"margin": "1em"})
 
 
 def value_counts_by_date(date_counts: dict) -> dict[str, int]:

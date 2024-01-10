@@ -19,7 +19,7 @@ membership_graphs = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="graph-membership-status",
-                        style={"height": "46svh"},
+                        style={"height": "48svh"},
                     ),
                     md=4,
                 ),
@@ -27,7 +27,7 @@ membership_graphs = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="graph-membership-type",
-                        style={"height": "46svh"},
+                        style={"height": "48svh"},
                     ),
                     md=4,
                 ),
@@ -35,7 +35,7 @@ membership_graphs = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="graph-union-member",
-                        style={"height": "46svh"},
+                        style={"height": "48svh"},
                     ),
                     md=4,
                 ),
@@ -48,12 +48,12 @@ membership_graphs = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="graph-membership-length",
-                        style={"height": "46svh"},
+                        style={"height": "48svh"},
                     ),
                     md=6,
                 ),
                 dbc.Col(
-                    dcc.Graph(figure=go.Figure(), id="graph-race", style={"height": "46svh"}),
+                    dcc.Graph(figure=go.Figure(), id="graph-race", style={"height": "48svh"}),
                     md=6,
                 ),
             ],
@@ -64,7 +64,7 @@ membership_graphs = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_graphs, width=10)], className="dbc")
+    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_graphs, width=10)], className="dbc", style={"margin": "1em"})
 
 
 def get_positive_sign(num: float) -> str:

@@ -43,7 +43,7 @@ membership_retention = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="retention-count-years",
-                        style={"height": "43svh"},
+                        style={"height": "45svh"},
                     ),
                     md=6,
                 ),
@@ -51,7 +51,7 @@ membership_retention = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="retention-count-months",
-                        style={"height": "43svh"},
+                        style={"height": "45svh"},
                     ),
                     md=6,
                 ),
@@ -64,7 +64,7 @@ membership_retention = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="retention-percent-years",
-                        style={"height": "43svh"},
+                        style={"height": "45svh"},
                     ),
                     md=6,
                 ),
@@ -72,7 +72,7 @@ membership_retention = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="retention-percent-months",
-                        style={"height": "43svh"},
+                        style={"height": "45svh"},
                     ),
                     md=6,
                 ),
@@ -85,7 +85,7 @@ membership_retention = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="retention-nth-year",
-                        style={"height": "43svh"},
+                        style={"height": "45svh"},
                     ),
                     md=6,
                 ),
@@ -93,7 +93,7 @@ membership_retention = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="retention-nth-quarter",
-                        style={"height": "43svh"},
+                        style={"height": "45svh"},
                     ),
                     md=6,
                 ),
@@ -106,7 +106,7 @@ membership_retention = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="retention-yoy-year",
-                        style={"height": "43svh"},
+                        style={"height": "45svh"},
                     ),
                     md=6,
                 ),
@@ -114,7 +114,7 @@ membership_retention = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="retention-yoy-month",
-                        style={"height": "43svh"},
+                        style={"height": "45svh"},
                     ),
                     md=6,
                 ),
@@ -127,7 +127,7 @@ membership_retention = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="retention-tenure-member",
-                        style={"height": "43svh"},
+                        style={"height": "45svh"},
                     ),
                     md=6,
                 ),
@@ -135,7 +135,7 @@ membership_retention = html.Div(
                     dcc.Graph(
                         figure=go.Figure(),
                         id="retention-tenure-lapsed",
-                        style={"height": "43svh"},
+                        style={"height": "45svh"},
                     ),
                     md=6,
                 ),
@@ -147,7 +147,7 @@ membership_retention = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_retention, width=10)], className="dbc")
+    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_retention, width=10)], className="dbc", style={"margin": "1em"})
 
 
 @callback(

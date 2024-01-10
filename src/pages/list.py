@@ -26,7 +26,7 @@ membership_list = html.Div(
             page_size=20,
             style_table={
                 "display": "inline-block",
-                "height": "80svh",
+                "height": "86svh",
                 "overflowY": "auto",
                 "overflowX": "auto",
             },
@@ -37,7 +37,7 @@ membership_list = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_list, width=10)], className="dbc")
+    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_list, width=10)], className="dbc", style={"margin": "1em"})
 
 
 @callback(
