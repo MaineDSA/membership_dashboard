@@ -50,14 +50,21 @@ def test_lifetime_type_conversion():
 
 
 def test_membership_status_column_lowercasing():
-    """Ensure membership lists with misspelled accommodations column have it corrected so it can be compared"""
+    """Ensure membership lists with uppercase membership_status values are lowercased"""
     with open("tests/test_harness_assets/fake_membership_list_2021_early.csv") as memb_list:
-        person = data_cleaning(scan_memb_list_from_csv(memb_list)).loc[222251]
-        assert person["membership_status"] == "lapsed"
+        person = data_cleaning(scan_memb_list_from_csv(memb_list)).loc[28855]
+        assert person["membership_status"] == "member in good standing"
 
 
-def test_membership_length_from_xdate():
-    """Ensure membership length calculation is correct when xdate is before list date"""
+def test_membership_length_years():
+    """Ensure membership length calculation is correct in years"""
     with open("tests/test_harness_assets/fake_membership_list_2022_late.csv") as memb_list:
         person = data_cleaning(scan_memb_list_from_csv(memb_list)).loc[178705]
         assert person["membership_length_years"] == 1
+
+
+def test_membership_length_months():
+    """Ensure membership length calculation is correct in months"""
+    with open("tests/test_harness_assets/fake_membership_list_2022_late.csv") as memb_list:
+        person = data_cleaning(scan_memb_list_from_csv(memb_list)).loc[178705]
+        assert person["membership_length_months"] == 14
