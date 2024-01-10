@@ -63,7 +63,7 @@ membership_graphs = html.Div(
 )
 
 
-def layout():
+def layout() -> dbc.Row:
     return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_graphs, width=10)], className="dbc")
 
 
