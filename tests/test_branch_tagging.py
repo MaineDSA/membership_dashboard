@@ -16,7 +16,7 @@ def test_branch_zip_tagging():
 
 
 def test_branch_zip_plus_four_tagging():
-    """Load a branch_zips file and attempt to apply it to test data"""
+    """Load a branch_zips file and attempt to apply it to test data to ensure matches when membership list has zip codes formatted with +4"""
     with open("tests/test_harness_assets/fake_membership_list_2023_late.csv") as memb_list:
         memb_list = data_cleaning(scan_memb_list_from_csv(memb_list))
         tagged_list = tagged_with_branches({"2024-01-01": memb_list}, TEST_BRANCH_ZIP_CSV)

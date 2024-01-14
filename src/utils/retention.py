@@ -15,6 +15,17 @@ class Columns:
 # https://github.com/bunsenmcdubbs/dsa_retention/blob/main/retention.ipynb
 
 
+def retention_pivot(df: pd.DataFrame, join_interval: str, membership_length: str) -> pd.DataFrame:
+    """Return the transposed pivot table to be used in other retention functions"""
+    return df.pivot_table(
+        index=[join_interval],
+        columns=[membership_length],
+        values=Columns.COUNTING_COLUMN,
+        fill_value=0,
+        aggfunc=len,
+    ).transpose()[::-1]
+
+
 def retention_origin(df: pd.DataFrame, join_year: str, length: str) -> pd.DataFrame:
     """
     Constructs a dataframe of membership data showing the number of members who joined each year who are still in good standing
@@ -24,19 +35,7 @@ def retention_origin(df: pd.DataFrame, join_year: str, length: str) -> pd.DataFr
         join_year: the title of a dataframe column containing the year that each member joined
         length: the title of a datafram ecolumn containing an integer representing the length of membership
     """
-    return (
-        df.pivot_table(
-            index=[join_year],
-            columns=[length],
-            values=Columns.COUNTING_COLUMN,
-            fill_value=0,
-            aggfunc=len,
-        )
-        .transpose()[::-1]
-        .cumsum()[::-1]
-        .transpose()
-        .replace(to_replace=0, value=None)
-    )
+    return retention_pivot(df, join_year, length).cumsum()[::-1].transpose().replace(to_replace=0, value=None)
 
 
 def retention_year(df: pd.DataFrame) -> pd.DataFrame:
@@ -58,13 +57,7 @@ def retention_pct_origin(df: pd.DataFrame, join_year: str, length: str) -> pd.Da
         join_year: the title of a dataframe column containing the year that each member joined
         length: the title of a datafram ecolumn containing an integer representing the length of membership
     """
-    pivot = df.pivot_table(
-        index=[join_year],
-        columns=[length],
-        values=Columns.COUNTING_COLUMN,
-        fill_value=0,
-        aggfunc=len,
-    ).transpose()[::-1]
+    pivot = retention_pivot(df, join_year, length)
     return (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None)
 
 
@@ -80,13 +73,7 @@ def retention_pct_mos(df: pd.DataFrame) -> pd.DataFrame:
 
 def retention_pct_quarter(df: pd.DataFrame):
     """Calculate percentage of membership retention based on quich quarter each member joined, with a resolution of years"""
-    pivot = df.pivot_table(
-        index=[Columns.JOIN_QUARTER],
-        columns=[Columns.MEMBERSHIP_LENGTH_YEARS],
-        values=Columns.COUNTING_COLUMN,
-        fill_value=0,
-        aggfunc=len,
-    ).transpose()[::-1]
+    pivot = retention_pivot(df, Columns.JOIN_QUARTER, Columns.MEMBERSHIP_LENGTH_YEARS)
     return (
         (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None).infer_objects(copy=False).interpolate(limit=1, limit_area="inside")
     )
