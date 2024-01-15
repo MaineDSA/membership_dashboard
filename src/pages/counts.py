@@ -4,9 +4,9 @@ import pandas as pd
 import plotly.graph_objects as go
 from dash import Input, Output, callback, dcc, html
 
-from src.components.dark_mode import with_template_if_dark
-from src.components.sidebar import sidebar
-from src.utils.scan_lists import MEMB_LISTS
+from src.components import dark_mode
+from src.components import sidebar
+from src.utils import scan_lists
 
 METRICS = [
     ["membership_type", "lifetime", "Lifetime Members"],
@@ -64,10 +64,10 @@ membership_counts = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_counts, width=10)], className="dbc", style={"margin": "1em"})
+    return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_counts, width=10)], className="dbc", style={"margin": "1em"})
 
 
-def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dark_mode: bool) -> go.Figure:
+def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str], is_dark_mode: bool) -> go.Figure:
     """Construct string showing value and change (if comparison data is provided)."""
     column, value, title = plan
     count = df[column].eq(value).sum()
@@ -91,7 +91,7 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list, dar
 
     fig = go.Figure(data=indicator, layout={"title": title})
 
-    return with_template_if_dark(fig, dark_mode)
+    return dark_mode.with_template_if_dark(fig, is_dark_mode)
 
 
 @callback(
@@ -108,7 +108,7 @@ def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bo
     if not date_selected:
         return [go.Figure()] * len(METRICS)
 
-    df = MEMB_LISTS.get(date_selected, pd.DataFrame())
-    df_compare = MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
+    df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
+    df_compare = scan_lists.MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
 
     return [calculate_metric(df, df_compare, metric_plan, dark_mode) for metric_plan in METRICS]

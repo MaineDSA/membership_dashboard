@@ -3,10 +3,10 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 from dash import Input, Output, callback, dash_table, html
 
-from src.components.colors import COMPARE_COLORS
-from src.components.sidebar import sidebar
-from src.utils.scan_lists import MEMB_LISTS
-from src.utils.schema import schema
+from src.components import colors
+from src.components import sidebar
+from src.utils import scan_lists
+from src.utils import schema
 
 dash.register_page(__name__, path="/list", title=f"Membership Dashboard: {__name__.title()}", order=1)
 
@@ -14,7 +14,7 @@ membership_list = html.Div(
     children=[
         dash_table.DataTable(
             data=[],
-            columns=[{"name": i, "id": i, "selectable": True} for i in schema.columns],
+            columns=[{"name": i, "id": i, "selectable": True} for i in schema.schema.columns],
             sort_action="native",
             sort_by=[
                 {"column_id": "last_name", "direction": "asc"},
@@ -37,7 +37,7 @@ membership_list = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_list, width=10)], className="dbc", style={"margin": "1em"})
+    return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_list, width=10)], className="dbc", style={"margin": "1em"})
 
 
 @callback(
@@ -48,8 +48,8 @@ def layout() -> dbc.Row:
 )
 def create_list(date_selected: str, date_compare_selected: str) -> (dict, list):
     """Update the list shown based on the selected membership list date."""
-    df = MEMB_LISTS.get(date_selected, pd.DataFrame())
-    df_compare = MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
+    df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
+    df_compare = scan_lists.MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
 
     if df_compare.empty:
         return df.reset_index(drop=False).to_dict("records"), []
@@ -83,8 +83,8 @@ def create_list(date_selected: str, date_compare_selected: str) -> (dict, list):
             "color": "black",
         }
         for query in [
-            {"date": date_compare_selected, "color": COMPARE_COLORS[0]},
-            {"date": date_selected, "color": COMPARE_COLORS[1]},
+            {"date": date_compare_selected, "color": colors.COMPARE_COLORS[0]},
+            {"date": date_selected, "color": colors.COMPARE_COLORS[1]},
         ]
     ]
 

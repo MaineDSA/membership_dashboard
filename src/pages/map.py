@@ -2,22 +2,22 @@ from pathlib import Path, PurePath
 
 import dash
 import dash_bootstrap_components as dbc
+import dotenv
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 from dash import Input, Output, callback, dcc, html
-from dotenv import dotenv_values
 
-from src.components.colors import COLORS
-from src.components.sidebar import sidebar
-from src.components.status_filter import status_filter_col
-from src.utils.scan_lists import MEMB_LISTS
-from src.utils.schema import schema
+from src.components import colors
+from src.components import sidebar
+from src.components import status_filter
+from src.utils import scan_lists
+from src.utils import schema
 
 dash.register_page(__name__, path="/map", title=f"Membership Dashboard: {__name__.title()}", order=5)
 
-config = dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
+config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
 
 if "MAPBOX" in config:
     px.set_mapbox_access_token(config.get("MAPBOX"))
@@ -26,9 +26,9 @@ membership_map = html.Div(
     children=[
         dbc.Row(
             [
-                status_filter_col(),
+                status_filter.status_filter_col(),
                 dbc.Col(
-                    dcc.Dropdown(options=list(column for column in schema.columns), value="membership_status", multi=False, id="selected-column"),
+                    dcc.Dropdown(options=list(column for column in schema.schema.columns), value="membership_status", multi=False, id="selected-column"),
                 ),
             ],
             align="center",
@@ -54,7 +54,7 @@ membership_map = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_map, width=10)], className="dbc", style={"margin": "1em"})
+    return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_map, width=10)], className="dbc", style={"margin": "1em"})
 
 
 @callback(
@@ -66,7 +66,7 @@ def layout() -> dbc.Row:
 )
 def create_map(date_selected: str, selected_column: str, selected_statuses: list[str], dark_mode: bool) -> px.scatter_mapbox:
     """Set up html data to show a map of Maine DSA members."""
-    df_map = MEMB_LISTS.get(date_selected, pd.DataFrame())
+    df_map = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_map = df_map.loc[df_map["membership_status"].isin(selected_statuses)]
 
     map_figure = px.scatter_mapbox(
@@ -88,7 +88,7 @@ def create_map(date_selected: str, selected_column: str, selected_statuses: list
             "lon": False,
         },
         color=selected_column,
-        color_discrete_sequence=COLORS,
+        color_discrete_sequence=colors.COLORS,
         zoom=6,
         height=1100,
         mapbox_style="dark",

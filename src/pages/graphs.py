@@ -4,10 +4,10 @@ import pandas as pd
 import plotly.graph_objects as go
 from dash import Input, Output, callback, dcc, html
 
-from src.components.colors import COLORS, COMPARE_COLORS
-from src.components.dark_mode import with_template_if_dark
-from src.components.sidebar import sidebar
-from src.utils.scan_lists import MEMB_LISTS
+from src.components import colors
+from src.components import dark_mode
+from src.components import sidebar
+from src.utils import scan_lists
 
 dash.register_page(__name__, path="/graphs", title=f"Membership Dashboard: {__name__.title()}", order=3)
 
@@ -64,7 +64,7 @@ membership_graphs = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_graphs, width=10)], className="dbc", style={"margin": "1em"})
+    return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_graphs, width=10)], className="dbc", style={"margin": "1em"})
 
 
 def get_positive_sign(num: float) -> str:
@@ -83,11 +83,11 @@ def create_chart(
     chartdf_vc = df_field.value_counts()
     chartdf_compare_vc = df_compare_field.value_counts()
 
-    color, color_compare = COLORS, COLORS
+    color, color_compare = colors.COLORS, colors.COLORS
     active_labels = [str(val) for val in chartdf_vc.values]
 
     if not df_compare_field.empty:
-        color, color_compare = COMPARE_COLORS[1], COMPARE_COLORS[0]
+        color, color_compare = colors.COMPARE_COLORS[1], colors.COMPARE_COLORS[0]
         diff_counts = [count - chartdf_compare_vc.get(val, 0) for val, count in zip(chartdf_vc.index, chartdf_vc.values)]
         active_labels = [f"{count} ({get_positive_sign(diff)}{diff})" for count, diff in zip(chartdf_vc.values, diff_counts)]
 
@@ -128,13 +128,13 @@ def create_chart(
     Input(component_id="list-compare", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: bool) -> [go.Figure] * 5:
+def create_graphs(date_selected: str, date_compare_selected: str, is_dark_mode: bool) -> [go.Figure] * 5:
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return [go.Figure()] * 5
 
-    df = MEMB_LISTS.get(date_selected, pd.DataFrame())
-    df_compare = MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
+    df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
+    df_compare = scan_lists.MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
 
     def multiple_choice(df_mc: pd.DataFrame, target_column: str, separator: str) -> pd.DataFrame:
         """Split a character-separated list string into an iterable object."""
@@ -185,4 +185,4 @@ def create_graphs(date_selected: str, date_compare_selected: str, dark_mode: boo
         ),
     ]
 
-    return [with_template_if_dark(chart, dark_mode) for chart in charts]
+    return [dark_mode.with_template_if_dark(chart, is_dark_mode) for chart in charts]
