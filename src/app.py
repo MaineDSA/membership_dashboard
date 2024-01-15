@@ -1,7 +1,7 @@
 import dash
 import dash_bootstrap_components as dbc
+import dash_bootstrap_templates
 from dash import Dash, Input, Output, html, clientside_callback
-from dash_bootstrap_templates import load_figure_template
 
 DBC_CSS = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 TEMPLATES = ["darkly", "journal"]
@@ -17,7 +17,7 @@ app = Dash(
 )
 app._favicon = LOGO_FILE
 app.layout = html.Div(dash.page_container)
-load_figure_template(TEMPLATES)
+dash_bootstrap_templates.load_figure_template(TEMPLATES)
 
 clientside_callback(
     """

@@ -6,12 +6,12 @@ import pandas as pd
 from dash import Input, Output, callback, dcc, html
 from plotly import graph_objects as go
 
-from src.components.colors import COLORS
-from src.components.dark_mode import with_template_if_dark
-from src.components.sidebar import sidebar
-from src.components.status_filter import status_filter_col
-from src.utils.scan_lists import MEMB_LISTS
-from src.utils.schema import schema
+from src.components import colors
+from src.components import dark_mode
+from src.components import sidebar
+from src.components import status_filter
+from src.utils import scan_lists
+from src.utils import schema
 
 dash.register_page(__name__, path="/", title=f"Membership Dashboard: {__name__.title()}", order=0)
 
@@ -19,9 +19,9 @@ membership_timeline = html.Div(
     children=[
         dbc.Row(
             [
-                status_filter_col(),
+                status_filter.status_filter_col(),
                 dbc.Col(
-                    dcc.Dropdown(options=list(column for column in schema.columns), value=["membership_status"], multi=True, id="selected-columns"),
+                    dcc.Dropdown(options=list(column for column in schema.schema.columns), value=["membership_status"], multi=True, id="selected-columns"),
                 ),
             ],
             align="center",
@@ -47,7 +47,7 @@ membership_timeline = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_timeline, width=10)], className="dbc", style={"margin": "1em"})
+    return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_timeline, width=10)], className="dbc", style={"margin": "1em"})
 
 
 def value_counts_by_date(date_counts: dict) -> dict[str, int]:
@@ -74,9 +74,11 @@ def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, d
     Input(component_id="status-filter", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_timeline(selected_columns: list[str], selected_statuses: list[str], dark_mode: bool) -> go.Figure:
+def create_timeline(selected_columns: list[str], selected_statuses: list[str], is_dark_mode: bool) -> go.Figure:
     """Update the timeline plotting selected columns."""
-    membership_lists = {date: membership_list.loc[membership_list["membership_status"].isin(selected_statuses)] for date, membership_list in MEMB_LISTS.items()}
+    membership_lists = {
+        date: membership_list.loc[membership_list["membership_status"].isin(selected_statuses)] for date, membership_list in scan_lists.MEMB_LISTS.items()
+    }
     membership_value_counts = get_membership_list_metrics(membership_lists)
     selected_metrics = {column: value_counts_by_date(membership_value_counts[column]) for column in selected_columns}
 
@@ -88,10 +90,10 @@ def create_timeline(selected_columns: list[str], selected_statuses: list[str], d
                 x=list(timeline_metric[value].keys()),
                 y=list(timeline_metric[value].values()),
                 mode="lines",
-                marker_color=COLORS[count % len(COLORS)],
+                marker_color=colors.COLORS[count % len(colors.COLORS)],
             )
             for _, timeline_metric in selected_metrics.items()
             for count, value in enumerate(timeline_metric)
         ]
     )
-    return with_template_if_dark(fig, dark_mode)
+    return dark_mode.with_template_if_dark(fig, is_dark_mode)

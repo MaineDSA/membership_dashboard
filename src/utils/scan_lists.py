@@ -1,21 +1,21 @@
 """Parse all membership lists into pandas dataframes for display on dashboard"""
 
+import functools
 import logging
 import os
 import pickle
-from functools import lru_cache
 from glob import glob
 from pathlib import Path, PurePath
 from zipfile import ZipFile
 
+import dotenv
+import mapbox
 import pandas as pd
-from dotenv import dotenv_values
-from mapbox import Geocoder
-from ratelimit import limits, sleep_and_retry
+import ratelimit
 from tqdm import tqdm
 
-config = dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
-geocoder = Geocoder(access_token=config.get("MAPBOX"))
+config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
+geocoder = mapbox.Geocoder(access_token=config.get("MAPBOX"))
 BRANCH_ZIPS_PATH = Path(PurePath(__file__).parents[2], "branch_zips.csv")
 MEMBER_LIST_NAME = config.get("LIST", "fake_membership_list")
 
@@ -67,8 +67,8 @@ def membership_length_years(join_date: pd.Series, xdate: pd.Series) -> pd.Series
     return membership_length_months(join_date, xdate) // 12
 
 
-@sleep_and_retry
-@limits(calls=600, period=60)
+@ratelimit.sleep_and_retry
+@ratelimit.limits(calls=600, period=60)
 def mapbox_geocoder(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API"""
     response = geocoder.forward(address, country=["us"])
@@ -77,7 +77,7 @@ def mapbox_geocoder(address: str) -> list[float]:
     return response.geojson()["features"][0]["center"]
 
 
-@lru_cache(maxsize=32_768, typed=False)
+@functools.lru_cache(maxsize=32_768, typed=False)
 def get_geocoding(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
     if not isinstance(address, str) or "MAPBOX" not in config:

@@ -3,13 +3,12 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Input, Output, callback, dcc, html
-from pandas.tseries.offsets import DateOffset
 
-from src.components.colors import COLORS
-from src.components.dark_mode import with_template_if_dark
-from src.components.sidebar import sidebar
-from src.utils.retention import retention_year, retention_mos, retention_pct_year, retention_pct_mos, retention_pct_quarter
-from src.utils.scan_lists import MEMB_LISTS
+from src.components import colors
+from src.components import dark_mode
+from src.components import sidebar
+from src.utils import retention
+from src.utils import scan_lists
 
 dash.register_page(__name__, path="/retention", title=f"Membership Dashboard: {__name__.title()}", order=4)
 
@@ -18,7 +17,7 @@ earliest_year = 1982
 today_year = int(today_date.date().strftime("%Y"))
 
 default_start_year = 2016
-default_end_date = pd.to_datetime("today") - DateOffset(months=14)
+default_end_date = pd.to_datetime("today") - pd.tseries.offsets.DateOffset(months=14)
 default_end_year = int(default_end_date.date().strftime("%Y"))
 years_between = {i: "{}".format(i) for i in range(earliest_year, today_year, 4)}
 
@@ -147,7 +146,7 @@ membership_retention = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar(), width=2), dbc.Col(membership_retention, width=10)], className="dbc", style={"margin": "1em"})
+    return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_retention, width=10)], className="dbc", style={"margin": "1em"})
 
 
 @callback(
@@ -165,12 +164,12 @@ def layout() -> dbc.Row:
     Input(component_id="retention-years-slider", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [go.Figure] * 10:
+def create_retention(date_selected: str, years: list[int], is_dark_mode: bool) -> [go.Figure] * 10:
     """Update the retention graphs shown based on the selected membership list date."""
     if not date_selected:
         return [go.Figure()] * 10
 
-    df = MEMB_LISTS.get(date_selected, pd.DataFrame())
+    df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_df = df.loc[df["membership_type"] != "lifetime"]
     df_df = df_df.loc[(df["join_year"] >= pd.to_datetime(years[0], format="%Y")) & (df_df["join_year"] <= pd.to_datetime(years[1], format="%Y"))]
     df_df.loc[
@@ -178,16 +177,16 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
         "membership_length_months",
     ] = df_df["membership_length_years"].multiply(12)
 
-    df_ry = retention_year(df_df)
-    df_rm = retention_mos(df_df)
-    df_rpy = retention_pct_year(df_df)
-    df_rpm = retention_pct_mos(df_df)
-    df_rpq = retention_pct_quarter(df_df)
+    df_ry = retention.retention_year(df_df)
+    df_rm = retention.retention_mos(df_df)
+    df_rpy = retention.retention_pct_year(df_df)
+    df_rpm = retention.retention_pct_mos(df_df)
+    df_rpq = retention.retention_pct_quarter(df_df)
 
     df_ml_vc = df[df["memb_status_letter"] == "M"]["membership_length_years"].clip(upper=8).value_counts(normalize=True)
     df_ll_vc = df[df["memb_status_letter"] == "L"]["membership_length_years"].clip(upper=8).value_counts(normalize=True)
 
-    color_len = len(COLORS)
+    color_len = len(colors.COLORS)
 
     charts = [
         go.Figure(
@@ -197,7 +196,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                     y=df_ry.loc[year],
                     mode="lines+markers",
                     name=str(year.year),
-                    line={"color": COLORS[i % color_len]},
+                    line={"color": colors.COLORS[i % color_len]},
                 )
                 for i, year in enumerate(df_ry.index)
             ],
@@ -220,7 +219,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                     y=df_rm.loc[year],
                     mode="lines",
                     name=str(year.year),
-                    line={"color": COLORS[i % color_len]},
+                    line={"color": colors.COLORS[i % color_len]},
                 )
                 for i, year in enumerate(df_rm.index)
             ],
@@ -242,7 +241,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                     y=df_rpy.loc[year],
                     mode="lines+markers",
                     name=str(year.year),
-                    line={"color": COLORS[i % color_len]},
+                    line={"color": colors.COLORS[i % color_len]},
                 )
                 for i, year in enumerate(df_rpy.index)
             ],
@@ -265,7 +264,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                     y=df_rpm.loc[year],
                     mode="lines",
                     name=str(year.year),
-                    line={"color": COLORS[i % color_len]},
+                    line={"color": colors.COLORS[i % color_len]},
                 )
                 for i, year in enumerate(df_rpm.index)
             ],
@@ -288,7 +287,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                     y=df_rpy[c],
                     mode="lines+markers",
                     name=c,
-                    line={"color": COLORS[c % color_len]},
+                    line={"color": colors.COLORS[c % color_len]},
                 )
                 for c in df_rpy.columns
                 if c not in [0, 1]
@@ -311,7 +310,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                     y=df_rpq[c],
                     mode="lines+markers",
                     name=c,
-                    line={"color": COLORS[c % color_len]},
+                    line={"color": colors.COLORS[c % color_len]},
                 )
                 for c in df_rpq.columns
                 if c not in [0, 1]
@@ -333,7 +332,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                     y=df_ry.loc[year].pct_change(fill_method=None),
                     mode="markers+lines",
                     name=str(year.year),
-                    line={"color": COLORS[i % color_len]},
+                    line={"color": colors.COLORS[i % color_len]},
                 )
                 for i, year in enumerate(df_ry.index)
             ],
@@ -355,7 +354,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                     y=df_rpm.loc[year].pct_change(periods=12, fill_method=None),
                     mode="lines",
                     name=str(year.year),
-                    line={"color": COLORS[i % color_len]},
+                    line={"color": colors.COLORS[i % color_len]},
                 )
                 for i, year in enumerate(df_rpm.index)
             ],
@@ -378,7 +377,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                     text=df_ml_vc.values,
                     texttemplate="%{value:.0%}",
                     hovertemplate="%{label}, %{value:.0%}",
-                    marker_color=COLORS,
+                    marker_color=colors.COLORS,
                 ),
             ],
             layout=go.Layout(
@@ -397,7 +396,7 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
                     text=df_ll_vc.values,
                     texttemplate="%{value:.0%}",
                     hovertemplate="%{label}, %{value:.0%}",
-                    marker_color=COLORS,
+                    marker_color=colors.COLORS,
                 ),
             ],
             layout=go.Layout(
@@ -408,4 +407,4 @@ def create_retention(date_selected: str, years: list[int], dark_mode: bool) -> [
         ),
     ]
 
-    return [with_template_if_dark(chart, dark_mode) for chart in charts]
+    return [dark_mode.with_template_if_dark(chart, is_dark_mode) for chart in charts]
