@@ -25,7 +25,7 @@ dependencies = [
     "pytest==7.4.4",
     "python-dotenv==1.0.0",
     "ratelimit==2.2.1",
-    "ruff==0.1.11",
+    "ruff==0.1.13",
     "tqdm==4.66.1"
 ]
 
