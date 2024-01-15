@@ -17,7 +17,7 @@ urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
 dependencies = [
     "dash==2.14.2",
     "dash-bootstrap-components==1.5.0",
-    "dash-bootstrap-templates==1.1.1",
+    "dash-bootstrap-templates==1.1.2",
     "mapbox==0.18.1",
     "pandas==2.1.4",
     "pandera==0.18.0",
