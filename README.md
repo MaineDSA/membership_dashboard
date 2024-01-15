@@ -1,4 +1,4 @@
-[![Python Check](https://github.com/MaineDSA/membership_dashboard/actions/workflows/lint-python.yml/badge.svg)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/lint-python.yml) [![Pytest](https://github.com/MaineDSA/membership_dashboard/actions/workflows/pytest.yml/badge.svg)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/pytest.yml)
+[![Python Check](https://github.com/MaineDSA/membership_dashboard/actions/workflows/lint-python.yml/badge.svg)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/lint-python.yml) [![Pytest](https://github.com/MaineDSA/membership_dashboard/actions/workflows/pytest.yml/badge.svg)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/pytest.yml) [![CodeQL](https://github.com/MaineDSA/membership_dashboard/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/github-code-scanning/codeql)
 
 # Membership Dashboard
 
