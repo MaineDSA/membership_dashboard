@@ -22,14 +22,19 @@ dependencies = [
     "pandas==2.1.4",
     "pandera==0.18.0",
     "plotly==5.18.0",
-    "pytest==7.4.4",
     "python-dotenv==1.0.0",
     "ratelimit==2.2.1",
     "tqdm==4.66.1"
 ]
 
 [project.optional-dependencies]
+dev = [
+    "pre-commit==3.6.0",
+    "pytest==7.4.4",
+    "ruff==0.1.13"
+]
 github-actions = [
+    "pytest==7.4.4",
     "pytest-emoji==0.2.0",
     "pytest-md==0.2.0",
     "ruff==0.1.13",
