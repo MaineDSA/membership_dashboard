@@ -42,6 +42,7 @@ python3 -m pip install .
 
 The dashboard provides the following features:
 
+- Light and Dark modes via toggle switch in sidebar.
 - Standardizes some important membership list metrics across variances in membership list formatting going back to at
   least Jan 2020.
 - Tags members with the appropriate branch for their zip code, if a branch_zips.csv file is provided with the columns
