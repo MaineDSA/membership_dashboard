@@ -25,7 +25,6 @@ dependencies = [
     "pytest==7.4.4",
     "python-dotenv==1.0.0",
     "ratelimit==2.2.1",
-    "ruff==0.1.13",
     "tqdm==4.66.1"
 ]
 
@@ -33,5 +32,6 @@ dependencies = [
 github-actions = [
     "pytest-emoji==0.2.0",
     "pytest-md==0.2.0",
+    "ruff==0.1.13",
     "ydiff==1.2"
 ]
