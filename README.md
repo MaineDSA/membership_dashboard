@@ -42,19 +42,20 @@ python3 -m pip install .
 
 The dashboard provides the following features:
 
-- Dropdown menus in sidebar to select an active membership list and another to compare against.
+- Standardizes some important membership list metrics across variances in membership list formatting going back to at
+  least Jan 2020.
+- Tags members with the appropriate branch for their zip code, if a branch_zips.csv file is provided with the columns
+  zip and branch. As tagging reoccurs each time the program is loaded, all branch labeling is based on the current
+  branch zip codes allocations, as opposed to historical zip code allocations.
+- Dropdown menus in sidebar to select an active membership list and another for seeing changes between lists.
 - Timeline graph showing long-term trends across all loaded lists. Choose what is shown by selecting columns from the
   dropdown list.
 - List table displaying the active membership list with the option to export a CSV. If a compare list is selected, only
   the rows that changed are shown.
 - Metrics showing the number of constitutional members, members in good standing, expiring members, and lapsed members.
 - Graphs displaying membership counts, dues, union membership, length of membership, and racial demographics.
+- Provides comprehensive retention data tracking based on join date, length of membership, and more.
 - Maps addresses to allow visualization of how membership metrics are distributed across the state.
-- Standardizes some important membership list metrics across variances in membership list formatting going back to at
-  least Jan 2020.
-- Tags members with the appropriate branch for their zip code, if a branch_zips.csv file is provided with the columns
-  zip and branch. As tagging reoccurs each time the program is loaded, all branch labeling is based on the current
-  branch zip codes allocations, as opposed to historical zip code allocations.
 
 ## Notes
 
