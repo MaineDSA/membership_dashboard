@@ -16,8 +16,13 @@ repos:
             -   id: debug-statements
             -   id: name-tests-test
                 args: ['--pytest-test-first']
-    - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.1.13
-      hooks: 
-          - id: ruff
-          - id: ruff-format
+    -   repo: https://github.com/asottile/pyupgrade
+        rev: v3.15.0
+        hooks: 
+            -   id: pyupgrade
+                args: [--py310-plus]
+    -   repo: https://github.com/astral-sh/ruff-pre-commit
+        rev: v0.1.13
+        hooks: 
+            -   id: ruff
+            -   id: ruff-format
