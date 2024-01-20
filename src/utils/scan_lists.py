@@ -186,7 +186,7 @@ def integrate_new_membership_lists(memb_list_zips: dict[str, pd.DataFrame], pick
     return dict(sorted((new_lists | pickled_lists).items(), reverse=True))
 
 
-def branch_name_from_zip(zip_code: str, branch_zips: pd.DataFrame) -> str:
+def branch_name_from_zip_code(zip_code: str, branch_zips: pd.DataFrame) -> str:
     """Check for provided zip_code in provided branch_zips and return relevant branch name if found"""
     cleaned_zip_code = format_zip_code(zip_code).split("-")[0]
     return branch_zips.loc[cleaned_zip_code, "branch"] if cleaned_zip_code in branch_zips.index else ""
@@ -200,7 +200,7 @@ def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: P
             "Tagging %s membership list with branches based on current zip code assignments.",
             date,
         )
-        memb_list["branch"] = memb_list["zip"].apply(branch_name_from_zip, branch_zips=branch_zips)
+        memb_list["branch"] = memb_list["zip"].apply(branch_name_from_zip_code, branch_zips=branch_zips)
     return memb_lists
 
 
