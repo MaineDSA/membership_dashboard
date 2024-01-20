@@ -2,7 +2,6 @@
 
 import functools
 import logging
-import os
 import pickle
 from glob import glob
 from pathlib import Path, PurePath
@@ -143,33 +142,33 @@ def scan_memb_list_from_csv(csv_file_data) -> pd.DataFrame:
     return pd.read_csv(csv_file_data, dtype={"zip": str}, header=0)
 
 
-def scan_memb_list_from_zip(zip_path: str) -> pd.DataFrame:
+def scan_memb_list_from_zip(zip_path: str, list_name: str) -> pd.DataFrame:
     """Scan a zip file containing a csv and return the output of scan_memb_list_from_csv from the csv if the zip file name contains a date."""
     with ZipFile(zip_path) as memb_list_zip:
-        with memb_list_zip.open(f"{MEMBER_LIST_NAME}.csv", "r") as memb_list_csv:
+        with memb_list_zip.open(f"{list_name}.csv", "r") as memb_list_csv:
             return scan_memb_list_from_csv(memb_list_csv)
 
 
-def scan_all_membership_lists() -> dict[str, pd.DataFrame]:
+def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     """Scan all zip files and call scan_memb_list_from_zip on each, returning the results."""
     memb_lists = {}
-    logging.info("Scanning zipped membership lists in %s/.", MEMBER_LIST_NAME)
-    files = sorted(glob(str(Path(PurePath(os.getcwd()).parent, MEMBER_LIST_NAME, "**/*.zip")), recursive=True), reverse=True)
+    logging.info("Scanning zipped membership lists in %s/.", list_name)
+    files = sorted(glob(str(Path(PurePath(__file__).parents[2], list_name, "**/*.zip")), recursive=True), reverse=True)
     for zip_file in files:
         filename = Path(zip_file).name
         try:
             date_from_filename = str(PurePath(filename).stem).split("_")[-1]
             list_date_iso = pd.to_datetime(date_from_filename, format="%Y%m%d").date().isoformat()
-            memb_lists[list_date_iso] = scan_memb_list_from_zip(str(Path(zip_file).absolute()))
+            memb_lists[list_date_iso] = scan_memb_list_from_zip(str(Path(zip_file).absolute()), list_name)
         except (IndexError, ValueError):
             logging.warning("Could not extract list from %s. Skipping file.", filename)
     logging.info("Found %s zipped membership lists.", len(memb_lists))
     return memb_lists
 
 
-def get_pickled_dict() -> dict[str, pd.DataFrame]:
+def get_pickled_dict(list_name: str) -> dict[str, pd.DataFrame]:
     """Return the last scanned membership lists."""
-    pickled_file_path = Path(PurePath(__file__).parents[2], MEMBER_LIST_NAME, f"{MEMBER_LIST_NAME}.pkl")
+    pickled_file_path = Path(PurePath(__file__).parents[2], list_name, f"{list_name}.pkl")
     if not pickled_file_path.is_file():
         return {}
     with open(pickled_file_path, "rb") as pickled_file:
@@ -193,8 +192,8 @@ def branch_name_from_zip(zip_code: str, branch_zips: pd.DataFrame) -> str:
     return branch_zips.loc[cleaned_zip_code, "branch"] if cleaned_zip_code in branch_zips.index else ""
 
 
-def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: Path):
-    """Add branch column to each membership list, filling with data cross-referenced from a provided csv via branch_name_from_zip()"""
+def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: Path) -> dict[str, pd.DataFrame]:
+    """Add branch column to each membership list, filling with data cross-referenced from a provided csv via branch_name_from_zip_code()"""
     branch_zips = pd.read_csv(branch_zip_path, dtype={"zip": str}, index_col="zip")
     for date, memb_list in memb_lists.items():
         logging.debug(
@@ -205,18 +204,18 @@ def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: P
     return memb_lists
 
 
-def get_membership_lists() -> dict[str, pd.DataFrame]:
+def get_membership_lists(list_name: str, branch_lookup_path: Path) -> dict[str, pd.DataFrame]:
     """Return all membership lists, preferring pickled lists for speed."""
-    memb_list_zips = scan_all_membership_lists()
-    pickled_lists = get_pickled_dict()
+    memb_list_zips = scan_all_membership_lists(list_name)
+    pickled_lists = get_pickled_dict(list_name)
     memb_lists = integrate_new_membership_lists(memb_list_zips, pickled_lists)
-    with open(Path(PurePath(__file__).parents[2], MEMBER_LIST_NAME, f"{MEMBER_LIST_NAME}.pkl"), "wb") as pickled_file:
+    with open(Path(PurePath(__file__).parents[2], list_name, f"{list_name}.pkl"), "wb") as pickled_file:
         logging.info("Saving all lists into pickle for quicker access next time.")
         pickle.dump(memb_lists, pickled_file)
     if BRANCH_ZIPS_PATH.is_file():
         logging.info("Tagging each membership list based on current branch zip code assignments.")
-        memb_lists = tagged_with_branches(memb_lists, BRANCH_ZIPS_PATH)
+        memb_lists = tagged_with_branches(memb_lists, branch_lookup_path)
     return memb_lists
 
 
-MEMB_LISTS = get_membership_lists()
+MEMB_LISTS = get_membership_lists(MEMBER_LIST_NAME, BRANCH_ZIPS_PATH)
