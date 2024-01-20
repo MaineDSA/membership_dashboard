@@ -6,7 +6,7 @@ import pandas as pd
 
 from src.utils.scan_lists import tagged_with_branches, branch_name_from_zip_code
 
-TEST_BRANCH_ZIP_CSV = Path("tests/test_harness_assets/fake_branch_zips.csv")
+TEST_BRANCH_ZIP_CSV = Path("tests/utils/assets/fake_branch_zips.csv")
 
 
 def test_branch_name_from_zip_code():
