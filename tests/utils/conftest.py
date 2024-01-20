@@ -6,7 +6,6 @@ from src.utils.scan_lists import data_cleaning, scan_memb_list_from_csv
 
 
 def scan_list(path: str) -> pd.DataFrame:
-    """Provides a membership list in the format of late 2023"""
     with open(path) as memb_list:
         return scan_memb_list_from_csv(memb_list)
 
