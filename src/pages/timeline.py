@@ -62,7 +62,7 @@ def value_counts_by_date(date_counts: dict) -> dict[str, int]:
 def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, dict[str, pd.Series]]:
     """Restructure a dictionary of dataframs keyed to dates into a dictionary of pandas column names containing the columns keyed to each date."""
     logging.info("Calculating metrics for %s membership lists", len(members))
-    columns = set(column for memb_list in members.values() for column in memb_list.columns)
+    columns = {column for memb_list in members.values() for column in memb_list.columns}
     return {
         column: {list_date: members[list_date].get(column) for list_date, memb_list in members.items() if column in memb_list.columns} for column in columns
     }

@@ -1,9 +1,9 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
-repos: 
+repos:
     -   repo: https://github.com/pre-commit/pre-commit-hooks
         rev: v3.2.0
-        hooks: 
+        hooks:
             -   id: check-yaml
             -   id: check-ast
             -   id: check-added-large-files
@@ -14,15 +14,13 @@ repos:
             -   id: check-merge-conflict
             -   id: check-toml
             -   id: debug-statements
-            -   id: name-tests-test
-                args: ['--pytest-test-first']
     -   repo: https://github.com/asottile/pyupgrade
         rev: v3.15.0
-        hooks: 
+        hooks:
             -   id: pyupgrade
                 args: [--py39-plus]
     -   repo: https://github.com/astral-sh/ruff-pre-commit
         rev: v0.1.13
-        hooks: 
+        hooks:
             -   id: ruff
             -   id: ruff-format

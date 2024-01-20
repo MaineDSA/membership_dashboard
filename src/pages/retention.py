@@ -19,7 +19,7 @@ today_year = int(today_date.date().strftime("%Y"))
 default_start_year = 2016
 default_end_date = pd.to_datetime("today") - pd.tseries.offsets.DateOffset(months=14)
 default_end_year = int(default_end_date.date().strftime("%Y"))
-years_between = {i: "{}".format(i) for i in range(earliest_year, today_year, 4)}
+years_between = {i: f"{i}" for i in range(earliest_year, today_year, 4)}
 
 membership_retention = html.Div(
     children=[
@@ -293,7 +293,7 @@ def create_retention(date_selected: str, years: list[int], is_dark_mode: bool) -
                 if c not in [0, 1]
             ],
             layout=go.Layout(
-                title="Nth year Retention Rates over Time (join-date cohort)",
+                title="Nth-Year Retention over Time (join-date cohort)",
                 xaxis={"title": "Cohort (year joined)"},
                 yaxis={
                     "title": r"% of cohort retained",
