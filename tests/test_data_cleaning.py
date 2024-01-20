@@ -1,7 +1,7 @@
 """Perform testing to ensure the data cleaning functions work as expected so that membership lists of different ages can be compared"""
 import pandas as pd
 
-from src.utils.scan_lists import data_cleaning
+from src.utils.scan_lists import data_cleaning, format_zip_code
 
 
 def test_mailing_to_unified_address_conversion(late_2023_list: pd.DataFrame) -> None:
@@ -60,3 +60,8 @@ def test_membership_length_months(late_2022_list: pd.DataFrame):
     """Ensure membership length calculation is correct in months"""
     person = data_cleaning(late_2022_list).loc[178705]
     assert person["membership_length_months"] == 14
+
+
+def test_format_zip_code():
+    """Check whether format_zip_code pads zip codes with <4 digits with leading zeros"""
+    assert format_zip_code(4011) == "04011"

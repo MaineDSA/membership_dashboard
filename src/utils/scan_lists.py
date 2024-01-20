@@ -57,7 +57,7 @@ class ListColumnRules:
 
 
 def membership_length_months(join_date: pd.Series, xdate: pd.Series):
-    """Calculate how many months are between the supplied dates, with a third date limiting the end date."""
+    """Calculate how many months are between the supplied dates."""
     return 12 * (xdate.dt.year - join_date.dt.year) + (xdate.dt.month - join_date.dt.month)
 
 
