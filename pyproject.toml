@@ -31,12 +31,12 @@ dependencies = [
 dev = [
     "pre-commit==3.6.0",
     "pytest==7.4.4",
-    "ruff==0.1.13"
+    "ruff==0.1.14"
 ]
 github-actions = [
     "pytest==7.4.4",
     "pytest-emoji==0.2.0",
     "pytest-md==0.2.0",
-    "ruff==0.1.13",
+    "ruff==0.1.14",
     "ydiff==1.2"
 ]
