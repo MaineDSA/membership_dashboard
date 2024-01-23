@@ -18,8 +18,7 @@ pre-commit install
 
 ## Code Submissions
 
-If your text editor doesn't support `.editorconfig`, please reference [this file](https://github.com/MaineDSA/membership_dashboard/blob/main/.editorconfig) for some basic formatting norms.
-
-`ruff format .` should be run to standardize formatting before attempting to commit. 
+If your text editor doesn't support [.editorconfig](https://github.com/MaineDSA/membership_dashboard/blob/main/.editorconfig), please reference it for some basic formatting norms.
+Regardless, `ruff format .` should be run to standardize formatting before attempting to commit.
 
 Some parts of this module (mostly those involving list scanning) feature unit tests, so please run `pytest` in the project directory before committing.
