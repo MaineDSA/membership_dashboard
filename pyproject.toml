@@ -15,7 +15,7 @@ license = { "file" = "LICENSE" }
 authors = [{ "name" = "bmos", "email" = "wil.t.dsa@pm.me" }]
 urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
 dependencies = [
-    "dash==2.14.2",
+    "dash==2.15.0",
     "dash-bootstrap-components==1.5.0",
     "dash-bootstrap-templates==1.1.2",
     "mapbox==0.18.1",
