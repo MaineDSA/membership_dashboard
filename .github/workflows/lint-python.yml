@@ -37,7 +37,8 @@ jobs:
       - name: Install dependencies
         run: |
           pip3 install -U pip
-          pip3 install .[all]
+          pip3 install .[dev]
+          pip3 install .[github-actions]
           
       - name: Linting the code with ruff
         run: |
