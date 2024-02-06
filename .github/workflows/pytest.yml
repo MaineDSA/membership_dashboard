@@ -34,7 +34,8 @@ jobs:
       - name: Install dependencies
         run: |
           pip3 install -U pip
-          pip3 install .[all]
+          pip3 install .[dev]
+          pip3 install .[github-actions]
 
       - name: Test code with pytest
         uses: pavelzw/pytest-action@v2
