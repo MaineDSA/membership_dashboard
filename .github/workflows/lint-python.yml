@@ -1,40 +1,44 @@
+
 name: Ruff
 
-on: 
-  push: 
-    paths: 
-      - '**.py' # Run if pushed commits include a change to any Python (.py) file.
-      - '.github/workflows/lint-python.yml' # Run if pushed commits include a change to this workflow file.
-      - 'pyproject.toml' # Run if project configuration file changes.
+on:
+  push:
+    paths:
+      - "**.py"
+      - .github/workflows/lint-python.yml
+      - pyproject.toml
+  pull_request:
+    paths:
+      - "**.py"
+      - .github/workflows/lint-python.yml
+      - pyproject.toml
+  workflow_dispatch: null
 
-  pull_request: 
-    paths: 
-      - '**.py' # Run if pushed commits include a change to any Python (.py) file.
-      - '.github/workflows/lint-python.yml' # Run if pushed commits include a change to this workflow file.
-      - 'pyproject.toml' # Run if project configuration file changes.
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
 
-  workflow_dispatch:
-
-jobs: 
-  ruff: 
-    runs-on: "ubuntu-latest"
-    strategy: 
-      matrix: 
-        python-version: ["3.12", "3.11", "3.10", "3.9"]
-
-    steps: 
+    steps:
       - uses: actions/checkout@v4
-
+      
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
-        with: 
+        with:
           python-version: ${{ matrix.python-version }}
-
+          cache: "pip"
+          
       - name: Install dependencies
         run: |
           pip3 install -U pip
-          pip3 install .[github-actions]
-
+          pip3 install .[all]
+          
       - name: Linting the code with ruff
         run: |
           ruff check $(git ls-files '*.py') --diff | ydiff -s
