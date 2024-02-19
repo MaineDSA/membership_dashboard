@@ -10,7 +10,7 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 ```shell
-python3 -m pip install .[dev]
+python3 -m pip install -e .[dev]
 ```
 ```shell
 pre-commit install
