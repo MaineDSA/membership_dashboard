@@ -21,7 +21,7 @@ dependencies = [
     "mapbox==0.18.1",
     "pandas==2.2.0",
     "pandera==0.18.0",
-    "plotly==5.18.0",
+    "plotly==5.19.0",
     "python-dotenv==1.0.1",
     "ratelimit==2.2.1",
     "tqdm==4.66.2"
