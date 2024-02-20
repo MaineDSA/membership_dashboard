@@ -108,29 +108,28 @@ def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     df["city"] = df.city.str.title()
 
     if "union_member" in df.columns:
-        df["union_member"].replace(
+        df["union_member"] = df.union_member.replace(
             {0: "No", 1: "Yes, current union member", 2: "Yes, retired union member"},
-            inplace=True,
         )
 
-    df["join_date"] = pd.to_datetime(df["join_date"], format="mixed")
-    df["join_year"] = pd.PeriodIndex(df["join_date"], freq="Y").to_timestamp()
-    df["join_quarter"] = pd.PeriodIndex(df["join_date"], freq="Q").to_timestamp()
-    df["xdate"] = pd.to_datetime(df["xdate"], format="mixed")
+    df["join_date"] = pd.to_datetime(df.join_date, format="mixed")
+    df["join_year"] = pd.PeriodIndex(df.join_date, freq="Y").to_timestamp()
+    df["join_quarter"] = pd.PeriodIndex(df.join_date, freq="Q").to_timestamp()
+    df["xdate"] = pd.to_datetime(df.xdate, format="mixed")
 
-    df["membership_length_months"] = membership_length_months(df["join_date"], df["xdate"])
+    df["membership_length_months"] = membership_length_months(df.join_date, df.xdate)
     df["membership_length_years"] = df.membership_length_months // 12
 
     df["membership_status"] = df.membership_status.replace("expired", "lapsed").str.lower()
-    df["memb_status_letter"] = df["membership_status"].replace({"member in good standing": "M", "member": "M", "lapsed": "L"})
+    df["memb_status_letter"] = df.membership_status.replace({"member in good standing": "M", "member": "M", "lapsed": "L"})
 
     df["membership_type"] = df.membership_type.replace("annual", "yearly").str.lower()
-    df["membership_type"].where(df.xdate != "2099-11-01", "lifetime", inplace=True)
+    df["membership_type"] = df.membership_type.where(df.xdate != "2099-11-01", "lifetime")
 
     if "lat" not in df:
         tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
         df[["lon", "lat"]] = pd.DataFrame(
-            (df["address1"] + ", " + df["city"] + ", " + df["state"] + " " + df["zip"]).progress_apply(get_geocoding).tolist(),
+            (df.address1 + ", " + df.city + ", " + df.state + " " + df.zip).progress_apply(get_geocoding).tolist(),
             index=df.index,
         )
 
