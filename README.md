@@ -13,9 +13,11 @@ install the required packages by running the following commands from inside the 
 ```shell
 python3 -m venv venv
 ```
+
 ```shell
 source venv/bin/activate
 ```
+
 ```shell
 python3 -m pip install .
 ```
@@ -33,7 +35,7 @@ python3 -m pip install .
 7. Open a terminal and run the following command to start the dashboard:
 
     ```shell
-    python3 src/app.py
+    python3 -m src.app
     ```
 
 8. Open your browser and go to `http://localhost:8050` to view the dashboard.
