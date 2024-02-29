@@ -11,15 +11,19 @@ To run this code, you'll need to have Python 3.9, 3.10, 3.11, or 3.12 installed 
 install the required packages by running the following commands from inside the project folder:
 
 ```shell
-python3 -m venv venv
+pip install -U pip uv
 ```
 
 ```shell
-source venv/bin/activate
+uv venv
 ```
 
 ```shell
-python3 -m pip install .
+source .venv/bin/activate
+```
+
+```shell
+uv pip install .
 ```
 
 ## Usage
