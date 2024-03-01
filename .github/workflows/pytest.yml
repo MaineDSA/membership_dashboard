@@ -9,7 +9,6 @@ on:
   pull_request:
     paths:
       - "**.py"
-      - .github/workflows/pytest.yml
       - pyproject.toml
   workflow_dispatch:
 
@@ -25,7 +24,7 @@ jobs:
           - "3.11"
           - "3.10"
           - "3.9"
-    
+
     runs-on: ${{ matrix.os }}
 
     steps:
