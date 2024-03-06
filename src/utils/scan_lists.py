@@ -6,6 +6,7 @@ import pickle
 from glob import glob
 from pathlib import Path, PurePath
 from zipfile import ZipFile
+from typing import Optional
 
 import dotenv
 import mapbox
@@ -180,8 +181,8 @@ def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     return memb_lists
 
 
-def get_pickled_coords(list_name: str) -> dict[str, list[float]] | None:
-    """Return the last scanned membership lists."""
+def get_pickled_coords(list_name: str) -> Optional[dict[str, list[float]]]:
+    """Return the cache dictionary of geocoding coordinates."""
     pickled_file_path = Path(PurePath(__file__).parents[2], list_name, f"{list_name}_geocoding.pkl")
     if not pickled_file_path.is_file():
         return {}
