@@ -1,4 +1,5 @@
 """Provide pytest fixtures for membership list dataframes from various eras"""
+
 import pandas as pd
 import pytest
 
