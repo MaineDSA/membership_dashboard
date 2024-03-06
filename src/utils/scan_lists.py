@@ -1,12 +1,10 @@
 """Parse all membership lists into pandas dataframes for display on dashboard"""
 
-from functools import wraps
+import json
 import logging
-import pickle
 from glob import glob
 from pathlib import Path, PurePath
 from zipfile import ZipFile
-from typing import Optional
 
 import dotenv
 import mapbox
@@ -20,21 +18,7 @@ BRANCH_ZIPS_PATH = Path(PurePath(__file__).parents[2], "branch_zips.csv")
 MEMBER_LIST_NAME = config.get("LIST", "fake_membership_list")
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
-
-
-def cached(func):
-    """Creates an @cached decorator that saves input/output relationships for the passed function"""
-    func.cache = {}
-
-    @wraps(func)
-    def wrapper(*args):
-        try:
-            return func.cache[args]
-        except KeyError:
-            func.cache[args] = result = func(*args)
-            return result
-
-    return wrapper
+tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
 
 
 class ListColumnRules:
@@ -72,6 +56,24 @@ class ListColumnRules:
     FIELD_UPGRADE_PAIRS = {old: new for new, old_names in FIELD_UPGRADE_PATHS.items() for old in old_names}
 
 
+def persist_to_file(file_name):
+    def decorator(original_func):
+        try:
+            cache = json.load(open(file_name))
+        except (OSError, ValueError):
+            cache = {}
+
+        def new_func(param):
+            if param not in cache:
+                cache[param] = original_func(param)
+                json.dump(cache, open(file_name, "w"))
+            return cache[param]
+
+        return new_func
+
+    return decorator
+
+
 def membership_length_months(join_date: pd.Series, xdate: pd.Series):
     """Calculate how many months are between the supplied dates."""
     return 12 * (xdate.dt.year - join_date.dt.year) + (xdate.dt.month - join_date.dt.month)
@@ -92,7 +94,7 @@ def mapbox_geocoder(address: str) -> list[float]:
     return response.geojson()["features"][0]["center"]
 
 
-@cached
+@persist_to_file(Path(PurePath(__file__).parents[2], "geocoding.json"))
 def get_geocoding(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
     if not isinstance(address, str) or "MAPBOX" not in config:
@@ -105,50 +107,89 @@ def format_zip_code(zip_code):
     return str(zip_code).zfill(5)
 
 
-def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
-    """Clean and standardize dataframe according to specified rules."""
-    df.columns = df.columns.str.lower()
-    if "family_first_name" in df.columns:
-        df["family_members"] = df.family_first_name.str.cat(df.family_last_name, sep=" ")
+def add_family_members(df: pd.DataFrame) -> pd.DataFrame:
+    if "family_first_name" not in df.columns:
+        return df
 
-    for old_name, new_name in ListColumnRules.FIELD_UPGRADE_PAIRS.items():
+    df["family_members"] = df.family_first_name.str.cat(df.family_last_name, sep=" ")
+    return df
+
+
+def update_fields(df: pd.DataFrame, field_upgrade_pairs: dict[str, str], field_drop: list[str]) -> pd.DataFrame:
+    for old_name, new_name in field_upgrade_pairs.items():
         if new_name not in df.columns and old_name in df.columns:
             df[new_name] = df[old_name]
         df.drop(columns=old_name, inplace=True, errors="ignore")
-    for field_name in ListColumnRules.FIELD_DROP:
+    for field_name in field_drop:
         df.drop(columns=field_name, inplace=True, errors="ignore")
+    return df
 
-    df.set_index("actionkit_id", inplace=True)
 
+def format_fields(df: pd.DataFrame) -> pd.DataFrame:
     df["zip"] = df.zip.apply(format_zip_code)
     df["city"] = df.city.str.title()
+    return df
 
-    if "union_member" in df.columns:
-        df["union_member"] = df.union_member.replace(
-            {0: "No", 1: "Yes, current union member", 2: "Yes, retired union member"},
-        )
 
+def handle_union_member(df: pd.DataFrame) -> pd.DataFrame:
+    if "union_member" not in df.columns:
+        return df
+
+    df["union_member"] = df.union_member.replace(
+        {0: "No", 1: "Yes, current union member", 2: "Yes, retired union member"},
+    )
+    return df
+
+
+def process_dates(df: pd.DataFrame) -> pd.DataFrame:
     df["join_date"] = pd.to_datetime(df.join_date, format="mixed")
     df["join_year"] = pd.PeriodIndex(df.join_date, freq="Y").to_timestamp()
     df["join_quarter"] = pd.PeriodIndex(df.join_date, freq="Q").to_timestamp()
     df["xdate"] = pd.to_datetime(df.xdate, format="mixed")
+    return df
 
+
+def calculate_membership_length(df: pd.DataFrame) -> pd.DataFrame:
     df["membership_length_months"] = membership_length_months(df.join_date, df.xdate)
     df["membership_length_years"] = df.membership_length_months // 12
+    return df
 
+
+def format_membership_status(df: pd.DataFrame) -> pd.DataFrame:
     df["membership_status"] = df.membership_status.replace("expired", "lapsed").str.lower()
     df["memb_status_letter"] = df.membership_status.replace({"member in good standing": "M", "member": "M", "lapsed": "L"})
+    return df
 
+
+def format_membership_type(df: pd.DataFrame) -> pd.DataFrame:
     df["membership_type"] = df.membership_type.replace("annual", "yearly").str.lower()
     df["membership_type"] = df.membership_type.where(df.xdate != "2099-11-01", "lifetime")
+    return df
 
-    if "lat" not in df:
-        tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
-        df[["lon", "lat"]] = pd.DataFrame(
-            (df.address1 + ", " + df.city + ", " + df.state + " " + df.zip).progress_apply(get_geocoding).tolist(),
-            index=df.index,
-        )
 
+def add_coordinates(df: pd.DataFrame) -> pd.DataFrame:
+    if "lat" in df:
+        return df
+
+    df[["lon", "lat"]] = pd.DataFrame(
+        (df.address1 + ", " + df.city + ", " + df.state + " " + df.zip).progress_apply(get_geocoding).tolist(),
+        index=df.index,
+    )
+    return df
+
+
+def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
+    df.columns = df.columns.str.lower()
+    df = add_family_members(df)
+    df = update_fields(df, ListColumnRules.FIELD_UPGRADE_PAIRS, ListColumnRules.FIELD_DROP)
+    df = format_fields(df)
+    df = handle_union_member(df)
+    df = process_dates(df)
+    df = calculate_membership_length(df)
+    df = format_membership_status(df)
+    df = format_membership_type(df)
+    df = add_coordinates(df)
+    df.set_index("actionkit_id", inplace=True)
     return df
 
 
@@ -181,15 +222,6 @@ def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     return memb_lists
 
 
-def get_pickled_coords(list_name: str) -> Optional[dict[str, list[float]]]:
-    """Return the cache dictionary of geocoding coordinates."""
-    pickled_file_path = Path(PurePath(__file__).parents[2], list_name, f"{list_name}_geocoding.pkl")
-    if not pickled_file_path.is_file():
-        return {}
-    with open(pickled_file_path, "rb") as pickled_file:
-        return pickle.load(pickled_file)
-
-
 def branch_name_from_zip_code(zip_code: str, branch_zips: pd.DataFrame) -> str:
     """Check for provided zip_code in provided branch_zips and return relevant branch name if found"""
     cleaned_zip_code = format_zip_code(zip_code).split("-")[0]
@@ -210,13 +242,9 @@ def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: P
 
 def get_membership_lists(list_name: str, branch_lookup_path: Path) -> dict[str, pd.DataFrame]:
     """Return all membership lists, preferring pickled lists for speed."""
-    get_geocoding.cache = get_pickled_coords(list_name)
     scanned_lists = scan_all_membership_lists(list_name)
     logging.info("Cleaning and standardizing data for %s lists.", len(scanned_lists))
     memb_lists = {k_date: data_cleaning(memb_list) for k_date, memb_list in tqdm(scanned_lists.items(), unit="list", desc="Scanning Zip Files")}
-    with open(Path(PurePath(__file__).parents[2], list_name, f"{list_name}_geocoding.pkl"), "wb") as pickled_file:
-        logging.info("Saving geocoding relationships into pickle for quicker access next time.")
-        pickle.dump(get_geocoding.cache, pickled_file)
     if BRANCH_ZIPS_PATH.is_file():
         logging.info("Tagging each membership list based on current branch zip code assignments.")
         memb_lists = tagged_with_branches(memb_lists, branch_lookup_path)
