@@ -65,6 +65,8 @@ def persist_to_file(file_name: Path):
             cache = {}
 
         def new_func(param: str) -> list[float]:
+            if not isinstance(param, str):
+                return original_func(param)
             param_hash = hashlib.sha256(param.encode("utf-8")).hexdigest()
             if param_hash not in cache:
                 cache[param_hash] = original_func(param)
