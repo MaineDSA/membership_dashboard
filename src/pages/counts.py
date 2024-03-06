@@ -9,6 +9,7 @@ from src.components import sidebar
 from src.utils import scan_lists
 
 METRICS = [
+    ["membership_type", "income-based", "Members Paying Income-Based Dues"],
     ["membership_type", "lifetime", "Lifetime Members"],
     ["membership_status", "member in good standing", "Members in Good Standing"],
     ["membership_status", "member", "Expiring Members"],
@@ -24,7 +25,7 @@ membership_counts = html.Div(
                 dbc.Col(
                     dcc.Graph(
                         figure=go.Figure(),
-                        id="count-lifetime",
+                        id="count-income-based",
                         style={"height": "30svh"},
                     ),
                     width=6,
@@ -32,7 +33,7 @@ membership_counts = html.Div(
                 dbc.Col(
                     dcc.Graph(
                         figure=go.Figure(),
-                        id="count-migs",
+                        id="count-lifetime",
                         style={"height": "30svh"},
                     ),
                     width=6,
@@ -44,11 +45,23 @@ membership_counts = html.Div(
                 dbc.Col(
                     dcc.Graph(
                         figure=go.Figure(),
+                        id="count-migs",
+                        style={"height": "30svh"},
+                    ),
+                    width=6,
+                ),
+                dbc.Col(
+                    dcc.Graph(
+                        figure=go.Figure(),
                         id="count-expiring",
                         style={"height": "30svh"},
                     ),
                     width=6,
                 ),
+            ]
+        ),
+        dbc.Row(
+            [
                 dbc.Col(
                     dcc.Graph(
                         figure=go.Figure(),
@@ -95,6 +108,7 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str]
 
 
 @callback(
+    Output(component_id="count-income-based", component_property="figure"),
     Output(component_id="count-lifetime", component_property="figure"),
     Output(component_id="count-migs", component_property="figure"),
     Output(component_id="count-expiring", component_property="figure"),
