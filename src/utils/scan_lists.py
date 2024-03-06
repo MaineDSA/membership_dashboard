@@ -1,6 +1,6 @@
 """Parse all membership lists into pandas dataframes for display on dashboard"""
 
-import functools
+from functools import wraps
 import logging
 import pickle
 from glob import glob
@@ -19,6 +19,21 @@ BRANCH_ZIPS_PATH = Path(PurePath(__file__).parents[2], "branch_zips.csv")
 MEMBER_LIST_NAME = config.get("LIST", "fake_membership_list")
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
+
+
+def cached(func):
+    """Creates an @cached decorator that saves input/output relationships for the passed function"""
+    func.cache = {}
+
+    @wraps(func)
+    def wrapper(*args):
+        try:
+            return func.cache[args]
+        except KeyError:
+            func.cache[args] = result = func(*args)
+            return result
+
+    return wrapper
 
 
 class ListColumnRules:
@@ -76,7 +91,7 @@ def mapbox_geocoder(address: str) -> list[float]:
     return response.geojson()["features"][0]["center"]
 
 
-@functools.lru_cache(maxsize=32_768, typed=False)
+@cached
 def get_geocoding(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
     if not isinstance(address, str) or "MAPBOX" not in config:
@@ -165,24 +180,13 @@ def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     return memb_lists
 
 
-def get_pickled_dict(list_name: str) -> dict[str, pd.DataFrame]:
+def get_pickled_coords(list_name: str) -> dict[str, list[float]] | None:
     """Return the last scanned membership lists."""
-    pickled_file_path = Path(PurePath(__file__).parents[2], list_name, f"{list_name}.pkl")
+    pickled_file_path = Path(PurePath(__file__).parents[2], list_name, f"{list_name}_geocoding.pkl")
     if not pickled_file_path.is_file():
         return {}
     with open(pickled_file_path, "rb") as pickled_file:
-        pickled_dict = pickle.load(pickled_file)
-        logging.info("Found %s pickled membership lists.", len(pickled_dict))
-        return pickled_dict
-
-
-def integrate_new_membership_lists(memb_list_zips: dict[str, pd.DataFrame], pickled_lists: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
-    """Use pre-calculated data from pickle, clean data from new membership lists, and combine them into a complete, date-sorted dict"""
-    new_lists = {k: v for k, v in memb_list_zips.items() if k not in pickled_lists}
-    if new_lists:
-        logging.info("Cleaning data for %s new lists.", len(new_lists))
-        new_lists = {k_date: data_cleaning(memb_list) for k_date, memb_list in tqdm(new_lists.items(), unit="list", desc="Scanning Zip Files")}
-    return dict(sorted((new_lists | pickled_lists).items(), reverse=True))
+        return pickle.load(pickled_file)
 
 
 def branch_name_from_zip_code(zip_code: str, branch_zips: pd.DataFrame) -> str:
@@ -205,12 +209,13 @@ def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: P
 
 def get_membership_lists(list_name: str, branch_lookup_path: Path) -> dict[str, pd.DataFrame]:
     """Return all membership lists, preferring pickled lists for speed."""
-    memb_list_zips = scan_all_membership_lists(list_name)
-    pickled_lists = get_pickled_dict(list_name)
-    memb_lists = integrate_new_membership_lists(memb_list_zips, pickled_lists)
-    with open(Path(PurePath(__file__).parents[2], list_name, f"{list_name}.pkl"), "wb") as pickled_file:
-        logging.info("Saving all lists into pickle for quicker access next time.")
-        pickle.dump(memb_lists, pickled_file)
+    get_geocoding.cache = get_pickled_coords(list_name)
+    scanned_lists = scan_all_membership_lists(list_name)
+    logging.info("Cleaning and standardizing data for %s lists.", len(scanned_lists))
+    memb_lists = {k_date: data_cleaning(memb_list) for k_date, memb_list in tqdm(scanned_lists.items(), unit="list", desc="Scanning Zip Files")}
+    with open(Path(PurePath(__file__).parents[2], list_name, f"{list_name}_geocoding.pkl"), "wb") as pickled_file:
+        logging.info("Saving geocoding relationships into pickle for quicker access next time.")
+        pickle.dump(get_geocoding.cache, pickled_file)
     if BRANCH_ZIPS_PATH.is_file():
         logging.info("Tagging each membership list based on current branch zip code assignments.")
         memb_lists = tagged_with_branches(memb_lists, branch_lookup_path)
