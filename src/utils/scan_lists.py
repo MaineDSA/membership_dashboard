@@ -1,5 +1,6 @@
 """Parse all membership lists into pandas dataframes for display on dashboard"""
 
+import hashlib
 import json
 import logging
 from glob import glob
@@ -56,18 +57,19 @@ class ListColumnRules:
     FIELD_UPGRADE_PAIRS = {old: new for new, old_names in FIELD_UPGRADE_PATHS.items() for old in old_names}
 
 
-def persist_to_file(file_name):
+def persist_to_file(file_name: Path):
     def decorator(original_func):
         try:
             cache = json.load(open(file_name))
         except (OSError, ValueError):
             cache = {}
 
-        def new_func(param):
-            if param not in cache:
-                cache[param] = original_func(param)
+        def new_func(param: str) -> list[float]:
+            param_hash = hashlib.sha256(param.encode("utf-8")).hexdigest()
+            if param_hash not in cache:
+                cache[param_hash] = original_func(param)
                 json.dump(cache, open(file_name, "w"))
-            return cache[param]
+            return cache[param_hash]
 
         return new_func
 
