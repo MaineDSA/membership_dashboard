@@ -1,25 +1,21 @@
 """Parse all membership lists into pandas dataframes for display on dashboard"""
 
-import hashlib
-import json
 import logging
 from glob import glob
 from pathlib import Path, PurePath
 from zipfile import ZipFile
 
 import dotenv
-import mapbox
 import pandas as pd
-import ratelimit
 from tqdm import tqdm
 
+from src.utils.geocoding import add_coordinates
+
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
-geocoder = mapbox.Geocoder(access_token=config.get("MAPBOX"))
 BRANCH_ZIPS_PATH = Path(PurePath(__file__).parents[2], "branch_zips.csv")
 MEMBER_LIST_NAME = config.get("LIST", "fake_membership_list")
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
-tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
 
 
 class ListColumnRules:
@@ -57,27 +53,6 @@ class ListColumnRules:
     FIELD_UPGRADE_PAIRS = {old: new for new, old_names in FIELD_UPGRADE_PATHS.items() for old in old_names}
 
 
-def persist_to_file(file_name: Path):
-    def decorator(original_func):
-        try:
-            cache = json.load(open(file_name))
-        except (OSError, ValueError):
-            cache = {}
-
-        def new_func(param: str) -> list[float]:
-            if not isinstance(param, str):
-                return original_func(param)
-            param_hash = hashlib.sha256(param.encode("utf-8")).hexdigest()
-            if param_hash not in cache:
-                cache[param_hash] = original_func(param)
-                json.dump(cache, open(file_name, "w"))
-            return cache[param_hash]
-
-        return new_func
-
-    return decorator
-
-
 def membership_length_months(join_date: pd.Series, xdate: pd.Series):
     """Calculate how many months are between the supplied dates."""
     return 12 * (xdate.dt.year - join_date.dt.year) + (xdate.dt.month - join_date.dt.month)
@@ -86,24 +61,6 @@ def membership_length_months(join_date: pd.Series, xdate: pd.Series):
 def membership_length_years(join_date: pd.Series, xdate: pd.Series) -> pd.Series:
     """Calculate how many years are between the supplied dates, with a third date limiting the end date."""
     return membership_length_months(join_date, xdate) // 12
-
-
-@ratelimit.sleep_and_retry
-@ratelimit.limits(calls=600, period=60)
-def mapbox_geocoder(address: str) -> list[float]:
-    """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API"""
-    response = geocoder.forward(address, country=["us"])
-    if "features" not in response.geojson():
-        return [0, 0]
-    return response.geojson()["features"][0]["center"]
-
-
-@persist_to_file(Path(PurePath(__file__).parents[2], "geocoding.json"))
-def get_geocoding(address: str) -> list[float]:
-    """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
-    if not isinstance(address, str) or "MAPBOX" not in config:
-        return [0, 0]
-    return mapbox_geocoder(address)
 
 
 def format_zip_code(zip_code):
@@ -168,17 +125,6 @@ def format_membership_status(df: pd.DataFrame) -> pd.DataFrame:
 def format_membership_type(df: pd.DataFrame) -> pd.DataFrame:
     df["membership_type"] = df.membership_type.replace("annual", "yearly").str.lower()
     df["membership_type"] = df.membership_type.where(df.xdate != "2099-11-01", "lifetime")
-    return df
-
-
-def add_coordinates(df: pd.DataFrame) -> pd.DataFrame:
-    if "lat" in df:
-        return df
-
-    df[["lon", "lat"]] = pd.DataFrame(
-        (df.address1 + ", " + df.city + ", " + df.state + " " + df.zip).progress_apply(get_geocoding).tolist(),
-        index=df.index,
-    )
     return df
 
 
