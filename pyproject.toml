@@ -20,6 +20,7 @@ dependencies = [
     "dash-bootstrap-templates==1.1.2",
     "mapbox==0.18.1",
     "pandas==2.2.1",
+    "parsons==3.1.0",
     "pandera==0.18.0",
     "plotly==5.19.0",
     "python-dotenv==1.0.1",
