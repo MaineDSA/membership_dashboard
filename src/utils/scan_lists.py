@@ -9,8 +9,8 @@ import dotenv
 import pandas as pd
 from tqdm import tqdm
 
-from src.utils.geocoding import add_coordinates
 from src.utils.action_network import add_action_network_identifier
+from src.utils.geocoding import add_coordinates
 
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
 BRANCH_ZIPS_PATH = Path(PurePath(__file__).parents[2], "branch_zips.csv")
@@ -139,7 +139,7 @@ def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     df = format_membership_status(df)
     df = format_membership_type(df)
     df = add_coordinates(df)
-    df = add_action_network_identifier(df, config.get("AN"))
+    df = add_action_network_identifier(df)
     df.set_index("actionkit_id", inplace=True)
     return df
 
