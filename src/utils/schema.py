@@ -448,6 +448,14 @@ schema = DataFrameSchema(
             description=None,
             title="DSA Chapter Branch",
         ),
+        "action_network_id": Column(
+            dtype="string",
+            checks=None,
+            nullable=True,
+            coerce=True,
+            description=None,
+            title="Action Network ID",
+        ),
     },
     checks=None,
     index=Index(
