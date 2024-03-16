@@ -44,7 +44,7 @@ def persist_to_file(file_name: Path):
     return decorator
 
 
-@persist_to_file(Path(PurePath(__file__).parents[2], "action_network.json"))
+@persist_to_file(Path(PurePath(__file__).parents[2], ".api_cache/action_network.json"))
 def get_data(email_addr: str) -> str | None:
     def cached_query() -> str | None:
         query = f"email_address eq '{email_addr}'"

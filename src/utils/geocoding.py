@@ -44,7 +44,7 @@ def mapbox_geocoder(address: str) -> list[float]:
     return response.geojson()["features"][0]["center"]
 
 
-@persist_to_file(Path(PurePath(__file__).parents[2], "geocoding.json"))
+@persist_to_file(Path(PurePath(__file__).parents[2], ".api_cache/geocoding.json"))
 def get_geocoding(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
     if not isinstance(address, str) or "MAPBOX" not in config:
