@@ -12,7 +12,10 @@ from parsons import ActionNetwork
 from tqdm import tqdm
 
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
-an = ActionNetwork(api_token=config.get("AN"))
+if "AN" not in config:
+    logging.info("Action Network API key not configured, skipping tagging")
+else:
+    an = ActionNetwork(api_token=config.get("AN"))
 
 cache_lock = threading.Lock()
 
@@ -61,7 +64,6 @@ def get_data(email_addr: str) -> str | None:
 
 def add_action_network_identifier(df: pd.DataFrame) -> pd.DataFrame:
     if "AN" not in config:
-        logging.info("Action Network API key not configured, skipping tagging")
         return df
 
     with ThreadPoolExecutor() as executor:
