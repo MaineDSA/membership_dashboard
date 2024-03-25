@@ -2,7 +2,7 @@ attrs==23.2.0
 faker_education==1.2.1
 Faker==24.3.0
 mapbox==0.18.1
-numpy==1.26.2
+numpy==1.26.4
 pandas==2.2.1
 python-dateutil==2.9.0.post0
 ratelimit==2.2.1
