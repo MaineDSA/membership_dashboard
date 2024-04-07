@@ -46,27 +46,22 @@ def persist_to_file(file_name: Path):
 
 @persist_to_file(Path(PurePath(__file__).parents[2], ".api_cache/action_network.json"))
 def get_data(email_addr: str) -> str | None:
-    def cached_query() -> str | None:
-        query = f"email_address eq '{email_addr}'"
-        data = an.get_people(filter=query)
-        if "identifiers" not in data:
-            return None
-        identifiers = [i.replace("action_network:", "") for i in data["identifiers"][0] if i.startswith("action_network:")]
-        return ",".join(identifiers)
-
     @ratelimit.sleep_and_retry
     @ratelimit.limits(calls=4, period=1)
-    def rate_limiter() -> str | None:
-        return cached_query()
+    def rate_limiter(id_key: str) -> str | None:
+        query = f"email_address eq '{email_addr}'"
+        data = an.get_people(filter=query)
+        if not data["identifiers"]:
+            return None
+        identifiers = [identifier.replace(f"{id_key}:", "") for identifier in data["identifiers"][0] if identifier.startswith(f"{id_key}:")]
+        return ",".join(identifiers)
 
-    return rate_limiter()
+    return rate_limiter("action_network")
 
 
 def add_action_network_identifier(df: pd.DataFrame) -> pd.DataFrame:
     if "AN" not in config:
         return df
-
     with ThreadPoolExecutor() as executor:
         df["action_network_id"] = list(tqdm(executor.map(get_data, df["email"]), total=df.shape[0], leave=False, unit="comrades", desc="Action Network Lookup"))
-
     return df
