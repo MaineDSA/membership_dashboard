@@ -24,7 +24,7 @@ dependencies = [
     "plotly==5.21.0",
     "python-dotenv==1.0.1",
     "ratelimit==2.2.1",
-    "tqdm==4.66.3"
+    "tqdm==4.66.4"
 ]
 
 [project.optional-dependencies]
