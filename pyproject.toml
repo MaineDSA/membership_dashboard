@@ -19,6 +19,7 @@ dependencies = [
     "dash-bootstrap-components==1.6.0",
     "dash-bootstrap-templates==1.1.2",
     "mapbox==0.18.1",
+    "numpy>=1.26.4,<2",
     "pandas==2.2.2",
     "pandera==0.19.3",
     "plotly==5.22.0",
