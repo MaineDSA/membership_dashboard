@@ -15,24 +15,25 @@ license = { "file" = "LICENSE" }
 authors = [{ "name" = "bmos", "email" = "wil.t.dsa@pm.me" }]
 urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
 dependencies = [
-    "dash==2.16.1",
+    "dash==2.17.1",
     "dash-bootstrap-components==1.6.0",
-    "dash-bootstrap-templates==1.1.2",
+    "dash-bootstrap-templates==1.2.0",
     "mapbox==0.18.1",
+    "numpy>=1.26.4,<2",
     "pandas==2.2.2",
     "parsons==3.1.0",
-    "pandera==0.18.3",
-    "plotly==5.21.0",
+    "pandera==0.20.1",
+    "plotly==5.22.0",
     "python-dotenv==1.0.1",
     "ratelimit==2.2.1",
-    "tqdm==4.66.2"
+    "tqdm==4.66.4"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pre-commit==3.7.0",
-    "pytest==8.1.1",
-    "ruff==0.4.1"
+    "pre-commit==3.7.1",
+    "pytest==8.2.2",
+    "ruff==0.5.0"
 ]
 github-actions = [
     "pytest-cov==5.0.0",
