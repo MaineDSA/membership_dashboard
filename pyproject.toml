@@ -22,7 +22,7 @@ dependencies = [
     "numpy>=1.26.4,<3",
     "pandas==2.2.2",
     "pandera==0.20.3",
-    "plotly==5.22.0",
+    "plotly==5.23.0",
     "python-dotenv==1.0.1",
     "ratelimit==2.2.1",
     "tqdm==4.66.4"
