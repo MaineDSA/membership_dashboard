@@ -6,4 +6,4 @@ numpy==2.0.1
 pandas==2.2.2
 python-dateutil==2.9.0.post0
 ratelimit==2.2.1
-tqdm==4.66.4
+tqdm==4.66.5
