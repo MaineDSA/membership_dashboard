@@ -1,4 +1,4 @@
-attrs==24.1.0
+attrs==24.2.0
 faker_education==1.2.1
 Faker==26.1.0
 mapbox==0.18.1
