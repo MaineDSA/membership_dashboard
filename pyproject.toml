@@ -10,7 +10,7 @@ ignore = ["C400", "C401"]
 name = "membership_dashboard"
 version = "1.0.0"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { "file" = "LICENSE" }
 authors = [{ "name" = "bmos", "email" = "wil.t.dsa@pm.me" }]
 urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
