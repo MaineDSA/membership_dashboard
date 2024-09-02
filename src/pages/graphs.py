@@ -88,8 +88,8 @@ def create_chart(
 
     if not df_compare_field.empty:
         color, color_compare = colors.COMPARE_COLORS[1], colors.COMPARE_COLORS[0]
-        diff_counts = [count - chartdf_compare_vc.get(val, 0) for val, count in zip(chartdf_vc.index, chartdf_vc.values)]
-        active_labels = [f"{count} ({get_positive_sign(diff)}{diff})" for count, diff in zip(chartdf_vc.values, diff_counts)]
+        diff_counts = [count - chartdf_compare_vc.get(val, 0) for val, count in zip(chartdf_vc.index, chartdf_vc.values, strict=True)]
+        active_labels = [f"{count} ({get_positive_sign(diff)}{diff})" for count, diff in zip(chartdf_vc.values, diff_counts, strict=True)]
 
     chart = go.Figure(
         data=[
