@@ -31,7 +31,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pre-commit==3.8.0",
-    "pytest==8.3.2",
+    "pytest==8.3.3",
     "ruff==0.6.5"
 ]
 github-actions = [
