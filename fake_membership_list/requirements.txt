@@ -3,7 +3,7 @@ faker_education==1.2.1
 Faker==29.0.0
 mapbox==0.18.1
 numpy==2.1.1
-pandas==2.2.2
+pandas==2.2.3
 python-dateutil==2.9.0.post0
 ratelimit==2.2.1
 tqdm==4.66.5
