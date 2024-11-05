@@ -35,5 +35,5 @@ dev = [
     "ruff==0.7.2"
 ]
 github-actions = [
-    "pytest-cov==5.0.0",
+    "pytest-cov==6.0.0",
 ]
