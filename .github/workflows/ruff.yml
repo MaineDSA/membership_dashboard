@@ -6,10 +6,12 @@ on:
             - "**.py"
             - .github/workflows/ruff.yml
             - pyproject.toml
+            - fake_membership_list/requirements.txt
     pull_request:
         paths:
             - "**.py"
             - pyproject.toml
+            - fake_membership_list/requirements.txt
     workflow_dispatch:
 
 jobs:
