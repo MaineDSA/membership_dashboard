@@ -16,7 +16,7 @@ authors = [{ "name" = "bmos", "email" = "wil.t.dsa@pm.me" }]
 urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
 dependencies = [
     "dash==2.18.2",
-    "dash-bootstrap-components==1.6.0",
+    "dash-bootstrap-components==1.7.1",
     "dash-bootstrap-templates==1.3.0",
     "mapbox==0.18.1",
     "numpy>=1.26.4,<3",
