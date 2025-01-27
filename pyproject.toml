@@ -32,7 +32,7 @@ dependencies = [
 dev = [
     "pre-commit==4.1.0",
     "pytest==8.3.4",
-    "ruff==0.9.2"
+    "ruff==0.9.3"
 ]
 github-actions = [
     "pytest-cov==6.0.0",
