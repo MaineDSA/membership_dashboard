@@ -42,7 +42,7 @@ uv pip install .
     python3 -m src.app
     ```
 
-8. Open your browser and go to `http://localhost:8050` to view the dashboard.
+8. Open your browser and go to [http://localhost:8050](http://localhost:8050) to view the dashboard.
 
 ## Features
 
