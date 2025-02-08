@@ -38,3 +38,12 @@ dev = [
 github-actions = [
     "coverage==7.6.10",
 ]
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+
+[tool.coverage.paths]
+source = [
+    "src/",
+    ]
