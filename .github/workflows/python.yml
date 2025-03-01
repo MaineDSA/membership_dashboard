@@ -2,6 +2,7 @@ name: Python checks
 
 on:
     push:
+        branches: ["main"]
         paths:
           - '**.py'
           - 'pyproject.toml'
