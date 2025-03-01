@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.6.0
+      rev: v5.0.0
       hooks:
           - id: check-yaml
           - id: check-ast
@@ -15,15 +15,16 @@ repos:
           - id: check-toml
           - id: debug-statements
     - repo: https://github.com/asottile/pyupgrade
-      rev: v3.15.2
+      rev: v3.19.1
       hooks:
           - id: pyupgrade
-            args: [--py39-plus]
+            args: [--py310-plus]
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.4.1
+      rev: v0.9.5
       hooks:
-          - id: ruff
-          - id: ruff-format
+        - id: ruff
+          args: [ --fix ]
+        - id: ruff-format
 ci:
     autoupdate_branch: 'pre-commit/update-hooks'
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'

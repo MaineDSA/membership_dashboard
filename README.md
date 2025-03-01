@@ -1,4 +1,5 @@
-[![Python Check](https://github.com/MaineDSA/membership_dashboard/actions/workflows/lint-python.yml/badge.svg)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/lint-python.yml) [![Pytest](https://github.com/MaineDSA/membership_dashboard/actions/workflows/pytest.yml/badge.svg)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/pytest.yml) [![CodeQL](https://github.com/MaineDSA/membership_dashboard/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/github-code-scanning/codeql)
+[![Python checks](https://github.com/MaineDSA/membership_dashboard/actions/workflows/python.yml/badge.svg?branch=main)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/python.yml)
+[![Coverage badge](https://raw.githubusercontent.com/MaineDSA/membership_dashboard/python-coverage-comment-action-data/badge.svg)](https://htmlpreview.github.io/?https://github.com/MaineDSA/membership_dashboard/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
 # Membership Dashboard
 
@@ -42,7 +43,7 @@ uv pip install .
     python3 -m src.app
     ```
 
-8. Open your browser and go to `http://localhost:8050` to view the dashboard.
+8. Open your browser and go to [http://localhost:8050](http://localhost:8050) to view the dashboard.
 
 ## Features
 
