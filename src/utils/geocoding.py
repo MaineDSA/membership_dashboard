@@ -37,7 +37,7 @@ def persist_to_file(file_name: Path):
 @ratelimit.sleep_and_retry
 @ratelimit.limits(calls=600, period=60)
 def mapbox_geocoder(address: str) -> list[float]:
-    """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API"""
+    """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API."""
     response = geocoder.forward(address, country=["us"])
     if "features" not in response.geojson():
         return [0, 0]
@@ -46,7 +46,7 @@ def mapbox_geocoder(address: str) -> list[float]:
 
 @persist_to_file(Path(PurePath(__file__).parents[2], "geocoding.json"))
 def get_geocoding(address: str) -> list[float]:
-    """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder"""
+    """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder."""
     if not isinstance(address, str) or "MAPBOX" not in config:
         return [0, 0]
     return mapbox_geocoder(address)

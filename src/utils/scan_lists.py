@@ -1,4 +1,4 @@
-"""Parse all membership lists into pandas dataframes for display on dashboard"""
+"""Parse all membership lists into pandas dataframes for display on dashboard."""
 
 import logging
 from glob import glob
@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s :
 
 
 class ListColumnRules:
-    """Define rules for cleaning and standardizing the columns of a membership list"""
+    """Define rules for cleaning and standardizing the columns of a membership list."""
 
     FIELD_DROP = [
         "organization",
@@ -64,7 +64,7 @@ def membership_length_years(join_date: pd.Series, xdate: pd.Series) -> pd.Series
 
 
 def format_zip_code(zip_code):
-    """Format zip code to 5 characters, zero-pad if necessary"""
+    """Format zip code to 5 characters, zero-pad if necessary."""
     return str(zip_code).zfill(5)
 
 
@@ -150,9 +150,8 @@ def scan_memb_list_from_csv(csv_file_data) -> pd.DataFrame:
 
 def scan_memb_list_from_zip(zip_path: str, list_name: str) -> pd.DataFrame:
     """Scan a zip file containing a csv and return the output of scan_memb_list_from_csv from the csv if the zip file name contains a date."""
-    with ZipFile(zip_path) as memb_list_zip:
-        with memb_list_zip.open(f"{list_name}.csv", "r") as memb_list_csv:
-            return scan_memb_list_from_csv(memb_list_csv)
+    with ZipFile(zip_path) as memb_list_zip, memb_list_zip.open(f"{list_name}.csv", "r") as memb_list_csv:
+        return scan_memb_list_from_csv(memb_list_csv)
 
 
 def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
@@ -173,13 +172,13 @@ def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
 
 
 def branch_name_from_zip_code(zip_code: str, branch_zips: pd.DataFrame) -> str:
-    """Check for provided zip_code in provided branch_zips and return relevant branch name if found"""
+    """Check for provided zip_code in provided branch_zips and return relevant branch name if found."""
     cleaned_zip_code = format_zip_code(zip_code).split("-")[0]
     return branch_zips.loc[cleaned_zip_code, "branch"] if cleaned_zip_code in branch_zips.index else ""
 
 
 def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: Path) -> dict[str, pd.DataFrame]:
-    """Add branch column to each membership list, filling with data cross-referenced from a provided csv via branch_name_from_zip_code()"""
+    """Add branch column to each membership list, filling with data cross-referenced from a provided csv via branch_name_from_zip_code()."""
     branch_zips = pd.read_csv(branch_zip_path, dtype={"zip": str}, index_col="zip")
     for date, memb_list in memb_lists.items():
         logging.debug(

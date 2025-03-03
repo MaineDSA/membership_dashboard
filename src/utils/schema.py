@@ -58,7 +58,7 @@ STATE_ABBR = [
 
 
 class ColumnValidation:
-    """Represents the allowed values for some columns of data"""
+    """Represents the allowed values for some columns of data."""
 
     YEARLY_DUES_STATUS = [
         "past_due",
