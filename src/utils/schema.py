@@ -1,6 +1,6 @@
 """Defines a pandas dataframe schema for dsa membership data."""
 
-from pandera import DataFrameSchema, Column, Check, Index
+from pandera import Check, Column, DataFrameSchema, Index
 
 STATE_ABBR = [
     "AK",

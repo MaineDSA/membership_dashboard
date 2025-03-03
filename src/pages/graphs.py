@@ -4,9 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from dash import Input, Output, callback, dcc, html
 
-from src.components import colors
-from src.components import dark_mode
-from src.components import sidebar
+from src.components import colors, dark_mode, sidebar
 from src.utils import scan_lists
 
 dash.register_page(__name__, path="/graphs", title=f"Membership Dashboard: {__name__.title()}", order=3)

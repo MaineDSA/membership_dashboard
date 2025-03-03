@@ -3,10 +3,8 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 from dash import Input, Output, callback, dash_table, html
 
-from src.components import colors
-from src.components import sidebar
-from src.utils import scan_lists
-from src.utils import schema
+from src.components import colors, sidebar
+from src.utils import scan_lists, schema
 
 dash.register_page(__name__, path="/list", title=f"Membership Dashboard: {__name__.title()}", order=1)
 

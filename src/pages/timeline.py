@@ -6,12 +6,8 @@ import pandas as pd
 from dash import Input, Output, callback, dcc, html
 from plotly import graph_objects as go
 
-from src.components import colors
-from src.components import dark_mode
-from src.components import sidebar
-from src.components import status_filter
-from src.utils import scan_lists
-from src.utils import schema
+from src.components import colors, dark_mode, sidebar, status_filter
+from src.utils import scan_lists, schema
 
 dash.register_page(__name__, path="/", title=f"Membership Dashboard: {__name__.title()}", order=0)
 

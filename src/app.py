@@ -1,7 +1,7 @@
 import dash
 import dash_bootstrap_components as dbc
 import dash_bootstrap_templates
-from dash import Dash, Input, Output, html, clientside_callback
+from dash import Dash, Input, Output, clientside_callback, html
 
 DBC_CSS = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 TEMPLATES = ["darkly", "journal"]

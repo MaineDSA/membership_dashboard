@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.utils.scan_lists import tagged_with_branches, branch_name_from_zip_code
+from src.utils.scan_lists import branch_name_from_zip_code, tagged_with_branches
 
 TEST_BRANCH_ZIP_CSV = Path("tests/utils/assets/fake_branch_zips.csv")
 
