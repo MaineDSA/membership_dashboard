@@ -5,16 +5,16 @@
 | Name                                 |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
 | src/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |    100% |           |
-| src/utils/geocoding.py               |       44 |        7 |       10 |        3 |     78% |25, 41-44, 52, 57 |
-| src/utils/scan\_lists.py             |      113 |       15 |       16 |        3 |     86% |63, 75-76, 153-155, 164-170, 199-200 |
+| src/utils/geocoding.py               |       46 |        8 |       10 |        3 |     77% |20, 27, 44-47, 55, 60 |
+| src/utils/scan\_lists.py             |      112 |       14 |       16 |        3 |     87% |63, 75-76, 153-154, 163-169, 198-199 |
 | src/utils/schema.py                  |       11 |        0 |        0 |        0 |    100% |           |
 | tests/\_\_init\_\_.py                |        0 |        0 |        0 |        0 |    100% |           |
 | tests/utils/\_\_init\_\_.py          |        0 |        0 |        0 |        0 |    100% |           |
-| tests/utils/conftest.py              |       30 |        3 |        0 |        0 |     90% |35, 47, 59 |
+| tests/utils/conftest.py              |       31 |        3 |        0 |        0 |     90% |36, 48, 60 |
 | tests/utils/test\_branch\_tagging.py |       12 |        0 |        0 |        0 |    100% |           |
 | tests/utils/test\_data\_cleaning.py  |       35 |        0 |        0 |        0 |    100% |           |
-| tests/utils/test\_data\_schema.py    |        9 |        2 |        2 |        1 |     73% |     14-15 |
-|                            **TOTAL** |  **254** |   **27** |   **28** |    **7** | **87%** |           |
+| tests/utils/test\_data\_schema.py    |        8 |        2 |        2 |        1 |     70% |     13-14 |
+|                            **TOTAL** |  **255** |   **27** |   **28** |    **7** | **87%** |           |
 
 
 ## Setup coverage badge
