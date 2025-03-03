@@ -16,7 +16,9 @@ tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
 def persist_to_file(file_name: Path):
     def decorator(original_func):
         try:
-            cache = json.load(open(file_name))
+            with file_name.open() as f:
+                cache = json.load(f)
+
         except (OSError, ValueError):
             cache = {}
 
@@ -26,7 +28,8 @@ def persist_to_file(file_name: Path):
             param_hash = hashlib.sha256(param.encode("utf-8")).hexdigest()
             if param_hash not in cache:
                 cache[param_hash] = original_func(param)
-                json.dump(cache, open(file_name, "w"))
+                with file_name.open(mode="w") as f:
+                    json.dump(cache, f)
             return cache[param_hash]
 
         return new_func
