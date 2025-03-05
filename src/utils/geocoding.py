@@ -1,5 +1,6 @@
 import hashlib
 import json
+from collections.abc import Callable
 from pathlib import Path, PurePath
 
 import dotenv
@@ -13,8 +14,8 @@ geocoder = mapbox.Geocoder(access_token=config.get("MAPBOX"))
 tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
 
 
-def persist_to_file(file_name: Path):
-    def decorator(original_func):
+def persist_to_file(file_name: Path) -> Callable:
+    def decorator(original_func: Callable) -> Callable:
         try:
             with file_name.open() as f:
                 cache = json.load(f)
@@ -47,7 +48,7 @@ def mapbox_geocoder(address: str) -> list[float]:
     return response.geojson()["features"][0]["center"]
 
 
-@persist_to_file(Path(PurePath(__file__).parents[2], "geocoding.json"))
+@persist_to_file(Path(PurePath(__file__).parents[2]) / "geocoding.json")
 def get_geocoding(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or mapbox_geocoder."""
     if not isinstance(address, str) or "MAPBOX" not in config:

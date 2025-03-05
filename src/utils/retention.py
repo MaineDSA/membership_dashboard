@@ -1,9 +1,13 @@
 """Provides utility functions for calculating membership retention of various cohorts with varying levels of resolution."""
 
+from enum import Enum
+
 import pandas as pd
 
 
-class Columns:
+class Columns(Enum):
+    """Strings representing formatted column names."""
+
     COUNTING_COLUMN = "zip"
     JOIN_YEAR = "join_year"
     JOIN_QUARTER = "join_quarter"
@@ -28,7 +32,7 @@ def retention_pivot(df: pd.DataFrame, join_interval: str, membership_length: str
 
 def retention_origin(df: pd.DataFrame, join_year: str, length: str) -> pd.DataFrame:
     """
-    Constructs a dataframe of membership data showing the number of members who joined each year who are still in good standing.
+    Construct a dataframe of membership data showing the number of members who joined each year who are still in good standing.
 
     Params:
         df: a dataframe containing a membership list
@@ -50,7 +54,7 @@ def retention_mos(df: pd.DataFrame) -> pd.DataFrame:
 
 def retention_pct_origin(df: pd.DataFrame, join_year: str, length: str) -> pd.DataFrame:
     """
-    Constructs a dataframe of membership data showing the percentage of members who joined each year who are still in good standing.
+    Construct a dataframe of membership data showing the percentage of members who joined each year who are still in good standing.
 
     Params:
         df: a dataframe containing a membership list
@@ -71,7 +75,7 @@ def retention_pct_mos(df: pd.DataFrame) -> pd.DataFrame:
     return retention_pct_origin(df, Columns.JOIN_YEAR, Columns.MEMBERSHIP_LENGTH_MONTHS)
 
 
-def retention_pct_quarter(df: pd.DataFrame):
+def retention_pct_quarter(df: pd.DataFrame) -> pd.DataFrame:
     """Calculate percentage of membership retention based on quich quarter each member joined, with a resolution of years."""
     pivot = retention_pivot(df, Columns.JOIN_QUARTER, Columns.MEMBERSHIP_LENGTH_YEARS)
     return (

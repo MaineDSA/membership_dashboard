@@ -1,8 +1,8 @@
 """Parse all membership lists into pandas dataframes for display on dashboard."""
 
 import logging
-from glob import glob
 from pathlib import Path, PurePath
+from typing import IO, ClassVar
 from zipfile import ZipFile
 
 import dotenv
@@ -21,13 +21,13 @@ logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s :
 class ListColumnRules:
     """Define rules for cleaning and standardizing the columns of a membership list."""
 
-    FIELD_DROP = [
+    FIELD_DROP: ClassVar[list[str]] = [
         "organization",
         "dsa_id",
         "family_first_name",
         "family_last_name",
     ]
-    FIELD_UPGRADE_PATHS = {
+    FIELD_UPGRADE_PATHS: ClassVar[dict[str, list[str]]] = {
         "accommodations": ["accomodations"],
         "actionkit_id": ["akid", "ak_id"],
         "address1": [
@@ -50,10 +50,10 @@ class ListColumnRules:
         "yearly_dues_status": ["annual_recurring_dues_status"],
         "zip": ["billing_zip", "mailing_zip"],
     }
-    FIELD_UPGRADE_PAIRS = {old: new for new, old_names in FIELD_UPGRADE_PATHS.items() for old in old_names}
+    FIELD_UPGRADE_PAIRS: ClassVar[list[str]] = {old: new for new, old_names in FIELD_UPGRADE_PATHS.items() for old in old_names}
 
 
-def membership_length_months(join_date: pd.Series, xdate: pd.Series):
+def membership_length_months(join_date: pd.Series, xdate: pd.Series) -> pd.Series:
     """Calculate how many months are between the supplied dates."""
     return 12 * (xdate.dt.year - join_date.dt.year) + (xdate.dt.month - join_date.dt.month)
 
@@ -63,7 +63,7 @@ def membership_length_years(join_date: pd.Series, xdate: pd.Series) -> pd.Series
     return membership_length_months(join_date, xdate) // 12
 
 
-def format_zip_code(zip_code):
+def format_zip_code(zip_code: str) -> str:
     """Format zip code to 5 characters, zero-pad if necessary."""
     return str(zip_code).zfill(5)
 
@@ -143,7 +143,7 @@ def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def scan_memb_list_from_csv(csv_file_data) -> pd.DataFrame:
+def scan_memb_list_from_csv(csv_file_data: IO[bytes]) -> pd.DataFrame:
     """Convert the provided csv data into a pandas dataframe."""
     return pd.read_csv(csv_file_data, dtype={"zip": str}, header=0)
 
@@ -158,7 +158,7 @@ def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     """Scan all zip files and call scan_memb_list_from_zip on each, returning the results."""
     memb_lists = {}
     logging.info("Scanning zipped membership lists in %s/.", list_name)
-    files = sorted(glob(str(Path(PurePath(__file__).parents[2], list_name, "**/*.zip")), recursive=True), reverse=True)
+    files = sorted((Path(__file__).parents[2] / list_name).glob("**/*.zip"), reverse=True)
     for zip_file in files:
         filename = Path(zip_file).name
         try:

@@ -47,7 +47,7 @@ def layout() -> dbc.Row:
 
 
 def value_counts_by_date(date_counts: dict) -> dict[str, int]:
-    """Returns data from date_counts in format column>date>value (instead of date>column>value) for use in creating timeline traces."""
+    """Return data from date_counts in format column>date>value (instead of date>column>value) for use in creating timeline traces."""
     metrics = {}
     for date, values in date_counts.items():
         for value, count in values.value_counts().items():

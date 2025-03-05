@@ -1,8 +1,10 @@
 """Defines a pandas dataframe schema for dsa membership data."""
 
+from typing import ClassVar
+
 from pandera import Check, Column, DataFrameSchema, Index
 
-STATE_ABBR = [
+STATE_ABBR: tuple = (
     "AK",
     "AL",
     "AR",
@@ -54,13 +56,13 @@ STATE_ABBR = [
     "WI",
     "WV",
     "WY",
-]
+)
 
 
 class ColumnValidation:
     """Represents the allowed values for some columns of data."""
 
-    YEARLY_DUES_STATUS = [
+    YEARLY_DUES_STATUS: ClassVar[list[str]] = [
         "past_due",
         "overdue",
         "never",
@@ -71,7 +73,7 @@ class ColumnValidation:
         "canceled_by_processor",
         "canceled_by_user",
     ]
-    MONTHLY_DUES_STATUS = [
+    MONTHLY_DUES_STATUS: ClassVar[list[str]] = [
         "2mo_plus_failed",
         "past_due",
         "overdue",
@@ -83,9 +85,9 @@ class ColumnValidation:
         "canceled_by_processor",
         "canceled_by_user",
     ]
-    MEMBERSHIP_TYPE = ["yearly", "monthly", "one-time", "lifetime", "income-based"]
-    MEMBERSHIP_STATUS = ["member in good standing", "member", "lapsed"]
-    UNION_MEMBER_STATUS = [
+    MEMBERSHIP_TYPE: ClassVar[list[str]] = ["yearly", "monthly", "one-time", "lifetime", "income-based"]
+    MEMBERSHIP_STATUS: ClassVar[list[str]] = ["member in good standing", "member", "lapsed"]
+    UNION_MEMBER_STATUS: ClassVar[list[str]] = [
         "Yes",
         "Yes, current union member",
         "Yes, retired union member",
@@ -95,14 +97,14 @@ class ColumnValidation:
         "No, but former union member",
         "unknown",
     ]
-    STUDENT_STATUS = [
+    STUDENT_STATUS: ClassVar[list[str]] = [
         "No",
         "Yes",
         "Yes, graduate student",
         "Yes, college student",
         "Yes, high school student",
     ]
-    MAILING_PREF = ["Membership card only", "No", "no", "Yes"]
+    MAILING_PREF: ClassVar[list[str]] = ["Membership card only", "No", "no", "Yes"]
 
 
 schema = DataFrameSchema(
