@@ -72,7 +72,7 @@ dev = [
     "bandit[toml]==1.8.3",
     "pre-commit==4.1.0",
     "pytest==8.3.5",
-    "ruff==0.9.9"
+    "ruff==0.9.10"
 ]
 github-actions = [
     "coverage==7.6.12",
