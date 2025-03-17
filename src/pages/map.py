@@ -9,11 +9,8 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from dash import Input, Output, callback, dcc, html
 
-from src.components import colors
-from src.components import sidebar
-from src.components import status_filter
-from src.utils import scan_lists
-from src.utils import schema
+from src.components import colors, sidebar, status_filter
+from src.utils import scan_lists, schema
 
 dash.register_page(__name__, path="/map", title=f"Membership Dashboard: {__name__.title()}", order=5)
 
@@ -28,7 +25,7 @@ membership_map = html.Div(
             [
                 status_filter.status_filter_col(),
                 dbc.Col(
-                    dcc.Dropdown(options=list(column for column in schema.schema.columns), value="membership_status", multi=False, id="selected-column"),
+                    dcc.Dropdown(options=list(schema.schema.columns), value="membership_status", multi=False, id="selected-column"),
                 ),
             ],
             align="center",

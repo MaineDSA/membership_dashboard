@@ -1,9 +1,13 @@
-"""Provides utility functions for calculating membership retention of various cohorts with varying levels of resolution"""
+"""Provides utility functions for calculating membership retention of various cohorts with varying levels of resolution."""
+
+from enum import Enum
 
 import pandas as pd
 
 
-class Columns:
+class Columns(Enum):
+    """Strings representing formatted column names."""
+
     COUNTING_COLUMN = "zip"
     JOIN_YEAR = "join_year"
     JOIN_QUARTER = "join_quarter"
@@ -16,7 +20,7 @@ class Columns:
 
 
 def retention_pivot(df: pd.DataFrame, join_interval: str, membership_length: str) -> pd.DataFrame:
-    """Return the transposed pivot table to be used in other retention functions"""
+    """Return the transposed pivot table to be used in other retention functions."""
     return df.pivot_table(
         index=[join_interval],
         columns=[membership_length],
@@ -28,7 +32,7 @@ def retention_pivot(df: pd.DataFrame, join_interval: str, membership_length: str
 
 def retention_origin(df: pd.DataFrame, join_year: str, length: str) -> pd.DataFrame:
     """
-    Constructs a dataframe of membership data showing the number of members who joined each year who are still in good standing
+    Construct a dataframe of membership data showing the number of members who joined each year who are still in good standing.
 
     Params:
         df: a dataframe containing a membership list
@@ -39,18 +43,18 @@ def retention_origin(df: pd.DataFrame, join_year: str, length: str) -> pd.DataFr
 
 
 def retention_year(df: pd.DataFrame) -> pd.DataFrame:
-    """Calculate membership retention based on year each member joined, with a resolution of years"""
+    """Calculate membership retention based on year each member joined, with a resolution of years."""
     return retention_origin(df, Columns.JOIN_YEAR, Columns.MEMBERSHIP_LENGTH_YEARS)
 
 
 def retention_mos(df: pd.DataFrame) -> pd.DataFrame:
-    """Calculate membership retention based on year each member joined, with a resolution of months"""
+    """Calculate membership retention based on year each member joined, with a resolution of months."""
     return retention_origin(df, Columns.JOIN_YEAR, Columns.MEMBERSHIP_LENGTH_MONTHS)
 
 
 def retention_pct_origin(df: pd.DataFrame, join_year: str, length: str) -> pd.DataFrame:
     """
-    Constructs a dataframe of membership data showing the percentage of members who joined each year who are still in good standing
+    Construct a dataframe of membership data showing the percentage of members who joined each year who are still in good standing.
 
     Params:
         df: a dataframe containing a membership list
@@ -62,17 +66,17 @@ def retention_pct_origin(df: pd.DataFrame, join_year: str, length: str) -> pd.Da
 
 
 def retention_pct_year(df: pd.DataFrame) -> pd.DataFrame:
-    """Calculate percentage of membership retention based on year each member joined, with a resolution of years"""
+    """Calculate percentage of membership retention based on year each member joined, with a resolution of years."""
     return retention_pct_origin(df, Columns.JOIN_YEAR, Columns.MEMBERSHIP_LENGTH_YEARS)
 
 
 def retention_pct_mos(df: pd.DataFrame) -> pd.DataFrame:
-    """Calculate percentage of membership retention based on year each member joined, with a resolution of months"""
+    """Calculate percentage of membership retention based on year each member joined, with a resolution of months."""
     return retention_pct_origin(df, Columns.JOIN_YEAR, Columns.MEMBERSHIP_LENGTH_MONTHS)
 
 
-def retention_pct_quarter(df: pd.DataFrame):
-    """Calculate percentage of membership retention based on quich quarter each member joined, with a resolution of years"""
+def retention_pct_quarter(df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate percentage of membership retention based on quich quarter each member joined, with a resolution of years."""
     pivot = retention_pivot(df, Columns.JOIN_QUARTER, Columns.MEMBERSHIP_LENGTH_YEARS)
     return (
         (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None).infer_objects(copy=False).interpolate(limit=1, limit_area="inside")
