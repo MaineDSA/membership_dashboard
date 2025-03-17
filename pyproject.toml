@@ -75,7 +75,7 @@ dev = [
     "ruff==0.9.10"
 ]
 github-actions = [
-    "coverage==7.6.12",
+    "coverage==7.7.0",
 ]
 
 [tool.coverage.run]
