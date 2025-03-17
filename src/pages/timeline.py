@@ -9,6 +9,8 @@ from plotly import graph_objects as go
 from src.components import colors, dark_mode, sidebar, status_filter
 from src.utils import scan_lists, schema
 
+logger = logging.getLogger(__name__)
+
 dash.register_page(__name__, path="/", title=f"Membership Dashboard: {__name__.title()}", order=0)
 
 membership_timeline = html.Div(
@@ -57,7 +59,7 @@ def value_counts_by_date(date_counts: dict) -> dict[str, int]:
 
 def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, dict[str, pd.Series]]:
     """Restructure a dictionary of dataframs keyed to dates into a dictionary of pandas column names containing the columns keyed to each date."""
-    logging.info("Calculating metrics for %s membership lists", len(members))
+    logger.info("Calculating metrics for %s membership lists", len(members))
     columns = {column for memb_list in members.values() for column in memb_list.columns}
     return {
         column: {list_date: members[list_date].get(column) for list_date, memb_list in members.items() if column in memb_list.columns} for column in columns

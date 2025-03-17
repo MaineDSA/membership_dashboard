@@ -16,6 +16,7 @@ BRANCH_ZIPS_PATH = Path(PurePath(__file__).parents[2], "branch_zips.csv")
 MEMBER_LIST_NAME = config.get("LIST", "fake_membership_list")
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
+logger = logging.getLogger(__name__)
 
 
 class ListColumnRules:
@@ -157,7 +158,7 @@ def scan_memb_list_from_zip(zip_path: str, list_name: str) -> pd.DataFrame:
 def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     """Scan all zip files and call scan_memb_list_from_zip on each, returning the results."""
     memb_lists = {}
-    logging.info("Scanning zipped membership lists in %s/.", list_name)
+    logger.info("Scanning zipped membership lists in %s/.", list_name)
     files = sorted((Path(__file__).parents[2] / list_name).glob("**/*.zip"), reverse=True)
     for zip_file in files:
         filename = Path(zip_file).name
@@ -166,8 +167,8 @@ def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
             list_date_iso = pd.to_datetime(date_from_filename, format="%Y%m%d").date().isoformat()
             memb_lists[list_date_iso] = scan_memb_list_from_zip(str(Path(zip_file).absolute()), list_name)
         except (IndexError, ValueError):
-            logging.warning("Could not extract list from %s. Skipping file.", filename)
-    logging.info("Found %s zipped membership lists.", len(memb_lists))
+            logger.warning("Could not extract list from %s. Skipping file.", filename)
+    logger.info("Found %s zipped membership lists.", len(memb_lists))
     return memb_lists
 
 
@@ -181,7 +182,7 @@ def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: P
     """Add branch column to each membership list, filling with data cross-referenced from a provided csv via branch_name_from_zip_code()."""
     branch_zips = pd.read_csv(branch_zip_path, dtype={"zip": str}, index_col="zip")
     for date, memb_list in memb_lists.items():
-        logging.debug(
+        logger.debug(
             "Tagging %s membership list with branches based on current zip code assignments.",
             date,
         )
@@ -192,10 +193,10 @@ def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: P
 def get_membership_lists(list_name: str, branch_lookup_path: Path) -> dict[str, pd.DataFrame]:
     """Return all membership lists, preferring pickled lists for speed."""
     scanned_lists = scan_all_membership_lists(list_name)
-    logging.info("Cleaning and standardizing data for %s lists.", len(scanned_lists))
+    logger.info("Cleaning and standardizing data for %s lists.", len(scanned_lists))
     memb_lists = {k_date: data_cleaning(memb_list) for k_date, memb_list in tqdm(scanned_lists.items(), unit="list", desc="Scanning Zip Files")}
     if BRANCH_ZIPS_PATH.is_file():
-        logging.info("Tagging each membership list based on current branch zip code assignments.")
+        logger.info("Tagging each membership list based on current branch zip code assignments.")
         memb_lists = tagged_with_branches(memb_lists, branch_lookup_path)
     return memb_lists
 
