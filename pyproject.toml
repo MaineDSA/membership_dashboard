@@ -86,3 +86,8 @@ relative_files = true
 source = [
     "src/",
     ]
+
+[tool.coverage.report]
+exclude_also = [
+    "logger.",
+]
