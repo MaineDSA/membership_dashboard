@@ -62,7 +62,7 @@ dependencies = [
     "pandas==2.2.3",
     "pandera==0.23.1",
     "plotly==6.0.1",
-    "python-dotenv==1.0.1",
+    "python-dotenv==1.1.0",
     "ratelimit==2.2.1",
     "tqdm==4.67.1"
 ]
