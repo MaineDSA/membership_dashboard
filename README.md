@@ -2,19 +2,27 @@
 
 [Full report](https://htmlpreview.github.io/?https://github.com/MaineDSA/membership_dashboard/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
-| Name                                 |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
-|------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
-| src/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |    100% |           |
-| src/utils/geocoding.py               |       47 |        8 |       10 |        3 |     77% |21, 28, 45-48, 56, 61 |
-| src/utils/scan\_lists.py             |      106 |       12 |       10 |        1 |     89% |64, 76-77, 154-155, 164-169, 200 |
-| src/utils/schema.py                  |       12 |        0 |        0 |        0 |    100% |           |
-| tests/\_\_init\_\_.py                |        0 |        0 |        0 |        0 |    100% |           |
-| tests/utils/\_\_init\_\_.py          |        0 |        0 |        0 |        0 |    100% |           |
-| tests/utils/conftest.py              |       31 |        3 |        0 |        0 |     90% |37, 49, 61 |
-| tests/utils/test\_branch\_tagging.py |       12 |        0 |        0 |        0 |    100% |           |
-| tests/utils/test\_data\_cleaning.py  |       35 |        0 |        0 |        0 |    100% |           |
-| tests/utils/test\_data\_schema.py    |        8 |        2 |        2 |        1 |     70% |     13-14 |
-|                            **TOTAL** |  **251** |   **25** |   **22** |    **5** | **88%** |           |
+| Name                             |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
+|--------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
+| src/app.py                       |       15 |       15 |        2 |        0 |      0% |      1-36 |
+| src/components/\_\_init\_\_.py   |        0 |        0 |        0 |        0 |    100% |           |
+| src/components/colors.py         |        2 |        2 |        0 |        0 |      0% |      1-15 |
+| src/components/dark\_mode.py     |        7 |        7 |        2 |        0 |      0% |      1-10 |
+| src/components/sidebar.py        |        7 |        7 |        0 |        0 |      0% |      1-11 |
+| src/components/status\_filter.py |        5 |        5 |        0 |        0 |      0% |       1-8 |
+| src/pages/\_\_init\_\_.py        |        0 |        0 |        0 |        0 |    100% |           |
+| src/pages/counts.py              |       31 |       31 |        4 |        0 |      0% |     1-127 |
+| src/pages/graphs.py              |       39 |       39 |        6 |        0 |      0% |     1-186 |
+| src/pages/list.py                |       21 |       21 |        2 |        0 |      0% |      1-89 |
+| src/pages/map.py                 |       27 |       27 |        4 |        0 |      0% |     1-100 |
+| src/pages/retention.py           |       36 |       36 |        2 |        0 |      0% |     1-407 |
+| src/pages/timeline.py            |       29 |       29 |        4 |        0 |      0% |      1-97 |
+| src/utils/\_\_init\_\_.py        |        0 |        0 |        0 |        0 |    100% |           |
+| src/utils/geocoding.py           |       47 |        8 |       10 |        3 |     77% |21, 28, 45-48, 56, 61 |
+| src/utils/retention.py           |       26 |       26 |        0 |        0 |      0% |      3-81 |
+| src/utils/scan\_lists.py         |      106 |       12 |       10 |        1 |     89% |64, 76-77, 154-155, 164-169, 200 |
+| src/utils/schema.py              |       12 |        0 |        0 |        0 |    100% |           |
+|                        **TOTAL** |  **410** |  **265** |   **46** |    **4** | **35%** |           |
 
 
 ## Setup coverage badge
