@@ -1,9 +1,0 @@
-attrs==25.3.0
-faker_education==1.2.1
-Faker==37.0.0
-mapbox==0.18.1
-numpy==2.2.4
-pandas==2.2.3
-python-dateutil==2.9.0.post0
-ratelimit==2.2.1
-tqdm==4.67.1

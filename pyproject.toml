@@ -1,5 +1,49 @@
+[project]
+name = "membership_dashboard"
+version = "1.1.0"
+readme = "README.md"
+requires-python = ">=3.10.0"
+license = { "file" = "LICENSE" }
+authors = [{ "name" = "bmos", "email" = "wil.t.dsa@pm.me" }]
+urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
+dependencies = [
+    "dash-bootstrap-components==1.7.1",
+    "dash-bootstrap-templates==2.1.0",
+    "dash==3.0.2",
+    "mapbox==0.18.1",
+    "numpy>=1.26.4,<3",
+    "pandas==2.2.3",
+    "pandera==0.23.1",
+    "parsons==4.0.0",
+    "plotly==6.0.1",
+    "python-dotenv==1.1.0",
+    "ratelimit==2.2.1",
+    "tqdm==4.67.1"
+]
+
+[project.optional-dependencies]
+dev = [
+    "bandit[toml,sarif]==1.8.3",
+    "mypy==1.15.0",
+    "pandas-stubs==2.2.3.250308",
+    "plotly-stubs==0.0.5",
+    "pre-commit==4.2.0",
+    "pytest-xdist==3.6.1",
+    "pytest==8.3.5",
+    "ruff==0.11.4",
+]
+github-actions = [
+    "coverage==7.8.0",
+    "pytest-cov==6.0.0",
+]
+
 [tool.ruff]
 line-length = 160
+target-version = "py310"
+include = [
+    "src/**/*.py",
+    "tests/**/*.py",
+]
 
 [tool.ruff.lint]
 select = [
@@ -18,21 +62,21 @@ select = [
     "F",
     "G",
     "I",
-    "ISC",
     "ICN",
+    "ISC",
     "LOG",
     "N",
     "PT",
     "PTH",
     "Q",
     "RET",
-    "RUF",
     "RSE",
+    "RUF",
     "SIM",
     "SLF",
+    "T20",
     "TC",
     "TID",
-    "T20",
     "UP",
     "W",
     "YTT",
@@ -45,50 +89,32 @@ ignore = [
     "D212",
 ]
 
-[project]
-name = "membership_dashboard"
-version = "1.1.0"
-readme = "README.md"
-requires-python = ">=3.10.0,<3.14.0"
-license = { "file" = "LICENSE" }
-authors = [{ "name" = "bmos", "email" = "wil.t.dsa@pm.me" }]
-urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
-dependencies = [
-    "dash==2.18.2",
-    "dash-bootstrap-components==1.7.1",
-    "dash-bootstrap-templates==2.1.0",
-    "mapbox==0.18.1",
-    "numpy>=1.26.4,<3",
-    "pandas==2.2.3",
-    "pandera==0.23.1",
-    "parsons==4.0.0",
-    "plotly==6.0.0",
-    "python-dotenv==1.0.1",
-    "ratelimit==2.2.1",
-    "tqdm==4.67.1"
-]
-
-[project.optional-dependencies]
-dev = [
-    "bandit[toml]==1.8.3",
-    "pre-commit==4.1.0",
-    "pytest==8.3.5",
-    "ruff==0.11.0"
-]
-github-actions = [
-    "coverage==7.7.0",
+[tool.pytest.ini_options]
+addopts = "--cov=src -n auto"
+testpaths = [
+    "tests",
 ]
 
 [tool.coverage.run]
 branch = true
 relative_files = true
+command_line = "-m pytest"
 
 [tool.coverage.paths]
 source = [
     "src/",
-    ]
+]
+omit = [
+    "tests",
+]
 
 [tool.coverage.report]
 exclude_also = [
     "logger.",
+]
+
+[tool.bandit]
+exclude_dirs = [
+    "./tests/",
+    "./.venv/",
 ]
