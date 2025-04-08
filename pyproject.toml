@@ -1,6 +1,6 @@
 [project]
 name = "membership_dashboard"
-version = "1.0.3"
+version = "1.1.0"
 readme = "README.md"
 requires-python = ">=3.10.0"
 license = { "file" = "LICENSE" }
@@ -14,6 +14,7 @@ dependencies = [
     "numpy>=1.26.4,<3",
     "pandas==2.2.3",
     "pandera==0.23.1",
+    "parsons==4.0.0",
     "plotly==6.0.1",
     "python-dotenv==1.1.0",
     "ratelimit==2.2.1",
