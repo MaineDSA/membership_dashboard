@@ -1,8 +1,7 @@
 # Inputs, Outputs, Private Data
 branch_zips.csv
 *_membership_list*/*
-geocoding.json
-
+.api_cache/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
