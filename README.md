@@ -1,4 +1,5 @@
-[![Python checks](https://github.com/MaineDSA/membership_dashboard/actions/workflows/python.yml/badge.svg?branch=main)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/python.yml)
+[![CodeQL](https://github.com/MaineDSA/membership_dashboard/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/github-code-scanning/codeql)
+[![Python checks](https://github.com/MaineDSA/membership_dashboard/actions/workflows/python.yml/badge.svg)](https://github.com/MaineDSA/membership_dashboard/actions/workflows/python.yml)
 [![Coverage badge](https://raw.githubusercontent.com/MaineDSA/membership_dashboard/python-coverage-comment-action-data/badge.svg)](https://htmlpreview.github.io/?https://github.com/MaineDSA/membership_dashboard/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
 # Membership Dashboard
