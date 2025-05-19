@@ -30,6 +30,7 @@ dev = [
     "pytest-xdist==3.6.1",
     "pytest==8.3.5",
     "ruff==0.11.7",
+    "types-tqdm==4.67.0.20250516",
 ]
 github-actions = [
     "coverage==7.8.0",
