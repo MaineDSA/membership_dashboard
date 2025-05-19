@@ -4,6 +4,7 @@
 
 | Name                             |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |--------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
+| src/\_\_init\_\_.py              |        0 |        0 |        0 |        0 |    100% |           |
 | src/app.py                       |       15 |       15 |        2 |        0 |      0% |      1-36 |
 | src/components/\_\_init\_\_.py   |        0 |        0 |        0 |        0 |    100% |           |
 | src/components/colors.py         |        2 |        2 |        0 |        0 |      0% |      1-15 |
