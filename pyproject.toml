@@ -24,7 +24,7 @@ dependencies = [
 dev = [
     "bandit[toml,sarif]==1.8.3",
     "mypy==1.15.0",
-    "pandas-stubs==2.2.3.250308",
+    "pandas-stubs==2.2.3.250527",
     "plotly-stubs==0.0.5",
     "pre-commit==4.2.0",
     "pytest-xdist==3.6.1",
