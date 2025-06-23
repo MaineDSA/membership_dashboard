@@ -1,8 +1,9 @@
 """Parse all membership lists into pandas dataframes for display on dashboard."""
 
 import logging
+from io import TextIOWrapper, _WrappedBuffer
 from pathlib import Path, PurePath
-from typing import IO, ClassVar
+from typing import ClassVar
 from zipfile import ZipFile
 
 import dotenv
@@ -144,7 +145,7 @@ def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def scan_memb_list_from_csv(csv_file_data: IO[bytes]) -> pd.DataFrame:
+def scan_memb_list_from_csv(csv_file_data: TextIOWrapper[_WrappedBuffer]) -> pd.DataFrame:
     """Convert the provided csv data into a pandas dataframe."""
     return pd.read_csv(csv_file_data, dtype={"zip": str}, header=0)
 
