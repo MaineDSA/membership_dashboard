@@ -44,7 +44,7 @@ def layout() -> dbc.Row:
     Input(component_id="list-selected", component_property="value"),
     Input(component_id="list-compare", component_property="value"),
 )
-def create_list(date_selected: str, date_compare_selected: str) -> (dict, list):
+def create_list(date_selected: str, date_compare_selected: str) -> tuple[dict, list]:
     """Update the list shown based on the selected membership list date."""
     df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_compare = scan_lists.MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
