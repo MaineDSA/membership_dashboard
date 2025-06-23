@@ -64,7 +64,7 @@ def membership_length_years(join_date: pd.Series, xdate: pd.Series) -> pd.Series
     return membership_length_months(join_date, xdate) // 12
 
 
-def format_zip_code(zip_code: str) -> str:
+def format_zip_code(zip_code: str | int) -> str:
     """Format zip code to 5 characters, zero-pad if necessary."""
     return str(zip_code).zfill(5)
 
