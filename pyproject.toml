@@ -119,3 +119,11 @@ exclude_dirs = [
     "./tests/",
     "./.venv/",
 ]
+
+[[tool.mypy.overrides]]
+module = [
+  "dash_bootstrap_components",
+  "dash_bootstrap_templates",
+  "mapbox",
+]
+ignore_missing_imports = true
