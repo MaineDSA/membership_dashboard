@@ -51,7 +51,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@75877ff4b6e7f7b75e572e664476f9a202dcc9f9
+              uses: install-pinned/uv@51bb057ca8857db7531f188d414ba32b7bb16d2b
 
             - name: Install module and dependencies
               run: |
@@ -103,7 +103,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@75877ff4b6e7f7b75e572e664476f9a202dcc9f9
+              uses: install-pinned/uv@51bb057ca8857db7531f188d414ba32b7bb16d2b
 
             - name: Install module and dependencies
               run: |
@@ -148,7 +148,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@75877ff4b6e7f7b75e572e664476f9a202dcc9f9
+              uses: install-pinned/uv@51bb057ca8857db7531f188d414ba32b7bb16d2b
 
             - name: Install module and dependencies
               run: |
@@ -204,7 +204,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@75877ff4b6e7f7b75e572e664476f9a202dcc9f9
+              uses: install-pinned/uv@51bb057ca8857db7531f188d414ba32b7bb16d2b
 
             - name: Install module and dependencies
               run: |
@@ -242,7 +242,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@75877ff4b6e7f7b75e572e664476f9a202dcc9f9
+              uses: install-pinned/uv@51bb057ca8857db7531f188d414ba32b7bb16d2b
 
             - name: Install module and dependencies
               run: |
@@ -333,7 +333,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@75877ff4b6e7f7b75e572e664476f9a202dcc9f9
+              uses: install-pinned/uv@51bb057ca8857db7531f188d414ba32b7bb16d2b
 
             - name: Install module and dependencies
               run: |
