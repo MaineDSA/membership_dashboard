@@ -19,7 +19,7 @@ class Columns(Enum):
 # https://github.com/bunsenmcdubbs/dsa_retention/blob/main/retention.ipynb
 
 
-def retention_pivot(df: pd.DataFrame, join_interval: str, membership_length: str) -> pd.DataFrame:
+def retention_pivot(df: pd.DataFrame, join_interval: Columns, membership_length: Columns) -> pd.DataFrame:
     """Return the transposed pivot table to be used in other retention functions."""
     return df.pivot_table(
         index=[join_interval],
@@ -30,7 +30,7 @@ def retention_pivot(df: pd.DataFrame, join_interval: str, membership_length: str
     ).transpose()[::-1]
 
 
-def retention_origin(df: pd.DataFrame, join_year: str, length: str) -> pd.DataFrame:
+def retention_origin(df: pd.DataFrame, join_year: Columns, length: Columns) -> pd.DataFrame:
     """
     Construct a dataframe of membership data showing the number of members who joined each year who are still in good standing.
 
@@ -52,7 +52,7 @@ def retention_mos(df: pd.DataFrame) -> pd.DataFrame:
     return retention_origin(df, Columns.JOIN_YEAR, Columns.MEMBERSHIP_LENGTH_MONTHS)
 
 
-def retention_pct_origin(df: pd.DataFrame, join_year: str, length: str) -> pd.DataFrame:
+def retention_pct_origin(df: pd.DataFrame, join_year: Columns, length: Columns) -> pd.DataFrame:
     """
     Construct a dataframe of membership data showing the percentage of members who joined each year who are still in good standing.
 
