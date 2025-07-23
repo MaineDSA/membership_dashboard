@@ -56,7 +56,6 @@ jobs:
             - name: Install module and dependencies
               run: |
                   uv pip install --system -e .[dev]
-                  uv pip install --system -e .[github-actions]
 
             - id: cache-pytest
               uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
@@ -115,10 +114,8 @@ jobs:
                   path: .ruff_cache
                   key: ${{ runner.os }}-ruff-3.13-${{ hashFiles('pyproject.toml') }}
 
-            - name: Run ruff format
-              id: run-ruff
-              run: |
-                  ruff format --diff .
+            - id: run-ruff
+              run: ruff format --diff .
 
     ruff-check:
         runs-on: ubuntu-latest
@@ -160,12 +157,11 @@ jobs:
                   path: .ruff_cache
                   key: ${{ runner.os }}-ruff-3.13-${{ hashFiles('pyproject.toml') }}
 
-            - name: Generate SARIF file with ruff check
-              id: run-ruff-sarif
+            - id: run-ruff-sarif
               run: |
                   ruff check --output-format=sarif -o results.sarif .
 
-            - name: Upload SARIF file to code scanning
+            - uses: github/codeql-action/upload-sarif@ff0a06e83cb2de871e5a09832bc6a81e7276941f
               if: ( success() || failure() ) && contains('["success", "failure"]', steps.run-ruff-sarif.outcome)
               uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b
               with:
@@ -210,14 +206,19 @@ jobs:
               run: |
                   uv pip install --system -e .[dev]
 
-            - name: Run bandit scan
+            - id: run-bandit-sarif
               run: |
-                  bandit --confidence-level=high --severity-level=high --configfile 'pyproject.toml' --format sarif --output results.sarif --recursive .
+                  bandit --confidence-level 'medium' --format 'sarif' --output 'results.sarif' --recursive 'src'
 
-            - name: Upload SARIF file to code scanning
-              uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b
+            - uses: github/codeql-action/upload-sarif@ff0a06e83cb2de871e5a09832bc6a81e7276941f
+              if: ( success() || failure() ) && contains('["success", "failure"]', steps.run-bandit-sarif.outcome)
               with:
                   sarif_file: results.sarif
+
+            - id: run-bandit
+              if: failure() && contains('["failure"]', steps.run-bandit-sarif.outcome)
+              run: |
+                  bandit --confidence-level 'medium' --recursive 'src'
 
     mypy:
         runs-on: ubuntu-latest

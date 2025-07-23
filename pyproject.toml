@@ -22,20 +22,18 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "bandit[toml,sarif]==1.8.3",
+    "bandit[sarif]==1.8.3",
+    "coverage==7.8.2",
     "mypy==1.16.0",
     "pandas-stubs==2.2.3.250527",
     "plotly-stubs==0.0.5",
     "pre-commit==4.2.0",
+    "pytest-cov==6.1.1",
     "pytest-xdist==3.7.0",
     "pytest==8.3.5",
     "ruff==0.11.10",
     "types-ratelimit==2.2.0.20250501",
     "types-tqdm==4.67.0.20250516",
-]
-github-actions = [
-    "coverage==7.8.2",
-    "pytest-cov==6.2.1",
 ]
 
 [tool.ruff]
