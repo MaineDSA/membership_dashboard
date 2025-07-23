@@ -38,7 +38,6 @@ project directory before committing.
 
 If you add or modify any dependencies, be sure to list them in pyproject.toml.
 The optional dependency group [dev] is used for dependencies used by developers working on this codebase.
-The optional dependency group [github-actions] is used for dependencies used when testing or executing CI actions.
 
 ### Style
 

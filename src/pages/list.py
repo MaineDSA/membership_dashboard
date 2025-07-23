@@ -10,7 +10,7 @@ dash.register_page(__name__, path="/list", title=f"Membership Dashboard: {__name
 
 membership_list = html.Div(
     children=[
-        dash_table.DataTable(
+        dash_table.DataTable(  # type: ignore[attr-defined]
             data=[],
             columns=[{"name": i, "id": i, "selectable": True} for i in schema.schema.columns],
             sort_action="native",
@@ -44,13 +44,14 @@ def layout() -> dbc.Row:
     Input(component_id="list-selected", component_property="value"),
     Input(component_id="list-compare", component_property="value"),
 )
-def create_list(date_selected: str, date_compare_selected: str) -> (dict, list):
+def create_list(date_selected: str, date_compare_selected: str) -> tuple[list[dict], list]:
     """Update the list shown based on the selected membership list date."""
     df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_compare = scan_lists.MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
 
     if df_compare.empty:
-        return df.reset_index(drop=False).to_dict("records"), []
+        df.reset_index(drop=False)
+        return df.to_dict("records"), []
 
     df["list_date"] = date_selected
     df_compare["list_date"] = date_compare_selected

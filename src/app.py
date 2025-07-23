@@ -15,7 +15,7 @@ app = Dash(
     suppress_callback_exceptions=True,
     use_pages=True,
 )
-app._favicon = LOGO_FILE  # noqa: SLF001
+app._favicon = LOGO_FILE  # type: ignore[assignment]  # noqa: SLF001
 app.layout = html.Div(dash.page_container)
 dash_bootstrap_templates.load_figure_template(TEMPLATES)
 
