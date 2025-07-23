@@ -79,5 +79,5 @@ def retention_pct_quarter(df: pd.DataFrame) -> pd.DataFrame:
     """Calculate percentage of membership retention based on quich quarter each member joined, with a resolution of years."""
     pivot = retention_pivot(df, Columns.JOIN_QUARTER, Columns.MEMBERSHIP_LENGTH_YEARS)
     return (
-        (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None).infer_objects(copy=False).interpolate(limit=1, limit_area="inside")
+        (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None).infer_objects().interpolate(limit=1, limit_area="inside")
     )
