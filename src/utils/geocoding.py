@@ -1,5 +1,6 @@
 import hashlib
 import json
+import logging
 from collections.abc import Callable
 from pathlib import Path, PurePath
 
@@ -12,6 +13,8 @@ from tqdm import tqdm
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
 geocoder = mapbox.Geocoder(access_token=config.get("MAPBOX"))
 tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def persist_to_file(file_name: Path) -> Callable:
@@ -44,6 +47,13 @@ def mapbox_geocoder(address: str) -> list[float]:
     """Return a list of lat and long coordinates from a supplied address string, using the Mapbox API."""
     response = geocoder.forward(address, country=["us"])
     if "features" not in response.geojson():
+        logger.warning("Could not geocode address: %s", address)
+        return [0, 0]
+    if 0 not in response.geojson()["features"]:
+        logger.warning("Could not geocode address: %s", address)
+        return [0, 0]
+    if "center" not in response.geojson()["features"][0]:
+        logger.warning("Could not geocode address: %s", address)
         return [0, 0]
     return response.geojson()["features"][0]["center"]
 
