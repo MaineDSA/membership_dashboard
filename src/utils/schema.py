@@ -2,7 +2,7 @@
 
 from typing import ClassVar
 
-from pandera import Check, Column, DataFrameSchema, Index
+from pandera.pandas import Check, Column, DataFrameSchema, Index
 
 STATE_ABBR: tuple = (
     "AK",

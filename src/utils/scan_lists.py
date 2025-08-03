@@ -1,6 +1,7 @@
 """Parse all membership lists into pandas dataframes for display on dashboard."""
 
 import logging
+from io import TextIOWrapper
 from pathlib import Path, PurePath
 from typing import IO, ClassVar
 from zipfile import ZipFile
@@ -13,7 +14,7 @@ from src.utils.geocoding import add_coordinates
 
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
 BRANCH_ZIPS_PATH = Path(PurePath(__file__).parents[2], "branch_zips.csv")
-MEMBER_LIST_NAME = config.get("LIST", "fake_membership_list")
+MEMBER_LIST_NAME: str = config.get("LIST", "fake_membership_list")  # type: ignore[assignment]
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 logger = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ class ListColumnRules:
         "yearly_dues_status": ["annual_recurring_dues_status"],
         "zip": ["billing_zip", "mailing_zip"],
     }
-    FIELD_UPGRADE_PAIRS: ClassVar[list[str]] = {old: new for new, old_names in FIELD_UPGRADE_PATHS.items() for old in old_names}
+    FIELD_UPGRADE_PAIRS: ClassVar[dict[str, str]] = {old: new for new, old_names in FIELD_UPGRADE_PATHS.items() for old in old_names}
 
 
 def membership_length_months(join_date: pd.Series, xdate: pd.Series) -> pd.Series:
@@ -64,7 +65,7 @@ def membership_length_years(join_date: pd.Series, xdate: pd.Series) -> pd.Series
     return membership_length_months(join_date, xdate) // 12
 
 
-def format_zip_code(zip_code: str) -> str:
+def format_zip_code(zip_code: str | int) -> str:
     """Format zip code to 5 characters, zero-pad if necessary."""
     return str(zip_code).zfill(5)
 
@@ -144,7 +145,7 @@ def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def scan_memb_list_from_csv(csv_file_data: IO[bytes]) -> pd.DataFrame:
+def scan_memb_list_from_csv(csv_file_data: TextIOWrapper | IO[bytes]) -> pd.DataFrame:
     """Convert the provided csv data into a pandas dataframe."""
     return pd.read_csv(csv_file_data, dtype={"zip": str}, header=0)
 
@@ -175,7 +176,7 @@ def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
 def branch_name_from_zip_code(zip_code: str, branch_zips: pd.DataFrame) -> str:
     """Check for provided zip_code in provided branch_zips and return relevant branch name if found."""
     cleaned_zip_code = format_zip_code(zip_code).split("-")[0]
-    return branch_zips.loc[cleaned_zip_code, "branch"] if cleaned_zip_code in branch_zips.index else ""
+    return str(branch_zips.loc[cleaned_zip_code, "branch"]) if cleaned_zip_code in branch_zips.index else ""
 
 
 def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: Path) -> dict[str, pd.DataFrame]:

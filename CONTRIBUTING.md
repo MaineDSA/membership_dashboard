@@ -1,6 +1,6 @@
 ## Getting Started
 
-To run this code, you'll need to have Python 3.9, 3.10, 3.11, or 3.12 installed on your machine. You'll also need to
+To run this code, you'll need to have Python 3.11, 3.12, or 3.13 installed on your machine. You'll also need to
 install the required packages by running the following commands from inside the project folder:
 
 ```shell
@@ -38,7 +38,6 @@ project directory before committing.
 
 If you add or modify any dependencies, be sure to list them in pyproject.toml.
 The optional dependency group [dev] is used for dependencies used by developers working on this codebase.
-The optional dependency group [github-actions] is used for dependencies used when testing or executing CI actions.
 
 ### Style
 
