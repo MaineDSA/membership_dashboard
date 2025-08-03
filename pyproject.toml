@@ -7,33 +7,33 @@ license = { "file" = "LICENSE" }
 authors = [{ "name" = "bmos", "email" = "wil.t.dsa@pm.me" }]
 urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
 dependencies = [
-    "dash-bootstrap-components==2.0.3",
-    "dash-bootstrap-templates==2.1.0",
-    "dash==3.2.0",
-    "mapbox==0.18.1",
-    "numpy>=1.26.4,<3",
-    "pandas==2.3.0",
-    "pandera==0.23.1",
-    "plotly==6.1.2",
-    "python-dotenv==1.1.1",
-    "ratelimit==2.2.1",
-    "tqdm==4.67.1"
+    "dash-bootstrap-components~=2.0",
+    "dash-bootstrap-templates~=2.1",
+    "dash~=3.2",
+    "mapbox~=0.18",
+    "numpy~=2.3",
+    "pandas~=2.3",
+    "pandera~=0.23",
+    "plotly~=6.1",
+    "python-dotenv~=1.1",
+    "ratelimit~=2.2",
+    "tqdm~=4.67"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "bandit[sarif]==1.8.3",
-    "coverage==7.8.2",
-    "mypy==1.16.0",
-    "pandas-stubs==2.2.3.250527",
-    "plotly-stubs==0.0.5",
-    "pre-commit==4.2.0",
-    "pytest-cov==6.1.1",
-    "pytest-xdist==3.7.0",
-    "pytest==8.3.5",
-    "ruff==0.11.10",
-    "types-ratelimit==2.2.0.20250501",
-    "types-tqdm==4.67.0.20250516",
+    "bandit[sarif]~=1.8",
+    "coverage~=7.8",
+    "mypy~=1.16",
+    "pandas-stubs~=2.2",
+    "plotly-stubs~=0.0",
+    "pre-commit~=4.2",
+    "pytest-cov~=6.1",
+    "pytest-xdist~=3.7",
+    "pytest~=8.3",
+    "ruff~=0.11",
+    "types-ratelimit~=2.2",
+    "types-tqdm~=4.67",
 ]
 
 [tool.ruff]
