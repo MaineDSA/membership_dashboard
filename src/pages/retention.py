@@ -161,10 +161,12 @@ def layout() -> dbc.Row:
     Input(component_id="retention-years-slider", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_retention(date_selected: str, years: list[int], is_dark_mode: bool) -> [go.Figure] * 10:
+def create_retention(
+    date_selected: str, years: list[int], is_dark_mode: bool
+) -> tuple[go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure]:
     """Update the retention graphs shown based on the selected membership list date."""
     if not date_selected:
-        return [go.Figure()] * 10
+        return go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure()
 
     df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_df = df.loc[df["membership_type"] != "lifetime"]
@@ -283,10 +285,10 @@ def create_retention(date_selected: str, years: list[int], is_dark_mode: bool) -
                     x=df_rpy.index,
                     y=df_rpy[c],
                     mode="lines+markers",
-                    name=c,
-                    line={"color": colors.COLORS[c % color_len]},
+                    name=str(c),
+                    line={"color": colors.COLORS[i % color_len]},
                 )
-                for c in df_rpy.columns
+                for i, c in enumerate(df_rpy.columns)
                 if c not in [0, 1]
             ],
             layout=go.Layout(
@@ -306,10 +308,10 @@ def create_retention(date_selected: str, years: list[int], is_dark_mode: bool) -
                     x=df_rpq.index,
                     y=df_rpq[c],
                     mode="lines+markers",
-                    name=c,
-                    line={"color": colors.COLORS[c % color_len]},
+                    name=str(c),
+                    line={"color": colors.COLORS[i % color_len]},
                 )
-                for c in df_rpq.columns
+                for i, c in enumerate(df_rpq.columns)
                 if c not in [0, 1]
             ],
             layout=go.Layout(

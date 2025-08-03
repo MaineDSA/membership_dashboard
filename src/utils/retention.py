@@ -22,9 +22,9 @@ class Columns(Enum):
 def retention_pivot(df: pd.DataFrame, join_interval: Columns, membership_length: Columns) -> pd.DataFrame:
     """Return the transposed pivot table to be used in other retention functions."""
     return df.pivot_table(
-        index=[join_interval],
-        columns=[membership_length],
-        values=Columns.COUNTING_COLUMN,
+        index=[join_interval.value],
+        columns=[membership_length.value],
+        values=Columns.COUNTING_COLUMN.value,
         fill_value=0,
         aggfunc=len,
     ).transpose()[::-1]
@@ -78,6 +78,4 @@ def retention_pct_mos(df: pd.DataFrame) -> pd.DataFrame:
 def retention_pct_quarter(df: pd.DataFrame) -> pd.DataFrame:
     """Calculate percentage of membership retention based on quich quarter each member joined, with a resolution of years."""
     pivot = retention_pivot(df, Columns.JOIN_QUARTER, Columns.MEMBERSHIP_LENGTH_YEARS)
-    return (
-        (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None).infer_objects().interpolate(limit=1, limit_area="inside")
-    )
+    return (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None).infer_objects().interpolate(limit=1, limit_area="inside")
