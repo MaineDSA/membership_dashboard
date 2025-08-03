@@ -32,8 +32,8 @@ def persist_to_file(file_name: Path) -> Callable:
             param_hash = hashlib.sha256(param.encode("utf-8")).hexdigest()
             if param_hash not in cache:
                 cache[param_hash] = original_func(param)
-                with file_name.open(mode="w") as f:
-                    json.dump(cache, f)
+                with file_name.open(mode="w") as json_file:
+                    json.dump(cache, json_file)
             return cache[param_hash]
 
         return new_func
