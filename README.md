@@ -14,16 +14,16 @@
 | src/pages/\_\_init\_\_.py        |        0 |        0 |        0 |        0 |    100% |           |
 | src/pages/counts.py              |       31 |       31 |        4 |        0 |      0% |     1-127 |
 | src/pages/graphs.py              |       39 |       39 |        6 |        0 |      0% |     1-186 |
-| src/pages/list.py                |       21 |       21 |        2 |        0 |      0% |      1-89 |
-| src/pages/map.py                 |       27 |       27 |        4 |        0 |      0% |     1-100 |
-| src/pages/retention.py           |       36 |       36 |        2 |        0 |      0% |     1-407 |
+| src/pages/list.py                |       22 |       22 |        2 |        0 |      0% |      1-90 |
+| src/pages/map.py                 |       49 |       49 |       20 |        0 |      0% |     1-130 |
+| src/pages/retention.py           |       36 |       36 |        2 |        0 |      0% |     1-409 |
 | src/pages/timeline.py            |       29 |       29 |        4 |        0 |      0% |      1-97 |
 | src/utils/\_\_init\_\_.py        |        0 |        0 |        0 |        0 |    100% |           |
-| src/utils/geocoding.py           |       47 |        8 |       10 |        3 |     77% |21, 28, 45-48, 56, 61 |
+| src/utils/geocoding.py           |       53 |       12 |        8 |        3 |     75% |24, 31, 48-58, 66, 71 |
 | src/utils/retention.py           |       26 |       26 |        0 |        0 |      0% |      3-81 |
-| src/utils/scan\_lists.py         |      106 |       12 |       10 |        1 |     89% |64, 76-77, 154-155, 164-169, 200 |
+| src/utils/scan\_lists.py         |      107 |       12 |       10 |        1 |     89% |65, 77-78, 155-156, 165-170, 201 |
 | src/utils/schema.py              |       12 |        0 |        0 |        0 |    100% |           |
-|                        **TOTAL** |  **410** |  **265** |   **46** |    **4** | **35%** |           |
+|                        **TOTAL** |  **440** |  **292** |   **60** |    **4** | **32%** |           |
 
 
 ## Setup coverage badge
