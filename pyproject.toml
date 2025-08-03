@@ -2,7 +2,7 @@
 name = "membership_dashboard"
 version = "1.1.0"
 readme = "README.md"
-requires-python = ">=3.10.0"
+requires-python = ">=3.11"
 license = { "file" = "LICENSE" }
 authors = [{ "name" = "bmos", "email" = "wil.t.dsa@pm.me" }]
 urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
@@ -38,7 +38,7 @@ dev = [
 
 [tool.ruff]
 line-length = 160
-target-version = "py310"
+target-version = "py311"
 include = [
     "src/**/*.py",
     "tests/**/*.py",
