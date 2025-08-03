@@ -14,18 +14,13 @@ repos:
           - id: debug-statements
           - id: requirements-txt-fixer
           - id: mixed-line-ending
-    - repo: https://github.com/asottile/pyupgrade
-      rev: 'v3.19.1'
-      hooks:
-          - id: pyupgrade
-            args: ['--py310-plus']
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: 'v0.11.10'
+      rev: 'v0.12.7'
       hooks:
           - id: ruff
           - id: ruff-format
     - repo: https://github.com/PyCQA/bandit
-      rev: '1.8.3'
+      rev: '1.8.6'
       hooks:
           - id: bandit
             args: ['--confidence-level=medium', '--severity-level=medium', '--configfile', 'pyproject.toml']
