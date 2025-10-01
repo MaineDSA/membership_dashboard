@@ -28,7 +28,7 @@ dev = [
     "pandas-stubs~=2.2",
     "plotly-stubs~=0.0",
     "pre-commit~=4.2",
-    "pytest-cov~=6.1",
+    "pytest-cov~=7.0",
     "pytest-xdist~=3.7",
     "pytest~=8.3",
     "ruff==0.12.7",
