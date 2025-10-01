@@ -144,7 +144,7 @@ jobs:
       - id: run-ruff-sarif
         run: ruff check --output-format=sarif -o results.sarif .
 
-      - uses: github/codeql-action/upload-sarif@3c3833e0f8c1c83d449a7478aa59c036a9165498
+      - uses: github/codeql-action/upload-sarif@3599b3baa15b485a2e49ef411a7a4bb2452e7f93
         if: ( success() || failure() ) && contains('["success", "failure"]', steps.run-ruff-sarif.outcome)
         with:
           sarif_file: results.sarif
@@ -185,7 +185,7 @@ jobs:
         run: |
           bandit --confidence-level 'medium' --format 'sarif' --output 'results.sarif' --recursive 'src'
 
-      - uses: github/codeql-action/upload-sarif@3c3833e0f8c1c83d449a7478aa59c036a9165498
+      - uses: github/codeql-action/upload-sarif@3599b3baa15b485a2e49ef411a7a4bb2452e7f93
         if: ( success() || failure() ) && contains('["success", "failure"]', steps.run-bandit-sarif.outcome)
         with:
           sarif_file: results.sarif
