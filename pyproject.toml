@@ -32,6 +32,7 @@ dev = [
     "pytest-xdist~=3.7",
     "pytest~=9.0",
     "ruff==0.14.7",
+    "ssort==0.15.0",
     "types-ratelimit~=2.2",
     "types-tqdm~=4.67",
 ]
