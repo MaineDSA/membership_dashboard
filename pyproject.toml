@@ -22,7 +22,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "bandit[sarif]==1.9.1",
+    "bandit[sarif]==1.9.2",
     "coverage~=7.8",
     "mypy~=1.16",
     "pandas-stubs~=2.2",
@@ -31,10 +31,12 @@ dev = [
     "pytest-cov~=7.0",
     "pytest-xdist~=3.7",
     "pytest~=9.0",
-    "ruff==0.14.5",
+    "ruff==0.14.7",
     "types-ratelimit~=2.2",
     "types-tqdm~=4.67",
 ]
+
+[tool]
 
 [tool.ruff]
 line-length = 160
@@ -70,6 +72,7 @@ extend-select = [
     "LOG",  # flake8-logging (LOG)
     "N",  # pep8-naming (N)
     "PIE",  # flake8-pie (PIE)
+    "PL",  # Pylint (PL)
     "PT",  # flake8-pytest-style (PT)
     "PTH",  # flake8-use-pathlib (PTH)
     "Q",  # flake8-quotes (Q)
@@ -100,36 +103,31 @@ ignore = [
     "FIX002",  # line-contains-todo (FIX002)
 ]
 
-[tool.pytest.ini_options]
-addopts = "--cov=src -n auto"
+[tool.ruff.lint.per-file-ignores]
+"**/{tests,docs}/*" = [
+    "SLF001",  # private-member-access (SLF001)
+    "PLR2004",  # magic-value-comparison (PLR2004)
+]
+
+[tool.pytest]
+addopts = ["-n", "auto", "--cov=src", "--no-cov-on-fail"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "module"
 testpaths = [
     "tests",
 ]
 
+[tool.coverage]
+
 [tool.coverage.run]
 branch = true
 relative_files = true
-command_line = "-m pytest"
-
-[tool.coverage.paths]
-source = [
-    "src/",
-]
-omit = [
-    "tests",
-]
 
 [tool.coverage.report]
 exclude_also = [
     "logger\\.",
     'if __name__ == "__main__":',
-    "asyncio\\.run(main())",
-]
-
-[tool.bandit]
-exclude_dirs = [
-    "./tests/",
-    "./.venv/",
+    "app\\.run\\(debug=True\\)",
 ]
 
 [[tool.mypy.overrides]]
