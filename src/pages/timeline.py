@@ -62,7 +62,7 @@ def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, d
     logger.info("Calculating metrics for %s membership lists", len(members))
     columns = {column for memb_list in members.values() for column in memb_list.columns}
     return {
-        column: {list_date: members[list_date].get(column) for list_date, memb_list in members.items() if column in memb_list.columns} for column in columns
+        column: {list_date: memb_list.get(column) for list_date, memb_list in members.items() if column in memb_list.columns} for column in columns
     }
 
 
