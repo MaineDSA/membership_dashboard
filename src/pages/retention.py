@@ -406,4 +406,17 @@ def create_retention(
         ),
     ]
 
-    return (dark_mode.with_template_if_dark(chart, is_dark_mode=is_dark_mode) for chart in charts)
+    # this is ugly but makes the typing work (ugh)
+    charts_with_template = [dark_mode.with_template_if_dark(chart, is_dark_mode=is_dark_mode) for chart in charts]
+    return (
+        charts_with_template[0],
+        charts_with_template[1],
+        charts_with_template[2],
+        charts_with_template[3],
+        charts_with_template[4],
+        charts_with_template[5],
+        charts_with_template[6],
+        charts_with_template[7],
+        charts_with_template[8],
+        charts_with_template[9],
+    )
