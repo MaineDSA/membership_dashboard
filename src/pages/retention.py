@@ -16,7 +16,9 @@ today_year = int(today_date.date().strftime("%Y"))
 default_start_year = 2016
 default_end_date = pd.to_datetime("today") - pd.tseries.offsets.DateOffset(months=14)
 default_end_year = int(default_end_date.date().strftime("%Y"))
-years_between = {i: f"{i}" for i in range(earliest_year, today_year, 4)}
+years_between: dict[str | float | int, str | dcc.RangeSlider.Marks] | None = {
+    i: dcc.RangeSlider.Marks(label=f"{i}") for i in range(earliest_year, today_year, 4)
+}
 
 membership_retention = html.Div(
     children=[
