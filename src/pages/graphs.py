@@ -149,7 +149,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mod
             df_compare["membership_status"] if "membership_status" in df_compare else pd.DataFrame(),
             "Membership Counts",
             "Members",
-            False,
+            is_dark_mode=False,
         ),
         create_chart(
             df.loc[df["membership_status"] == "member in good standing"]["membership_type"] if "membership_status" in df else pd.DataFrame(),
@@ -158,28 +158,28 @@ def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mod
             else pd.DataFrame(),
             "Dues of Members in Good Standing",
             "Members",
-            True,
+            is_dark_mode=True,
         ),
         create_chart(
             membersdf["union_member"] if "union_member" in df else pd.DataFrame(),
             membersdf_compare["union_member"] if "union_member" in df_compare else pd.DataFrame(),
             "Union Membership of Constitutional Members",
             "Members",
-            True,
+            is_dark_mode=True,
         ),
         create_chart(
             membersdf["membership_length_years"].clip(upper=8) if "membership_length_years" in df else pd.DataFrame(),
             membersdf_compare["membership_length_years"].clip(upper=8) if "membership_length_years" in membersdf_compare else pd.DataFrame(),
             "Length of Membership of Constitutional Members (0 - 8+yrs)",
             "Members",
-            False,
+            is_dark_mode=False,
         ),
         create_chart(
             multiple_choice(membersdf, "race", ",")["race"] if "race" in df else pd.DataFrame(),
             multiple_choice(membersdf_compare, "race", ",")["race"] if "race" in membersdf_compare else pd.DataFrame(),
             "Racial Demographics of Constitutional Members",
             "Members",
-            True,
+            is_dark_mode=True,
         ),
     ]
 
