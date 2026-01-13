@@ -75,7 +75,7 @@ def create_chart(
     df_compare_field: pd.DataFrame,
     title: str,
     ylabel: str,
-    log: bool,
+    *, log: bool,
 ) -> go.Figure:
     """Set up html data to show a chart of 1-2 dataframes."""
     chartdf_vc = df_field.value_counts()
@@ -126,7 +126,7 @@ def create_chart(
     Input(component_id="list-compare", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_graphs(date_selected: str, date_compare_selected: str, is_dark_mode: bool) -> [go.Figure] * 5:
+def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mode: bool) -> [go.Figure] * 5:
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return [go.Figure()] * 5

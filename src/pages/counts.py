@@ -79,7 +79,7 @@ def layout() -> dbc.Row:
     return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_counts, width=10)], className="dbc", style={"margin": "1em"})
 
 
-def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str], is_dark_mode: bool) -> go.Figure:
+def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str], *, is_dark_mode: bool) -> go.Figure:
     """Construct string showing value and change (if comparison data is provided)."""
     column, value, title = plan
     count = df[column].eq(value).sum()
@@ -116,7 +116,7 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str]
     Input(component_id="list-compare", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_metrics(date_selected: str, date_compare_selected: str, dark_mode: bool) -> list[go.Figure]:
+def create_metrics(date_selected: str, date_compare_selected: str, *, dark_mode: bool) -> list[go.Figure]:
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return [go.Figure()] * len(METRICS)
