@@ -92,4 +92,4 @@ def create_timeline(selected_columns: list[str], selected_statuses: list[str], *
             for count, value in enumerate(timeline_metric)
         ]
     )
-    return dark_mode.with_template_if_dark(fig, is_dark_mode)
+    return dark_mode.with_template_if_dark(fig, is_dark_mode=is_dark_mode)

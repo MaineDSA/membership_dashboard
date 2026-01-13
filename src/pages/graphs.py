@@ -184,4 +184,4 @@ def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mod
         ),
     ]
 
-    return [dark_mode.with_template_if_dark(chart, is_dark_mode) for chart in charts]
+    return [dark_mode.with_template_if_dark(chart, is_dark_mode=is_dark_mode) for chart in charts]

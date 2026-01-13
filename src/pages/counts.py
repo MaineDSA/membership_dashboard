@@ -103,7 +103,7 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str]
 
     fig = go.Figure(data=indicator, layout={"title": title})
 
-    return dark_mode.with_template_if_dark(fig, is_dark_mode)
+    return dark_mode.with_template_if_dark(fig, is_dark_mode=is_dark_mode)
 
 
 @callback(
