@@ -61,7 +61,7 @@ def layout() -> dbc.Row:
     Input(component_id="status-filter", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_map(date_selected: str, selected_column: str, selected_statuses: list[str], dark_mode: bool) -> go.Figure:
+def create_map(date_selected: str, selected_column: str, selected_statuses: list[str], *, is_dark_mode: bool) -> go.Figure:
     """Set up html data to show a map of Maine DSA members."""
     df_map = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_map = df_map.loc[df_map["membership_status"].isin(selected_statuses)]
@@ -80,17 +80,17 @@ def create_map(date_selected: str, selected_column: str, selected_statuses: list
 
             # Estimate zoom level based on data span
             max_span = max(lat_span, lon_span)
-            if max_span > 10:
+            if max_span > 10:  # noqa: PLR2004 Magic value used in comparison
                 zoom = 4
-            elif max_span > 5:
+            elif max_span > 5:  # noqa: PLR2004 Magic value used in comparison
                 zoom = 5
-            elif max_span > 2:
+            elif max_span > 2:  # noqa: PLR2004 Magic value used in comparison
                 zoom = 6
             elif max_span > 1:
                 zoom = 7
-            elif max_span > 0.5:
+            elif max_span > 0.5:  # noqa: PLR2004 Magic value used in comparison
                 zoom = 8
-            elif max_span > 0.2:
+            elif max_span > 0.2:  # noqa: PLR2004 Magic value used in comparison
                 zoom = 9
             else:
                 zoom = 10
@@ -122,7 +122,7 @@ def create_map(date_selected: str, selected_column: str, selected_statuses: list
         template=pio.templates["darkly"],
     )
 
-    if not dark_mode:
+    if not is_dark_mode:
         map_figure.update_layout(map_style="light", template=pio.templates["journal"])
 
     map_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
