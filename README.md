@@ -13,11 +13,11 @@
 | src/components/status\_filter.py |        5 |        5 |        0 |        0 |      0% |       1-8 |
 | src/pages/\_\_init\_\_.py        |        0 |        0 |        0 |        0 |    100% |           |
 | src/pages/counts.py              |       31 |       31 |        4 |        0 |      0% |     1-127 |
-| src/pages/graphs.py              |       39 |       39 |        6 |        0 |      0% |     1-186 |
+| src/pages/graphs.py              |       39 |       39 |        6 |        0 |      0% |     1-187 |
 | src/pages/list.py                |       22 |       22 |        2 |        0 |      0% |      1-90 |
 | src/pages/map.py                 |       49 |       49 |       20 |        0 |      0% |     1-130 |
 | src/pages/retention.py           |       36 |       36 |        2 |        0 |      0% |     1-409 |
-| src/pages/timeline.py            |       30 |       30 |        4 |        0 |      0% |      1-97 |
+| src/pages/timeline.py            |       30 |       30 |        4 |        0 |      0% |      1-95 |
 | src/utils/\_\_init\_\_.py        |        0 |        0 |        0 |        0 |    100% |           |
 | src/utils/geocoding.py           |       54 |       12 |        8 |        3 |     76% |24, 31, 48-58, 66, 71 |
 | src/utils/retention.py           |       26 |       26 |        0 |        0 |      0% |      3-81 |
