@@ -75,7 +75,8 @@ def create_chart(
     df_compare_field: pd.DataFrame,
     title: str,
     ylabel: str,
-    *, log: bool,
+    *,
+    log: bool,
 ) -> go.Figure:
     """Set up html data to show a chart of 1-2 dataframes."""
     chartdf_vc = df_field.value_counts()

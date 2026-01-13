@@ -61,9 +61,7 @@ def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, d
     """Restructure a dictionary of dataframs keyed to dates into a dictionary of pandas column names containing the columns keyed to each date."""
     logger.info("Calculating metrics for %s membership lists", len(members))
     columns = {column for memb_list in members.values() for column in memb_list.columns}
-    return {
-        column: {list_date: memb_list.get(column) for list_date, memb_list in members.items() if column in memb_list.columns} for column in columns
-    }
+    return {column: {list_date: memb_list.get(column) for list_date, memb_list in members.items() if column in memb_list.columns} for column in columns}
 
 
 @callback(
