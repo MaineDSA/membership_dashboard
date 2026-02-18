@@ -1,10 +1,12 @@
 import logging
+from typing import Literal
 
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
 from dash import Input, Output, callback, dcc, html
 from plotly import graph_objects as go
+from plotly.graph_objs import Figure
 
 from src.components import colors, dark_mode, sidebar, status_filter
 from src.utils import scan_lists, schema
@@ -66,12 +68,14 @@ def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, d
 
 
 @callback(
-    Output(component_id="timeline", component_property="figure"),
-    Input(component_id="selected-columns", component_property="value"),
-    Input(component_id="status-filter", component_property="value"),
-    Input(component_id="color-mode-switch", component_property="value"),
+    output={"timeline": Output(component_id="timeline", component_property="figure")},
+    inputs={
+        "selected_columns": Input(component_id="selected-columns", component_property="value"),
+        "selected_statuses": Input(component_id="status-filter", component_property="value"),
+        "is_dark_mode": Input(component_id="color-mode-switch", component_property="value"),
+    },
 )
-def create_timeline(selected_columns: list[str], selected_statuses: list[str], is_dark_mode: bool) -> go.Figure:
+def create_timeline(selected_columns: list[str], selected_statuses: list[str], *, is_dark_mode: bool) -> dict[Literal["timeline"], Figure]:
     """Update the timeline plotting selected columns."""
     membership_lists = {
         date: membership_list.loc[membership_list["membership_status"].isin(selected_statuses)] for date, membership_list in scan_lists.MEMB_LISTS.items()
@@ -93,4 +97,4 @@ def create_timeline(selected_columns: list[str], selected_statuses: list[str], i
             for count, value in enumerate(timeline_metric)
         ]
     )
-    return dark_mode.with_template_if_dark(fig, is_dark_mode=is_dark_mode)
+    return {"timeline": dark_mode.with_template_if_dark(fig, is_dark_mode=is_dark_mode)}

@@ -1,3 +1,5 @@
+from typing import Literal
+
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -6,6 +8,8 @@ from dash import Input, Output, callback, dcc, html
 
 from src.components import dark_mode, sidebar
 from src.utils import scan_lists
+
+COUNTS = ["income", "lifetime", "migs", "expiring", "lapsed"]
 
 METRICS = [
     ["membership_type", "income-based", "Members Paying Income-Based Dues"],
@@ -107,21 +111,27 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str]
 
 
 @callback(
-    Output(component_id="count-income-based", component_property="figure"),
-    Output(component_id="count-lifetime", component_property="figure"),
-    Output(component_id="count-migs", component_property="figure"),
-    Output(component_id="count-expiring", component_property="figure"),
-    Output(component_id="count-lapsed", component_property="figure"),
-    Input(component_id="list-selected", component_property="value"),
-    Input(component_id="list-compare", component_property="value"),
-    Input(component_id="color-mode-switch", component_property="value"),
+    output={
+        "income": Output("count-income-based", "figure"),
+        "lifetime": Output("count-lifetime", "figure"),
+        "migs": Output("count-migs", "figure"),
+        "expiring": Output("count-expiring", "figure"),
+        "lapsed": Output("count-lapsed", "figure"),
+    },
+    inputs={
+        "date_selected": Input("list-selected", "value"),
+        "date_compare_selected": Input("list-compare", "value"),
+        "is_dark_mode": Input("color-mode-switch", "value"),
+    },
 )
-def create_metrics(date_selected: str, date_compare_selected: str, *, is_dark_mode: bool) -> list[go.Figure]:
+def create_metrics(
+    date_selected: str, date_compare_selected: str, *, is_dark_mode: bool
+) -> dict[Literal["income", "lifetime", "migs", "expiring", "lapsed"], go.Figure]:
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
-        return [go.Figure() for _ in range(len(METRICS))]
+        return {count: go.Figure() for count_number, count in iter(COUNTS)}
 
     df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_compare = scan_lists.MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
 
-    return [calculate_metric(df, df_compare, metric_plan, is_dark_mode=is_dark_mode) for metric_plan in METRICS]
+    return {count: calculate_metric(df, df_compare, METRICS[count_number], is_dark_mode=is_dark_mode) for count_number, count in enumerate(COUNTS)}

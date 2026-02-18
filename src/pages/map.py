@@ -1,4 +1,5 @@
 from pathlib import Path, PurePath
+from typing import Literal
 
 import dash
 import dash_bootstrap_components as dbc
@@ -55,13 +56,15 @@ def layout() -> dbc.Row:
 
 
 @callback(
-    Output(component_id="map", component_property="figure"),
-    Input(component_id="list-selected", component_property="value"),
-    Input(component_id="selected-column", component_property="value"),
-    Input(component_id="status-filter", component_property="value"),
-    Input(component_id="color-mode-switch", component_property="value"),
+    output={"map_fig": Output(component_id="map", component_property="figure")},
+    inputs={
+        "date_selected": Input(component_id="list-selected", component_property="value"),
+        "selected_column": Input(component_id="selected-column", component_property="value"),
+        "selected_statuses": Input(component_id="status-filter", component_property="value"),
+        "is_dark_mode": Input(component_id="color-mode-switch", component_property="value"),
+    },
 )
-def create_map(date_selected: str, selected_column: str, selected_statuses: list[str], is_dark_mode: bool) -> go.Figure:
+def create_map(date_selected: str, selected_column: str, selected_statuses: list[str], *, is_dark_mode: bool) -> dict[Literal["map_fig"], go.Figure]:
     """Set up html data to show a map of Maine DSA members."""
     df_map = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_map = df_map.loc[df_map["membership_status"].isin(selected_statuses)]
@@ -127,4 +130,4 @@ def create_map(date_selected: str, selected_column: str, selected_statuses: list
 
     map_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
-    return map_figure
+    return {"map_fig": map_figure}
