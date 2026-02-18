@@ -163,10 +163,10 @@ def layout() -> dbc.Row:
 )
 def create_retention(
     date_selected: str, years: list[int], *, is_dark_mode: bool
-) -> tuple[go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure]:
+) -> list[go.Figure]:
     """Update the retention graphs shown based on the selected membership list date."""
     if not date_selected:
-        return go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure()
+        return [go.Figure()] * 10
 
     df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_df = df.loc[df["membership_type"] != "lifetime"]
