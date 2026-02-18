@@ -48,9 +48,9 @@ def layout() -> dbc.Row:
     return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_timeline, width=10)], className="dbc", style={"margin": "1em"})
 
 
-def value_counts_by_date(date_counts: dict) -> dict[str, int]:
+def value_counts_by_date(date_counts: dict) -> dict[str, dict[str, int]]:
     """Return data from date_counts in format column>date>value (instead of date>column>value) for use in creating timeline traces."""
-    metrics = {}
+    metrics: dict[str, dict[str, int]] = {}
     for date, values in date_counts.items():
         for value, count in values.value_counts().items():
             metrics.setdefault(value, {}).setdefault(date, count)
@@ -61,7 +61,8 @@ def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, d
     """Restructure a dictionary of dataframs keyed to dates into a dictionary of pandas column names containing the columns keyed to each date."""
     logger.info("Calculating metrics for %s membership lists", len(members))
     columns = {column for memb_list in members.values() for column in memb_list.columns}
-    return {column: {list_date: memb_list.get(column) for list_date, memb_list in members.items() if column in memb_list.columns} for column in columns}
+
+    return {column: {list_date: memb_list[column] for list_date, memb_list in members.items() if column in memb_list.columns} for column in columns}
 
 
 @callback(
