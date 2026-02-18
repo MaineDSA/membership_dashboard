@@ -1,17 +1,20 @@
 from pathlib import Path, PurePath
-from typing import Literal
+from typing import Literal, get_args
 
 import dash
 import dash_bootstrap_components as dbc
 import dotenv
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-import plotly.io as pio
 from dash import Input, Output, callback, dcc, html
+from plotly import express as px
+from plotly import graph_objects as go
+from plotly import io as pio
 
 from src.components import colors, sidebar, status_filter
 from src.utils import scan_lists, schema
+
+MapKeys = Literal["map_fig"]
+MapFigures = dict[MapKeys, go.Figure]
 
 dash.register_page(__name__, path="/map", title=f"Membership Dashboard: {__name__.title()}", order=5)
 
@@ -64,7 +67,7 @@ def layout() -> dbc.Row:
         "is_dark_mode": Input(component_id="color-mode-switch", component_property="value"),
     },
 )
-def create_map(date_selected: str, selected_column: str, selected_statuses: list[str], *, is_dark_mode: bool) -> dict[Literal["map_fig"], go.Figure]:
+def create_map(date_selected: str, selected_column: str, selected_statuses: list[str], *, is_dark_mode: bool) -> MapFigures:
     """Set up html data to show a map of Maine DSA members."""
     df_map = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_map = df_map.loc[df_map["membership_status"].isin(selected_statuses)]
@@ -130,4 +133,7 @@ def create_map(date_selected: str, selected_column: str, selected_statuses: list
 
     map_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
-    return {"map_fig": map_figure}
+    keys: tuple[MapKeys, ...] = get_args(MapKeys)
+    figure: MapFigures = {k: map_figure for k in keys}  # noqa: C420
+
+    return figure

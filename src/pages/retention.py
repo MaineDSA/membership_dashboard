@@ -1,13 +1,16 @@
-from typing import Literal
+from typing import Literal, get_args
 
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
-import plotly.graph_objects as go
 from dash import Input, Output, callback, dcc, html
+from plotly import graph_objects as go
 
 from src.components import colors, dark_mode, sidebar
 from src.utils import retention, scan_lists
+
+RetentionKeys = Literal["cnt_yr", "cnt_mo", "pct_yr", "pct_mo", "nth_yr", "nth_qtr", "yoy_yr", "yoy_mo", "ten_mem", "ten_lap"]
+RetentionFigures = dict[RetentionKeys, go.Figure]
 
 dash.register_page(__name__, path="/retention", title=f"Membership Dashboard: {__name__.title()}", order=4)
 
@@ -18,9 +21,7 @@ today_year = int(today_date.date().strftime("%Y"))
 default_start_year = 2016
 default_end_date = pd.to_datetime("today") - pd.tseries.offsets.DateOffset(months=14)
 default_end_year = int(default_end_date.date().strftime("%Y"))
-years_between: dict[str | float | int, str | dcc.RangeSlider.Marks] | None = {
-    i: dcc.RangeSlider.Marks(label=f"{i}") for i in range(earliest_year, today_year, 4)
-}
+years_between: dict[int, dict[str, str]] = {i: {"label": f"{i}"} for i in range(earliest_year, today_year, 4)}
 
 membership_retention = html.Div(
     children=[
@@ -169,9 +170,7 @@ def layout() -> dbc.Row:
         "is_dark_mode": Input("color-mode-switch", "value"),
     },
 )
-def create_retention(
-    date_selected: str, years: list[int], *, is_dark_mode: bool
-) -> dict[Literal["cnt_yr", "cnt_mo", "pct_yr", "pct_mo", "nth_yr", "nth_qtr", "yoy_yr", "yoy_mo", "ten_mem", "ten_lap"], go.Figure]:
+def create_retention(date_selected: str, years: list[int], *, is_dark_mode: bool) -> RetentionFigures:
     """Update the retention graphs shown based on the selected membership list date."""
     if not date_selected:
         return {
@@ -206,7 +205,7 @@ def create_retention(
 
     color_len = len(colors.COLORS)
 
-    charts = {
+    charts: RetentionFigures = {
         "cnt_yr": go.Figure(
             data=[
                 go.Scatter(
@@ -425,4 +424,7 @@ def create_retention(
         ),
     }
 
-    return {chart: dark_mode.with_template_if_dark(figure, is_dark_mode=is_dark_mode) for chart, figure in charts.items()}
+    keys: tuple[RetentionKeys, ...] = get_args(RetentionKeys)
+    figures: RetentionFigures = {k: dark_mode.with_template_if_dark(charts[k], is_dark_mode=is_dark_mode) for k in keys}
+
+    return figures

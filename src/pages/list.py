@@ -7,6 +7,8 @@ from dash.dash_table.DataTable import DataTable
 from src.components import colors, sidebar
 from src.utils import scan_lists, schema
 
+ListFigures = tuple[list[dict], list]
+
 dash.register_page(__name__, path="/list", title=f"Membership Dashboard: {__name__.title()}", order=1)
 
 membership_list = html.Div(
@@ -40,12 +42,18 @@ def layout() -> dbc.Row:
 
 
 @callback(
-    Output(component_id="list", component_property="data"),
-    Output(component_id="list", component_property="style_data_conditional"),
-    Input(component_id="list-selected", component_property="value"),
-    Input(component_id="list-compare", component_property="value"),
+    output={
+        "timeline": [
+            Output(component_id="list", component_property="data"),
+            Output(component_id="list", component_property="style_data_conditional"),
+        ],
+    },
+    inputs={
+        "date_selected": Input(component_id="list-selected", component_property="value"),
+        "date_compare_selected": Input(component_id="list-compare", component_property="value"),
+    },
 )
-def create_list(date_selected: str, date_compare_selected: str) -> tuple[list[dict], list]:
+def create_list(date_selected: str, date_compare_selected: str) -> ListFigures:
     """Update the list shown based on the selected membership list date."""
     df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_compare = scan_lists.MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
@@ -88,4 +96,6 @@ def create_list(date_selected: str, date_compare_selected: str) -> tuple[list[di
         ]
     ]
 
-    return records, conditional_style
+    figures: ListFigures = (records, conditional_style)
+
+    return figures

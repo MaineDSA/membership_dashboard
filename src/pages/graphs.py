@@ -1,13 +1,16 @@
-from typing import Literal
+from typing import Literal, get_args
 
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
-import plotly.graph_objects as go
 from dash import Input, Output, callback, dcc, html
+from plotly import graph_objects as go
 
 from src.components import colors, dark_mode, sidebar
 from src.utils import scan_lists
+
+GraphKeys = Literal["status", "m_type", "union", "length", "race"]
+GraphFigures = dict[GraphKeys, go.Figure]
 
 dash.register_page(__name__, path="/graphs", title=f"Membership Dashboard: {__name__.title()}", order=3)
 
@@ -72,7 +75,7 @@ def get_positive_sign(num: float) -> str:
     return "+" if num > 0 else ""
 
 
-def create_chart(
+def create_graph(
     df_field: pd.Series | pd.DataFrame,
     df_compare_field: pd.Series | pd.DataFrame,
     title: str,
@@ -134,9 +137,7 @@ def create_chart(
         "is_dark_mode": Input("color-mode-switch", "value"),
     },
 )
-def create_graphs(
-    date_selected: str, date_compare_selected: str, *, is_dark_mode: bool
-) -> dict[Literal["status", "m_type", "union", "length", "race"], go.Figure]:
+def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mode: bool) -> GraphFigures:
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return {"status": go.Figure(), "m_type": go.Figure(), "union": go.Figure(), "length": go.Figure(), "race": go.Figure()}
@@ -154,13 +155,13 @@ def create_graphs(
     )
 
     charts = {
-        "status": create_chart(
+        "status": create_graph(
             df["membership_status"] if "membership_status" in df else pd.DataFrame(),
             df_compare["membership_status"] if "membership_status" in df_compare else pd.DataFrame(),
             "Membership Counts",
             "Members",
         ),
-        "m_type": create_chart(
+        "m_type": create_graph(
             df.loc[df["membership_status"] == "member in good standing"]["membership_type"] if "membership_status" in df else pd.DataFrame(),
             df_compare.loc[df_compare["membership_status"] == "member in good standing"]["membership_type"]
             if "membership_status" in df_compare
@@ -168,19 +169,19 @@ def create_graphs(
             "Dues of Members in Good Standing",
             "Members",
         ),
-        "union": create_chart(
+        "union": create_graph(
             membersdf["union_member"] if "union_member" in df else pd.DataFrame(),
             membersdf_compare["union_member"] if "union_member" in df_compare else pd.DataFrame(),
             "Union Membership of Constitutional Members",
             "Members",
         ),
-        "length": create_chart(
+        "length": create_graph(
             membersdf["membership_length_years"].clip(upper=8) if "membership_length_years" in df else pd.DataFrame(),
             membersdf_compare["membership_length_years"].clip(upper=8) if "membership_length_years" in membersdf_compare else pd.DataFrame(),
             "Length of Membership of Constitutional Members (0 - 8+yrs)",
             "Members",
         ),
-        "race": create_chart(
+        "race": create_graph(
             multiple_choice(membersdf, "race", ",")["race"] if "race" in df else pd.DataFrame(),
             multiple_choice(membersdf_compare, "race", ",")["race"] if "race" in membersdf_compare else pd.DataFrame(),
             "Racial Demographics of Constitutional Members",
@@ -188,4 +189,7 @@ def create_graphs(
         ),
     }
 
-    return {chart: dark_mode.with_template_if_dark(figure, is_dark_mode=is_dark_mode) for chart, figure in charts.items()}
+    keys: tuple[GraphKeys, ...] = get_args(GraphKeys)
+    figures: GraphFigures = {k: dark_mode.with_template_if_dark(charts[k], is_dark_mode=is_dark_mode) for k in keys}
+
+    return figures

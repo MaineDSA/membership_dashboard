@@ -1,19 +1,21 @@
 import logging
-from typing import Literal
+from typing import Literal, get_args
 
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
 from dash import Input, Output, callback, dcc, html
 from plotly import graph_objects as go
-from plotly.graph_objs import Figure
 
 from src.components import colors, dark_mode, sidebar, status_filter
 from src.utils import scan_lists, schema
 
-logger = logging.getLogger(__name__)
+TimelineKeys = Literal["timeline"]
+TimelineFigures = dict[TimelineKeys, go.Figure]
 
 dash.register_page(__name__, path="/", title=f"Membership Dashboard: {__name__.title()}", order=0)
+
+logger = logging.getLogger(__name__)
 
 membership_timeline = html.Div(
     children=[
@@ -59,9 +61,9 @@ def value_counts_by_date(date_counts: dict) -> dict[str, dict[str, int]]:
     return metrics
 
 
-def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, dict[str, pd.Series | None]]:
+def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, dict[str, pd.Series]]:
     """Restructure a dictionary of dataframs keyed to dates into a dictionary of pandas column names containing the columns keyed to each date."""
-    logger.info("Calculating metrics for %s membership lists", len(members))
+    logger.debug("Calculating metrics for %s membership lists", len(members))
     columns = {column for memb_list in members.values() for column in memb_list.columns}
 
     return {column: {list_date: memb_list[column] for list_date, memb_list in members.items() if column in memb_list.columns} for column in columns}
@@ -75,7 +77,7 @@ def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, d
         "is_dark_mode": Input(component_id="color-mode-switch", component_property="value"),
     },
 )
-def create_timeline(selected_columns: list[str], selected_statuses: list[str], *, is_dark_mode: bool) -> dict[Literal["timeline"], Figure]:
+def create_timeline(selected_columns: list[str], selected_statuses: list[str], *, is_dark_mode: bool) -> TimelineFigures:
     """Update the timeline plotting selected columns."""
     membership_lists = {
         date: membership_list.loc[membership_list["membership_status"].isin(selected_statuses)] for date, membership_list in scan_lists.MEMB_LISTS.items()
@@ -97,4 +99,8 @@ def create_timeline(selected_columns: list[str], selected_statuses: list[str], *
             for count, value in enumerate(timeline_metric)
         ]
     )
-    return {"timeline": dark_mode.with_template_if_dark(fig, is_dark_mode=is_dark_mode)}
+
+    keys: tuple[TimelineKeys, ...] = get_args(TimelineKeys)
+    figure: TimelineFigures = {k: dark_mode.with_template_if_dark(fig, is_dark_mode=is_dark_mode) for k in keys}
+
+    return figure
