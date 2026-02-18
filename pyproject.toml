@@ -109,6 +109,9 @@ ignore = [
     "SLF001",  # private-member-access (SLF001)
     "PLR2004",  # magic-value-comparison (PLR2004)
 ]
+"src/pages/*.py" = [
+    "FBT001",  # boolean-typed-positional-argument (FBT001) - Dash callbacks receive boolean args positionally
+]
 
 [tool.pytest]
 addopts = ["-n", "auto", "--cov=src", "--no-cov-on-fail"]
