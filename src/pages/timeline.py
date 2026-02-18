@@ -101,6 +101,6 @@ def create_timeline(selected_columns: list[str], selected_statuses: list[str], *
     )
 
     keys: tuple[TimelineKeys, ...] = get_args(TimelineKeys)
-    figure: TimelineFigures = {k: dark_mode.with_template_if_dark(fig, is_dark_mode=is_dark_mode) for k in keys}
+    figures: TimelineFigures = {k: dark_mode.with_template_if_dark(fig, is_dark_mode=is_dark_mode) for k in keys}
 
-    return figure
+    return figures

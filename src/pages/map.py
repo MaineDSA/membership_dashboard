@@ -134,6 +134,6 @@ def create_map(date_selected: str, selected_column: str, selected_statuses: list
     map_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
     keys: tuple[MapKeys, ...] = get_args(MapKeys)
-    figure: MapFigures = {k: map_figure for k in keys}  # noqa: C420
+    figures: MapFigures = {k: map_figure for k in keys}  # noqa: C420
 
-    return figure
+    return figures
