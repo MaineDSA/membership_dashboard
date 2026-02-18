@@ -162,7 +162,7 @@ def layout() -> dbc.Row:
     Input(component_id="color-mode-switch", component_property="value"),
 )
 def create_retention(
-    date_selected: str, years: list[int], *, is_dark_mode: bool
+    date_selected: str, years: list[int], is_dark_mode: bool  # noqa: FBT001
 ) -> list[go.Figure]:
     """Update the retention graphs shown based on the selected membership list date."""
     if not date_selected:

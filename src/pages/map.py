@@ -61,7 +61,7 @@ def layout() -> dbc.Row:
     Input(component_id="status-filter", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_map(date_selected: str, selected_column: str, selected_statuses: list[str], *, is_dark_mode: bool) -> go.Figure:
+def create_map(date_selected: str, selected_column: str, selected_statuses: list[str], is_dark_mode: bool) -> go.Figure:  # noqa: FBT001
     """Set up html data to show a map of Maine DSA members."""
     df_map = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_map = df_map.loc[df_map["membership_status"].isin(selected_statuses)]
