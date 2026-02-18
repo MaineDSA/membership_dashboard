@@ -6,7 +6,6 @@ from dash import Dash, Input, Output, clientside_callback, html
 DBC_CSS = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 TEMPLATES = ["darkly", "journal"]
 EXTERNAL_STYLESHEETS = [dbc.themes.DARKLY, dbc.themes.JOURNAL, DBC_CSS, dbc.icons.FONT_AWESOME]
-LOGO_FILE = "logo.svg"
 
 app = Dash(
     external_stylesheets=EXTERNAL_STYLESHEETS,
@@ -15,7 +14,6 @@ app = Dash(
     suppress_callback_exceptions=True,
     use_pages=True,
 )
-app._favicon = LOGO_FILE  # noqa: SLF001
 app.layout = html.Div(dash.page_container)
 dash_bootstrap_templates.load_figure_template(TEMPLATES)
 

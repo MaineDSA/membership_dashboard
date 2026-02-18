@@ -14,7 +14,7 @@ def sidebar() -> html.Div:
                 [
                     dbc.Col(
                         html.Img(
-                            src="/assets/logo.svg",
+                            src="/assets/favicon.svg",
                             alt="Red Maine DSA logo of a moose holding a rose in its mouth under the text Maine DSA",
                         ),
                         align="center",

@@ -16,7 +16,9 @@ today_year = int(today_date.date().strftime("%Y"))
 default_start_year = 2016
 default_end_date = pd.to_datetime("today") - pd.tseries.offsets.DateOffset(months=14)
 default_end_year = int(default_end_date.date().strftime("%Y"))
-years_between = {i: f"{i}" for i in range(earliest_year, today_year, 4)}
+years_between: dict[str | float | int, str | dcc.RangeSlider.Marks] | None = {
+    i: dcc.RangeSlider.Marks(label=f"{i}") for i in range(earliest_year, today_year, 4)
+}
 
 membership_retention = html.Div(
     children=[
@@ -161,9 +163,7 @@ def layout() -> dbc.Row:
     Input(component_id="retention-years-slider", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_retention(
-    date_selected: str, years: list[int], is_dark_mode: bool
-) -> list[go.Figure]:
+def create_retention(date_selected: str, years: list[int], is_dark_mode: bool) -> list[go.Figure]:
     """Update the retention graphs shown based on the selected membership list date."""
     if not date_selected:
         return [go.Figure()] * 10

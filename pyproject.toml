@@ -115,8 +115,6 @@ ignore = [
 
 [tool.pytest]
 addopts = ["-n", "auto", "--cov=src", "--no-cov-on-fail"]
-asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "module"
 testpaths = [
     "tests",
 ]
@@ -136,8 +134,8 @@ exclude_also = [
 
 [[tool.mypy.overrides]]
 module = [
-  "dash_bootstrap_components",
-  "dash_bootstrap_templates",
-  "mapbox",
+    "dash_bootstrap_components",
+    "dash_bootstrap_templates",
+    "mapbox",
 ]
 ignore_missing_imports = true
