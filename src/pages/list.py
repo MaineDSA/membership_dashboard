@@ -10,7 +10,7 @@ dash.register_page(__name__, path="/list", title=f"Membership Dashboard: {__name
 
 membership_list = html.Div(
     children=[
-        dash_table.DataTable(  # type: ignore[attr-defined]
+        dash_table.DataTable(
             data=[],
             columns=[{"name": i, "id": i, "selectable": True} for i in schema.schema.columns],
             sort_action="native",

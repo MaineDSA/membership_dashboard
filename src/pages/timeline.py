@@ -48,7 +48,7 @@ def layout() -> dbc.Row:
     return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_timeline, width=10)], className="dbc", style={"margin": "1em"})
 
 
-def value_counts_by_date(date_counts: dict) -> dict[str, int]:
+def value_counts_by_date(date_counts: dict) -> dict[str, dict[str, int]]:
     """Return data from date_counts in format column>date>value (instead of date>column>value) for use in creating timeline traces."""
     metrics = {}
     for date, values in date_counts.items():
@@ -57,7 +57,7 @@ def value_counts_by_date(date_counts: dict) -> dict[str, int]:
     return metrics
 
 
-def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, dict[str, pd.Series]]:
+def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, dict[str, pd.Series | None]]:
     """Restructure a dictionary of dataframs keyed to dates into a dictionary of pandas column names containing the columns keyed to each date."""
     logger.info("Calculating metrics for %s membership lists", len(members))
     columns = {column for memb_list in members.values() for column in memb_list.columns}
@@ -92,4 +92,4 @@ def create_timeline(selected_columns: list[str], selected_statuses: list[str], *
             for count, value in enumerate(timeline_metric)
         ]
     )
-    return dark_mode.with_template_if_dark(fig, is_dark_mode)
+    return dark_mode.with_template_if_dark(fig, is_dark_mode=is_dark_mode)

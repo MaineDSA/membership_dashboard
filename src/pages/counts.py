@@ -103,7 +103,7 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str]
 
     fig = go.Figure(data=indicator, layout={"title": title})
 
-    return dark_mode.with_template_if_dark(fig, is_dark_mode)
+    return dark_mode.with_template_if_dark(fig, is_dark_mode=is_dark_mode)
 
 
 @callback(
@@ -116,7 +116,7 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str]
     Input(component_id="list-compare", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_metrics(date_selected: str, date_compare_selected: str, *, dark_mode: bool) -> list[go.Figure]:
+def create_metrics(date_selected: str, date_compare_selected: str, *, is_dark_mode: bool) -> list[go.Figure]:
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return [go.Figure()] * len(METRICS)
@@ -124,4 +124,4 @@ def create_metrics(date_selected: str, date_compare_selected: str, *, dark_mode:
     df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_compare = scan_lists.MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
 
-    return [calculate_metric(df, df_compare, metric_plan, dark_mode) for metric_plan in METRICS]
+    return [calculate_metric(df, df_compare, metric_plan, is_dark_mode=is_dark_mode) for metric_plan in METRICS]

@@ -71,8 +71,8 @@ def get_positive_sign(num: float) -> str:
 
 
 def create_chart(
-    df_field: pd.DataFrame,
-    df_compare_field: pd.DataFrame,
+    df_field: pd.Series | pd.DataFrame,
+    df_compare_field: pd.Series | pd.DataFrame,
     title: str,
     ylabel: str,
     *,
@@ -94,15 +94,15 @@ def create_chart(
         data=[
             go.Bar(
                 name="Compare List",
-                x=chartdf_compare_vc.index,
-                y=chartdf_compare_vc.values,
-                text=chartdf_compare_vc.values,
+                x=chartdf_compare_vc.index.tolist(),
+                y=chartdf_compare_vc.values.tolist(),
+                text=chartdf_compare_vc.values.tolist(),
                 marker_color=color_compare,
             ),
             go.Bar(
                 name="Active List",
-                x=chartdf_vc.index,
-                y=chartdf_vc.values,
+                x=chartdf_vc.index.tolist(),
+                y=chartdf_vc.values.tolist(),
                 text=active_labels,
                 marker_color=color,
             ),
@@ -127,7 +127,7 @@ def create_chart(
     Input(component_id="list-compare", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mode: bool) -> [go.Figure] * 5:
+def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mode: bool) -> list[go.Figure]:
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return [go.Figure()] * 5
@@ -184,4 +184,4 @@ def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mod
         ),
     ]
 
-    return [dark_mode.with_template_if_dark(chart, is_dark_mode) for chart in charts]
+    return [dark_mode.with_template_if_dark(chart, is_dark_mode=is_dark_mode) for chart in charts]
