@@ -14,7 +14,7 @@ from src.utils.geocoding import add_coordinates
 
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
 BRANCH_ZIPS_PATH = Path(PurePath(__file__).parents[2], "branch_zips.csv")
-MEMBER_LIST_NAME: str = config.get("LIST", "fake_membership_list")
+MEMBER_LIST_NAME: str = config.get("LIST") or "fake_membership_list"
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 logger = logging.getLogger(__name__)
