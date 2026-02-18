@@ -71,8 +71,8 @@ def get_positive_sign(num: float) -> str:
 
 
 def create_chart(
-    df_field: pd.DataFrame,
-    df_compare_field: pd.DataFrame,
+    df_field: pd.Series | pd.DataFrame,
+    df_compare_field: pd.Series | pd.DataFrame,
     title: str,
     ylabel: str,
     *,
@@ -94,15 +94,15 @@ def create_chart(
         data=[
             go.Bar(
                 name="Compare List",
-                x=chartdf_compare_vc.index,
-                y=chartdf_compare_vc.values,
-                text=chartdf_compare_vc.values,
+                x=chartdf_compare_vc.index.tolist(),
+                y=chartdf_compare_vc.values.tolist(),
+                text=chartdf_compare_vc.values.tolist(),
                 marker_color=color_compare,
             ),
             go.Bar(
                 name="Active List",
-                x=chartdf_vc.index,
-                y=chartdf_vc.values,
+                x=chartdf_vc.index.tolist(),
+                y=chartdf_vc.values.tolist(),
                 text=active_labels,
                 marker_color=color,
             ),
@@ -127,7 +127,7 @@ def create_chart(
     Input(component_id="list-compare", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mode: bool) -> [go.Figure] * 5:
+def create_graphs(date_selected: str, date_compare_selected: str, is_dark_mode: bool) -> list[go.Figure]:
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return [go.Figure()] * 5
@@ -150,7 +150,7 @@ def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mod
             df_compare["membership_status"] if "membership_status" in df_compare else pd.DataFrame(),
             "Membership Counts",
             "Members",
-            is_dark_mode=False,
+            log=False,
         ),
         create_chart(
             df.loc[df["membership_status"] == "member in good standing"]["membership_type"] if "membership_status" in df else pd.DataFrame(),
@@ -159,29 +159,29 @@ def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mod
             else pd.DataFrame(),
             "Dues of Members in Good Standing",
             "Members",
-            is_dark_mode=True,
+            log=True,
         ),
         create_chart(
             membersdf["union_member"] if "union_member" in df else pd.DataFrame(),
             membersdf_compare["union_member"] if "union_member" in df_compare else pd.DataFrame(),
             "Union Membership of Constitutional Members",
             "Members",
-            is_dark_mode=True,
+            log=True,
         ),
         create_chart(
             membersdf["membership_length_years"].clip(upper=8) if "membership_length_years" in df else pd.DataFrame(),
             membersdf_compare["membership_length_years"].clip(upper=8) if "membership_length_years" in membersdf_compare else pd.DataFrame(),
             "Length of Membership of Constitutional Members (0 - 8+yrs)",
             "Members",
-            is_dark_mode=False,
+            log=False,
         ),
         create_chart(
             multiple_choice(membersdf, "race", ",")["race"] if "race" in df else pd.DataFrame(),
             multiple_choice(membersdf_compare, "race", ",")["race"] if "race" in membersdf_compare else pd.DataFrame(),
             "Racial Demographics of Constitutional Members",
             "Members",
-            is_dark_mode=True,
+            log=True,
         ),
     ]
 
-    return [dark_mode.with_template_if_dark(chart, is_dark_mode) for chart in charts]
+    return [dark_mode.with_template_if_dark(chart, is_dark_mode=is_dark_mode) for chart in charts]
