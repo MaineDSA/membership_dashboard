@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="z_f1b38b22aeb65474_schema_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-02-18 13:33 +0000
+            created at 2026-02-18 23:10 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -98,7 +98,7 @@
     <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="nam">config</span> <span class="op">=</span> <span class="nam">dotenv</span><span class="op">.</span><span class="nam">dotenv_values</span><span class="op">(</span><span class="nam">Path</span><span class="op">(</span><span class="nam">PurePath</span><span class="op">(</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parents</span><span class="op">[</span><span class="num">2</span><span class="op">]</span><span class="op">,</span> <span class="str">".env"</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="nam">BRANCH_ZIPS_PATH</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">PurePath</span><span class="op">(</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parents</span><span class="op">[</span><span class="num">2</span><span class="op">]</span><span class="op">,</span> <span class="str">"branch_zips.csv"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="nam">MEMBER_LIST_NAME</span><span class="op">:</span> <span class="nam">str</span> <span class="op">=</span> <span class="nam">config</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"LIST"</span><span class="op">,</span> <span class="str">"fake_membership_list"</span><span class="op">)</span>  <span class="com"># type: ignore[assignment]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="nam">MEMBER_LIST_NAME</span><span class="op">:</span> <span class="nam">str</span> <span class="op">=</span> <span class="nam">config</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"LIST"</span><span class="op">)</span> <span class="key">or</span> <span class="str">"fake_membership_list"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="nam">logging</span><span class="op">.</span><span class="nam">basicConfig</span><span class="op">(</span><span class="nam">level</span><span class="op">=</span><span class="nam">logging</span><span class="op">.</span><span class="nam">WARNING</span><span class="op">,</span> <span class="nam">format</span><span class="op">=</span><span class="str">"%(asctime)s : %(levelname)s : %(message)s"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="nam">logger</span> <span class="op">=</span> <span class="nam">logging</span><span class="op">.</span><span class="nam">getLogger</span><span class="op">(</span><span class="nam">__name__</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -296,7 +296,7 @@
             <a class="nav" href="z_f1b38b22aeb65474_schema_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-02-18 13:33 +0000
+            created at 2026-02-18 23:10 +0000
         </p>
     </div>
 </footer>

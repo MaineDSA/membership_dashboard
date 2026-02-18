@@ -5,25 +5,25 @@
 | Name                             |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |--------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
 | src/\_\_init\_\_.py              |        0 |        0 |        0 |        0 |    100% |           |
-| src/app.py                       |       13 |       13 |        0 |        0 |      0% |      1-22 |
+| src/app.py                       |       12 |       12 |        0 |        0 |      0% |      1-27 |
 | src/components/\_\_init\_\_.py   |        0 |        0 |        0 |        0 |    100% |           |
 | src/components/colors.py         |        2 |        2 |        0 |        0 |      0% |      1-15 |
 | src/components/dark\_mode.py     |        7 |        7 |        2 |        0 |      0% |      1-10 |
 | src/components/sidebar.py        |        7 |        7 |        0 |        0 |      0% |      1-11 |
 | src/components/status\_filter.py |        5 |        5 |        0 |        0 |      0% |       1-8 |
 | src/pages/\_\_init\_\_.py        |        0 |        0 |        0 |        0 |    100% |           |
-| src/pages/counts.py              |       31 |       31 |        4 |        0 |      0% |     1-127 |
-| src/pages/graphs.py              |       39 |       39 |        6 |        0 |      0% |     1-187 |
-| src/pages/list.py                |       22 |       22 |        2 |        0 |      0% |      1-90 |
-| src/pages/map.py                 |       49 |       49 |       20 |        0 |      0% |     1-130 |
-| src/pages/retention.py           |       36 |       36 |        2 |        0 |      0% |     1-409 |
-| src/pages/timeline.py            |       30 |       30 |        4 |        0 |      0% |      1-95 |
+| src/pages/counts.py              |       36 |       36 |        4 |        0 |      0% |     1-139 |
+| src/pages/graphs.py              |       45 |       45 |        6 |        0 |      0% |     1-195 |
+| src/pages/list.py                |       29 |       29 |        2 |        0 |      0% |      1-99 |
+| src/pages/map.py                 |       54 |       54 |       20 |        0 |      0% |     1-139 |
+| src/pages/retention.py           |       41 |       41 |        2 |        0 |      0% |     1-430 |
+| src/pages/timeline.py            |       35 |       35 |        4 |        0 |      0% |     1-106 |
 | src/utils/\_\_init\_\_.py        |        0 |        0 |        0 |        0 |    100% |           |
 | src/utils/geocoding.py           |       54 |       12 |        8 |        3 |     76% |24, 31, 48-58, 66, 71 |
 | src/utils/retention.py           |       26 |       26 |        0 |        0 |      0% |      3-81 |
 | src/utils/scan\_lists.py         |      108 |       12 |       10 |        1 |     89% |65, 77-78, 155-156, 165-170, 201 |
 | src/utils/schema.py              |       12 |        0 |        0 |        0 |    100% |           |
-| **TOTAL**                        |  **441** |  **291** |   **58** |    **4** | **33%** |           |
+| **TOTAL**                        |  **473** |  **323** |   **58** |    **4** | **31%** |           |
 
 
 ## Setup coverage badge
