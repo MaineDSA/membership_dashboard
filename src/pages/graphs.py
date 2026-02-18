@@ -71,8 +71,8 @@ def get_positive_sign(num: float) -> str:
 
 
 def create_chart(
-    df_field: pd.DataFrame,
-    df_compare_field: pd.DataFrame,
+    df_field: pd.Series | pd.DataFrame,
+    df_compare_field: pd.Series | pd.DataFrame,
     title: str,
     ylabel: str,
     *,
