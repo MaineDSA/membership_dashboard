@@ -76,7 +76,7 @@ def create_chart(
     title: str,
     ylabel: str,
     *,
-    log: bool,
+    log: bool = False,
 ) -> go.Figure:
     """Set up html data to show a chart of 1-2 dataframes."""
     chartdf_vc = df_field.value_counts()
