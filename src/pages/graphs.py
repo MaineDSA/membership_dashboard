@@ -94,15 +94,15 @@ def create_chart(
         data=[
             go.Bar(
                 name="Compare List",
-                x=chartdf_compare_vc.index,
-                y=chartdf_compare_vc.values,
-                text=chartdf_compare_vc.values,
+                x=chartdf_compare_vc.index.tolist(),
+                y=chartdf_compare_vc.values.tolist(),
+                text=chartdf_compare_vc.values.tolist(),
                 marker_color=color_compare,
             ),
             go.Bar(
                 name="Active List",
-                x=chartdf_vc.index,
-                y=chartdf_vc.values,
+                x=chartdf_vc.index.tolist(),
+                y=chartdf_vc.values.tolist(),
                 text=active_labels,
                 marker_color=color,
             ),
