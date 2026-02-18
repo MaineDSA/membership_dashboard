@@ -193,7 +193,7 @@ def create_retention(
         go.Figure(
             data=[
                 go.Scatter(
-                    x=df_ry.columns,
+                    x=df_ry.columns.tolist(),
                     y=df_ry.loc[year],
                     mode="lines+markers",
                     name=str(year.year),
@@ -216,7 +216,7 @@ def create_retention(
         go.Figure(
             data=[
                 go.Scatter(
-                    x=df_rm.columns,
+                    x=df_rm.columns.tolist(),
                     y=df_rm.loc[year],
                     mode="lines",
                     name=str(year.year),
@@ -238,7 +238,7 @@ def create_retention(
         go.Figure(
             data=[
                 go.Scatter(
-                    x=df_rpy.columns,
+                    x=df_rpy.columns.tolist(),
                     y=df_rpy.loc[year],
                     mode="lines+markers",
                     name=str(year.year),
@@ -261,7 +261,7 @@ def create_retention(
         go.Figure(
             data=[
                 go.Scatter(
-                    x=df_rpm.columns,
+                    x=df_rpm.columns.tolist(),
                     y=df_rpm.loc[year],
                     mode="lines",
                     name=str(year.year),
@@ -284,7 +284,7 @@ def create_retention(
         go.Figure(
             data=[
                 go.Scatter(
-                    x=df_rpy.index,
+                    x=df_rpy.index.tolist(),
                     y=df_rpy[c],
                     mode="lines+markers",
                     name=str(c),
@@ -307,7 +307,7 @@ def create_retention(
         go.Figure(
             data=[
                 go.Scatter(
-                    x=df_rpq.index,
+                    x=df_rpq.index.tolist(),
                     y=df_rpq[c],
                     mode="lines+markers",
                     name=str(c),
@@ -329,7 +329,7 @@ def create_retention(
         go.Figure(
             data=[
                 go.Scatter(
-                    x=df_ry.columns,
+                    x=df_ry.columns.tolist(),
                     y=df_ry.loc[year].pct_change(fill_method=None),
                     mode="markers+lines",
                     name=str(year.year),
@@ -351,7 +351,7 @@ def create_retention(
         go.Figure(
             data=[
                 go.Scatter(
-                    x=df_rpm.columns,
+                    x=df_rpm.columns.tolist(),
                     y=df_rpm.loc[year].pct_change(periods=12, fill_method=None),
                     mode="lines",
                     name=str(year.year),
@@ -373,9 +373,9 @@ def create_retention(
             data=[
                 go.Bar(
                     name="Current members",
-                    x=df_ml_vc.index,
-                    y=df_ml_vc.values,
-                    text=df_ml_vc.values,
+                    x=df_ml_vc.index.tolist(),
+                    y=df_ml_vc.values.tolist(),
+                    text=df_ml_vc.values.tolist(),
                     texttemplate="%{value:.0%}",
                     hovertemplate="%{label}, %{value:.0%}",
                     marker_color=colors.COLORS,
@@ -392,9 +392,9 @@ def create_retention(
             data=[
                 go.Bar(
                     name="Current members",
-                    x=df_ll_vc.index,
-                    y=df_ll_vc.values,
-                    text=df_ll_vc.values,
+                    x=df_ll_vc.index.tolist(),
+                    y=df_ll_vc.values.tolist(),
+                    text=df_ll_vc.values.tolist(),
                     texttemplate="%{value:.0%}",
                     hovertemplate="%{label}, %{value:.0%}",
                     marker_color=colors.COLORS,
