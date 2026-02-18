@@ -1,6 +1,6 @@
 [project]
 name = "membership_dashboard"
-version = "1.1.0"
+version = "1.2.0"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { "file" = "LICENSE" }
@@ -9,7 +9,7 @@ urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
 dependencies = [
     "dash-bootstrap-components~=2.0",
     "dash-bootstrap-templates~=2.1",
-    "dash~=3.2",
+    "dash~=4.0",
     "mapbox~=0.18",
     "numpy~=2.3",
     "pandas~=3.0",
@@ -109,11 +109,12 @@ ignore = [
     "SLF001",  # private-member-access (SLF001)
     "PLR2004",  # magic-value-comparison (PLR2004)
 ]
+"src/pages/*.py" = [
+    "FBT001",  # boolean-typed-positional-argument (FBT001) - Dash callbacks receive boolean args positionally
+]
 
 [tool.pytest]
 addopts = ["-n", "auto", "--cov=src", "--no-cov-on-fail"]
-asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "module"
 testpaths = [
     "tests",
 ]
@@ -133,8 +134,8 @@ exclude_also = [
 
 [[tool.mypy.overrides]]
 module = [
-  "dash_bootstrap_components",
-  "dash_bootstrap_templates",
-  "mapbox",
+    "dash_bootstrap_components",
+    "dash_bootstrap_templates",
+    "mapbox",
 ]
 ignore_missing_imports = true

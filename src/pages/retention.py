@@ -1,11 +1,16 @@
+from typing import Literal, get_args
+
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
-import plotly.graph_objects as go
 from dash import Input, Output, callback, dcc, html
+from plotly import graph_objects as go
 
 from src.components import colors, dark_mode, sidebar
 from src.utils import retention, scan_lists
+
+RetentionKeys = Literal["cnt_yr", "cnt_mo", "pct_yr", "pct_mo", "nth_yr", "nth_qtr", "yoy_yr", "yoy_mo", "ten_mem", "ten_lap"]
+RetentionFigures = dict[RetentionKeys, go.Figure]
 
 dash.register_page(__name__, path="/retention", title=f"Membership Dashboard: {__name__.title()}", order=4)
 
@@ -16,7 +21,7 @@ today_year = int(today_date.date().strftime("%Y"))
 default_start_year = 2016
 default_end_date = pd.to_datetime("today") - pd.tseries.offsets.DateOffset(months=14)
 default_end_year = int(default_end_date.date().strftime("%Y"))
-years_between = {i: f"{i}" for i in range(earliest_year, today_year, 4)}
+years_between: dict[int, dict[str, str]] = {i: {"label": f"{i}"} for i in range(earliest_year, today_year, 4)}
 
 membership_retention = html.Div(
     children=[
@@ -147,26 +152,39 @@ def layout() -> dbc.Row:
 
 
 @callback(
-    Output(component_id="retention-count-years", component_property="figure"),
-    Output(component_id="retention-count-months", component_property="figure"),
-    Output(component_id="retention-percent-years", component_property="figure"),
-    Output(component_id="retention-percent-months", component_property="figure"),
-    Output(component_id="retention-nth-year", component_property="figure"),
-    Output(component_id="retention-nth-quarter", component_property="figure"),
-    Output(component_id="retention-yoy-year", component_property="figure"),
-    Output(component_id="retention-yoy-month", component_property="figure"),
-    Output(component_id="retention-tenure-member", component_property="figure"),
-    Output(component_id="retention-tenure-lapsed", component_property="figure"),
-    Input(component_id="list-selected", component_property="value"),
-    Input(component_id="retention-years-slider", component_property="value"),
-    Input(component_id="color-mode-switch", component_property="value"),
+    output={
+        "cnt_yr": Output("retention-count-years", "figure"),
+        "cnt_mo": Output("retention-count-months", "figure"),
+        "pct_yr": Output("retention-percent-years", "figure"),
+        "pct_mo": Output("retention-percent-months", "figure"),
+        "nth_yr": Output("retention-nth-year", "figure"),
+        "nth_qtr": Output("retention-nth-quarter", "figure"),
+        "yoy_yr": Output("retention-yoy-year", "figure"),
+        "yoy_mo": Output("retention-yoy-month", "figure"),
+        "ten_mem": Output("retention-tenure-member", "figure"),
+        "ten_lap": Output("retention-tenure-lapsed", "figure"),
+    },
+    inputs={
+        "date_selected": Input("list-selected", "value"),
+        "years": Input("retention-years-slider", "value"),
+        "is_dark_mode": Input("color-mode-switch", "value"),
+    },
 )
-def create_retention(
-    date_selected: str, years: list[int], *, is_dark_mode: bool
-) -> tuple[go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure, go.Figure]:
+def create_retention(date_selected: str, years: list[int], *, is_dark_mode: bool) -> RetentionFigures:
     """Update the retention graphs shown based on the selected membership list date."""
     if not date_selected:
-        return go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure(), go.Figure()
+        return {
+            "cnt_yr": go.Figure(),
+            "cnt_mo": go.Figure(),
+            "pct_yr": go.Figure(),
+            "pct_mo": go.Figure(),
+            "nth_yr": go.Figure(),
+            "nth_qtr": go.Figure(),
+            "yoy_yr": go.Figure(),
+            "yoy_mo": go.Figure(),
+            "ten_mem": go.Figure(),
+            "ten_lap": go.Figure(),
+        }
 
     df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_df = df.loc[df["membership_type"] != "lifetime"]
@@ -187,11 +205,11 @@ def create_retention(
 
     color_len = len(colors.COLORS)
 
-    charts = [
-        go.Figure(
+    charts: RetentionFigures = {
+        "cnt_yr": go.Figure(
             data=[
                 go.Scatter(
-                    x=df_ry.columns,
+                    x=df_ry.columns.tolist(),
                     y=df_ry.loc[year],
                     mode="lines+markers",
                     name=str(year.year),
@@ -211,10 +229,10 @@ def create_retention(
                 },
             ),
         ),
-        go.Figure(
+        "cnt_mo": go.Figure(
             data=[
                 go.Scatter(
-                    x=df_rm.columns,
+                    x=df_rm.columns.tolist(),
                     y=df_rm.loc[year],
                     mode="lines",
                     name=str(year.year),
@@ -233,10 +251,10 @@ def create_retention(
                 },
             ),
         ),
-        go.Figure(
+        "pct_yr": go.Figure(
             data=[
                 go.Scatter(
-                    x=df_rpy.columns,
+                    x=df_rpy.columns.tolist(),
                     y=df_rpy.loc[year],
                     mode="lines+markers",
                     name=str(year.year),
@@ -256,10 +274,10 @@ def create_retention(
                 },
             ),
         ),
-        go.Figure(
+        "pct_mo": go.Figure(
             data=[
                 go.Scatter(
-                    x=df_rpm.columns,
+                    x=df_rpm.columns.tolist(),
                     y=df_rpm.loc[year],
                     mode="lines",
                     name=str(year.year),
@@ -279,10 +297,10 @@ def create_retention(
                 },
             ),
         ),
-        go.Figure(
+        "nth_yr": go.Figure(
             data=[
                 go.Scatter(
-                    x=df_rpy.index,
+                    x=df_rpy.index.tolist(),
                     y=df_rpy[c],
                     mode="lines+markers",
                     name=str(c),
@@ -302,10 +320,10 @@ def create_retention(
                 legend={"title": "Years since joined", "x": 1, "y": 1},
             ),
         ),
-        go.Figure(
+        "nth_qtr": go.Figure(
             data=[
                 go.Scatter(
-                    x=df_rpq.index,
+                    x=df_rpq.index.tolist(),
                     y=df_rpq[c],
                     mode="lines+markers",
                     name=str(c),
@@ -324,10 +342,10 @@ def create_retention(
                 legend={"title": "Years since joined", "x": 1, "y": 1},
             ),
         ),
-        go.Figure(
+        "yoy_yr": go.Figure(
             data=[
                 go.Scatter(
-                    x=df_ry.columns,
+                    x=df_ry.columns.tolist(),
                     y=df_ry.loc[year].pct_change(fill_method=None),
                     mode="markers+lines",
                     name=str(year.year),
@@ -346,10 +364,10 @@ def create_retention(
                 hovermode="closest",
             ),
         ),
-        go.Figure(
+        "yoy_mo": go.Figure(
             data=[
                 go.Scatter(
-                    x=df_rpm.columns,
+                    x=df_rpm.columns.tolist(),
                     y=df_rpm.loc[year].pct_change(periods=12, fill_method=None),
                     mode="lines",
                     name=str(year.year),
@@ -367,13 +385,13 @@ def create_retention(
                 hovermode="closest",
             ),
         ),
-        go.Figure(
+        "ten_mem": go.Figure(
             data=[
                 go.Bar(
                     name="Current members",
-                    x=df_ml_vc.index,
-                    y=df_ml_vc.values,
-                    text=df_ml_vc.values,
+                    x=df_ml_vc.index.tolist(),
+                    y=df_ml_vc.values.tolist(),
+                    text=df_ml_vc.values.tolist(),
                     texttemplate="%{value:.0%}",
                     hovertemplate="%{label}, %{value:.0%}",
                     marker_color=colors.COLORS,
@@ -386,13 +404,13 @@ def create_retention(
                 legend={"x": 1, "y": 1},
             ),
         ),
-        go.Figure(
+        "ten_lap": go.Figure(
             data=[
                 go.Bar(
                     name="Current members",
-                    x=df_ll_vc.index,
-                    y=df_ll_vc.values,
-                    text=df_ll_vc.values,
+                    x=df_ll_vc.index.tolist(),
+                    y=df_ll_vc.values.tolist(),
+                    text=df_ll_vc.values.tolist(),
                     texttemplate="%{value:.0%}",
                     hovertemplate="%{label}, %{value:.0%}",
                     marker_color=colors.COLORS,
@@ -404,6 +422,9 @@ def create_retention(
                 legend={"x": 1, "y": 1},
             ),
         ),
-    ]
+    }
 
-    return [dark_mode.with_template_if_dark(chart, is_dark_mode) for chart in charts]
+    keys: tuple[RetentionKeys, ...] = get_args(RetentionKeys)
+    figures: RetentionFigures = {k: dark_mode.with_template_if_dark(charts[k], is_dark_mode=is_dark_mode) for k in keys}
+
+    return figures

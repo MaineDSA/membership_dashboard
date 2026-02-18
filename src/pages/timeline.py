@@ -1,4 +1,5 @@
 import logging
+from typing import Literal, get_args
 
 import dash
 import dash_bootstrap_components as dbc
@@ -9,9 +10,12 @@ from plotly import graph_objects as go
 from src.components import colors, dark_mode, sidebar, status_filter
 from src.utils import scan_lists, schema
 
-logger = logging.getLogger(__name__)
+TimelineKeys = Literal["timeline"]
+TimelineFigures = dict[TimelineKeys, go.Figure]
 
 dash.register_page(__name__, path="/", title=f"Membership Dashboard: {__name__.title()}", order=0)
+
+logger = logging.getLogger(__name__)
 
 membership_timeline = html.Div(
     children=[
@@ -48,9 +52,9 @@ def layout() -> dbc.Row:
     return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_timeline, width=10)], className="dbc", style={"margin": "1em"})
 
 
-def value_counts_by_date(date_counts: dict) -> dict[str, int]:
+def value_counts_by_date(date_counts: dict) -> dict[str, dict[str, int]]:
     """Return data from date_counts in format column>date>value (instead of date>column>value) for use in creating timeline traces."""
-    metrics = {}
+    metrics: dict[str, dict[str, int]] = {}
     for date, values in date_counts.items():
         for value, count in values.value_counts().items():
             metrics.setdefault(value, {}).setdefault(date, count)
@@ -59,18 +63,21 @@ def value_counts_by_date(date_counts: dict) -> dict[str, int]:
 
 def get_membership_list_metrics(members: dict[str, pd.DataFrame]) -> dict[str, dict[str, pd.Series]]:
     """Restructure a dictionary of dataframs keyed to dates into a dictionary of pandas column names containing the columns keyed to each date."""
-    logger.info("Calculating metrics for %s membership lists", len(members))
+    logger.debug("Calculating metrics for %s membership lists", len(members))
     columns = {column for memb_list in members.values() for column in memb_list.columns}
-    return {column: {list_date: memb_list.get(column) for list_date, memb_list in members.items() if column in memb_list.columns} for column in columns}
+
+    return {column: {list_date: memb_list[column] for list_date, memb_list in members.items() if column in memb_list.columns} for column in columns}
 
 
 @callback(
-    Output(component_id="timeline", component_property="figure"),
-    Input(component_id="selected-columns", component_property="value"),
-    Input(component_id="status-filter", component_property="value"),
-    Input(component_id="color-mode-switch", component_property="value"),
+    output={"timeline": Output(component_id="timeline", component_property="figure")},
+    inputs={
+        "selected_columns": Input(component_id="selected-columns", component_property="value"),
+        "selected_statuses": Input(component_id="status-filter", component_property="value"),
+        "is_dark_mode": Input(component_id="color-mode-switch", component_property="value"),
+    },
 )
-def create_timeline(selected_columns: list[str], selected_statuses: list[str], *, is_dark_mode: bool) -> go.Figure:
+def create_timeline(selected_columns: list[str], selected_statuses: list[str], *, is_dark_mode: bool) -> TimelineFigures:
     """Update the timeline plotting selected columns."""
     membership_lists = {
         date: membership_list.loc[membership_list["membership_status"].isin(selected_statuses)] for date, membership_list in scan_lists.MEMB_LISTS.items()
@@ -92,4 +99,8 @@ def create_timeline(selected_columns: list[str], selected_statuses: list[str], *
             for count, value in enumerate(timeline_metric)
         ]
     )
-    return dark_mode.with_template_if_dark(fig, is_dark_mode)
+
+    keys: tuple[TimelineKeys, ...] = get_args(TimelineKeys)
+    figures: TimelineFigures = {k: dark_mode.with_template_if_dark(fig, is_dark_mode=is_dark_mode) for k in keys}
+
+    return figures

@@ -1,21 +1,26 @@
+from typing import Literal, get_args
+
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
-import plotly.graph_objects as go
 from dash import Input, Output, callback, dcc, html
+from plotly import graph_objects as go
 
 from src.components import dark_mode, sidebar
 from src.utils import scan_lists
 
-METRICS = [
+CountKeys = Literal["income", "lifetime", "migs", "expiring", "lapsed"]
+CountFigures = dict[CountKeys, go.Figure]
+
+dash.register_page(__name__, path="/counts", title=f"Membership Dashboard: {__name__.title()}", order=2)
+
+METRIC_PLANS = [
     ["membership_type", "income-based", "Members Paying Income-Based Dues"],
     ["membership_type", "lifetime", "Lifetime Members"],
     ["membership_status", "member in good standing", "Members in Good Standing"],
     ["membership_status", "member", "Expiring Members"],
     ["membership_status", "lapsed", "Lapsed Members"],
 ]
-
-dash.register_page(__name__, path="/counts", title=f"Membership Dashboard: {__name__.title()}", order=2)
 
 membership_counts = html.Div(
     children=[
@@ -79,7 +84,7 @@ def layout() -> dbc.Row:
     return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_counts, width=10)], className="dbc", style={"margin": "1em"})
 
 
-def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str], *, is_dark_mode: bool) -> go.Figure:
+def create_count(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str], *, is_dark_mode: bool) -> go.Figure:
     """Construct string showing value and change (if comparison data is provided)."""
     column, value, title = plan
     count = df[column].eq(value).sum()
@@ -103,25 +108,32 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str]
 
     fig = go.Figure(data=indicator, layout={"title": title})
 
-    return dark_mode.with_template_if_dark(fig, is_dark_mode)
+    return dark_mode.with_template_if_dark(fig, is_dark_mode=is_dark_mode)
 
 
 @callback(
-    Output(component_id="count-income-based", component_property="figure"),
-    Output(component_id="count-lifetime", component_property="figure"),
-    Output(component_id="count-migs", component_property="figure"),
-    Output(component_id="count-expiring", component_property="figure"),
-    Output(component_id="count-lapsed", component_property="figure"),
-    Input(component_id="list-selected", component_property="value"),
-    Input(component_id="list-compare", component_property="value"),
-    Input(component_id="color-mode-switch", component_property="value"),
+    output={
+        "income": Output("count-income-based", "figure"),
+        "lifetime": Output("count-lifetime", "figure"),
+        "migs": Output("count-migs", "figure"),
+        "expiring": Output("count-expiring", "figure"),
+        "lapsed": Output("count-lapsed", "figure"),
+    },
+    inputs={
+        "date_selected": Input("list-selected", "value"),
+        "date_compare_selected": Input("list-compare", "value"),
+        "is_dark_mode": Input("color-mode-switch", "value"),
+    },
 )
-def create_metrics(date_selected: str, date_compare_selected: str, *, dark_mode: bool) -> list[go.Figure]:
+def create_counts(date_selected: str, date_compare_selected: str, *, is_dark_mode: bool) -> CountFigures:
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
-        return [go.Figure()] * len(METRICS)
+        return {count: go.Figure() for _, count in enumerate(get_args(CountKeys))}
 
     df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_compare = scan_lists.MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
 
-    return [calculate_metric(df, df_compare, metric_plan, dark_mode) for metric_plan in METRICS]
+    keys: tuple[CountKeys, ...] = get_args(CountKeys)
+    figures: CountFigures = {k: create_count(df, df_compare, METRIC_PLANS[i], is_dark_mode=is_dark_mode) for i, k in enumerate(keys)}
+
+    return figures
