@@ -127,10 +127,10 @@ def create_chart(
     Input(component_id="list-compare", component_property="value"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
-def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mode: bool) -> [go.Figure] * 5:
+def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mode: bool) -> list[go.Figure]:
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
-        return [go.Figure()] * 5
+        return [go.Figure() for _ in range(5)]
 
     df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_compare = scan_lists.MEMB_LISTS.get(date_compare_selected, pd.DataFrame())

@@ -119,7 +119,7 @@ def calculate_metric(df: pd.DataFrame, df_compare: pd.DataFrame, plan: list[str]
 def create_metrics(date_selected: str, date_compare_selected: str, *, is_dark_mode: bool) -> list[go.Figure]:
     """Update the numeric metrics shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
-        return [go.Figure()] * len(METRICS)
+        return [go.Figure() for _ in range(len(METRICS))]
 
     df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_compare = scan_lists.MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
