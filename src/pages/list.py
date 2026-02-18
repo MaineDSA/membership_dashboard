@@ -1,7 +1,8 @@
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
-from dash import Input, Output, callback, dash_table, html
+from dash import Input, Output, callback, html
+from dash.dash_table.DataTable import DataTable
 
 from src.components import colors, sidebar
 from src.utils import scan_lists, schema
@@ -10,7 +11,7 @@ dash.register_page(__name__, path="/list", title=f"Membership Dashboard: {__name
 
 membership_list = html.Div(
     children=[
-        dash_table.DataTable(
+        DataTable(
             data=[],
             columns=[{"name": i, "id": i, "selectable": True} for i in schema.schema.columns],
             sort_action="native",

@@ -131,8 +131,8 @@ exclude_also = [
 
 [[tool.mypy.overrides]]
 module = [
-  "dash_bootstrap_components",
-  "dash_bootstrap_templates",
-  "mapbox",
+    "dash_bootstrap_components",
+    "dash_bootstrap_templates",
+    "mapbox",
 ]
 ignore_missing_imports = true
