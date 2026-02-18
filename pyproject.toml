@@ -22,7 +22,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "bandit[sarif]==1.9.2",
+    "bandit[sarif]==1.9.3",
     "coverage~=7.8",
     "mypy~=1.16",
     "pandas-stubs~=2.2",
@@ -31,8 +31,8 @@ dev = [
     "pytest-cov~=7.0",
     "pytest-xdist~=3.7",
     "pytest~=9.0",
-    "ruff==0.14.7",
-    "ssort==0.15.0",
+    "ruff==0.15.1",
+    "ssort==0.16.0",
     "types-ratelimit~=2.2",
     "types-tqdm~=4.67",
 ]
