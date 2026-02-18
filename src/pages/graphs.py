@@ -82,7 +82,8 @@ def create_chart(
     chartdf_vc = df_field.value_counts()
     chartdf_compare_vc = df_compare_field.value_counts()
 
-    color, color_compare = colors.COLORS, colors.COLORS
+    color: list[str] | str = colors.COLORS
+    color_compare: list[str] | str = colors.COLORS
     active_labels = [str(val) for val in chartdf_vc.values]
 
     if not df_compare_field.empty:
