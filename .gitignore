@@ -1,6 +1,7 @@
 # Inputs, Outputs, Private Data
 branch_zips.csv
 *_membership_list*/*
+*_member_list*/*
 geocoding.json
 
 
