@@ -36,6 +36,7 @@ dev = [
     "ssort==0.16.0",
     "types-ratelimit~=2.2",
     "types-tqdm~=4.67",
+    "ty==0.0.17"
 ]
 
 [tool]

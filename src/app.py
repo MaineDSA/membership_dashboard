@@ -3,7 +3,7 @@ import threading
 import dash
 import dash_bootstrap_components as dbc
 import dash_bootstrap_templates
-from dash import Dash, Input, Output, State, clientside_callback, html, callback
+from dash import Dash, Input, Output, callback, clientside_callback, html
 
 from src.utils.fetch_list import fetch_list
 
@@ -45,12 +45,12 @@ clientside_callback(
     Input(component_id="color-mode-switch", component_property="value"),
 )
 
-def _run_fetch():
+def _run_fetch() -> None:
     try:
         fetch_list()
         with _fetch_lock:
             _fetch_state["status"] = "Done."
-    except Exception as e:
+    except RuntimeError as e:
         with _fetch_lock:
             _fetch_state["status"] = f"Error: {e}"
     finally:
@@ -64,7 +64,8 @@ def _run_fetch():
     Input("fetch-list-button", "n_clicks"),
     prevent_initial_call=True,
 )
-def start_fetch(n_clicks):
+
+def start_fetch(n_clicks: int) -> tuple[bool, str]:  # noqa: ARG001
     with _fetch_lock:
         if _fetch_state["running"]:
             return False, _fetch_state["status"]
@@ -80,7 +81,8 @@ def start_fetch(n_clicks):
     Input("fetch-list-poll", "n_intervals"),
     prevent_initial_call=True,
 )
-def poll_fetch_status(n_intervals):
+
+def poll_fetch_status(n_intervals: int) -> tuple[bool, str]:  # noqa: ARG001
     with _fetch_lock:
         running = _fetch_state["running"]
         status = _fetch_state["status"]

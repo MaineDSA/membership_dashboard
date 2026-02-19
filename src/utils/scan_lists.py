@@ -1,5 +1,4 @@
 """Parse all membership lists into pandas dataframes for display on dashboard."""
-from re import L
 
 import logging
 from io import TextIOWrapper
@@ -146,7 +145,7 @@ def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def scan_memb_list_from_csv(csv_file_data: str | TextIOWrapper | IO[bytes]) -> pd.DataFrame:
+def scan_memb_list_from_csv(csv_file_data: Path | TextIOWrapper | IO[bytes]) -> pd.DataFrame:
     """Convert the provided csv data into a pandas dataframe."""
     return pd.read_csv(csv_file_data, dtype={"zip": str}, header=0)
 
@@ -158,15 +157,16 @@ def scan_memb_list_from_zip(zip_path: str, list_name: str) -> pd.DataFrame:
 
 def date_from_stem(stem: str) -> str:
     """Extract an ISO date string from a filename stem by trying each underscore-separated segment."""
-    for part in reversed(stem.split("_")):
+    parts = stem.split("_")
+    candidates = parts[1:-1] if stem.startswith("AllMembers") else parts
+    for part in reversed(candidates):
         try:
-            parsed = pd.to_datetime(part, format="mixed").date()
-            if parsed.year < 2000 or parsed.year > 2100:
-                continue
-            return parsed.isoformat()
+            return pd.to_datetime(part, format="mixed").date().isoformat()
         except ValueError:
             continue
-    raise ValueError(f"No parseable date found in filename stem: {stem}")
+
+    e = f"No parseable date found in filename stem: {stem}"
+    raise ValueError(e)
 
 
 def scan_all_zip_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
