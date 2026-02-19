@@ -25,7 +25,7 @@ dev = [
     "bandit[sarif]==1.9.3",
     "coverage~=7.8",
     "mypy~=1.16",
-    "pandas-stubs~=2.2",
+    "pandas-stubs~=3.0",
     "plotly-stubs~=0.0",
     "pre-commit~=4.2",
     "pytest-cov~=7.0",
