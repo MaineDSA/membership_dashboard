@@ -1,4 +1,5 @@
 """Parse all membership lists into pandas dataframes for display on dashboard."""
+from re import L
 
 import logging
 from io import TextIOWrapper
@@ -145,7 +146,7 @@ def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def scan_memb_list_from_csv(csv_file_data: TextIOWrapper | IO[bytes]) -> pd.DataFrame:
+def scan_memb_list_from_csv(csv_file_data: str | TextIOWrapper | IO[bytes]) -> pd.DataFrame:
     """Convert the provided csv data into a pandas dataframe."""
     return pd.read_csv(csv_file_data, dtype={"zip": str}, header=0)
 
@@ -155,8 +156,17 @@ def scan_memb_list_from_zip(zip_path: str, list_name: str) -> pd.DataFrame:
     with ZipFile(zip_path) as memb_list_zip, memb_list_zip.open(f"{list_name}.csv", "r") as memb_list_csv:
         return scan_memb_list_from_csv(memb_list_csv)
 
+def date_from_stem(stem: str) -> str:
+    """Extract an ISO date string from a filename stem by trying each underscore-separated segment."""
+    for part in reversed(stem.split("_")):
+        try:
+            return pd.to_datetime(part, format="mixed").date().isoformat()
+        except ValueError:
+            continue
+    raise ValueError(f"No parseable date found in filename stem: {stem}")
 
-def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
+
+def scan_all_zip_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     """Scan all zip files and call scan_memb_list_from_zip on each, returning the results."""
     memb_lists = {}
     logger.info("Scanning zipped membership lists in %s/.", list_name)
@@ -164,14 +174,30 @@ def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     for zip_file in files:
         filename = Path(zip_file).name
         try:
-            date_from_filename = str(PurePath(filename).stem).split("_")[-1]
-            list_date_iso = pd.to_datetime(date_from_filename, format="%Y%m%d").date().isoformat()
+            list_date_iso = date_from_stem(PurePath(filename).stem)
             memb_lists[list_date_iso] = scan_memb_list_from_zip(str(Path(zip_file).absolute()), list_name)
         except (IndexError, ValueError):
             logger.warning("Could not extract list from %s. Skipping file.", filename)
     logger.info("Found %s zipped membership lists.", len(memb_lists))
     return memb_lists
 
+def scan_all_csv_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
+    """Scan all csv files and call scan_memb_list_from_csv on each, return results."""
+    memb_lists = {}
+    logger.info("Scanning csv membership lists in %s/.", list_name)
+    files = sorted((Path(__file__).parents[2] / list_name).glob("**/*.csv"), reverse=True)
+    for csv in files:
+        filename = Path(csv).name
+        try:
+            list_date_iso = date_from_stem(PurePath(filename).stem)
+            memb_lists[list_date_iso] = scan_memb_list_from_csv(csv)
+        except (IndexError, ValueError):
+            logger.warning("Could not extract list from %s. Skipping file.", filename)
+    logger.info("Found %s csv membership lists.", len(memb_lists))
+    return memb_lists
+
+def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
+    return scan_all_zip_membership_lists(list_name) | scan_all_csv_membership_lists(list_name)
 
 def branch_name_from_zip_code(zip_code: str, branch_zips: pd.DataFrame) -> str:
     """Check for provided zip_code in provided branch_zips and return relevant branch name if found."""
