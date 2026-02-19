@@ -17,7 +17,8 @@ dependencies = [
     "plotly~=6.2",
     "python-dotenv~=1.1",
     "ratelimit~=2.2",
-    "tqdm~=4.67"
+    "selenium>=4.40.0",
+    "tqdm~=4.67",
 ]
 
 [project.optional-dependencies]
