@@ -55,6 +55,8 @@ def sidebar() -> html.Div:
                             options=member_list_keys,
                             value=member_list_keys[0],
                             id="list-selected",
+                            persistence=True,
+                            persistence_type="session",
                         ),
                         html.Div(
                             [
@@ -64,6 +66,8 @@ def sidebar() -> html.Div:
                         dcc.Dropdown(
                             options=member_list_keys,
                             id="list-compare",
+                            persistence=True,
+                            persistence_type="session",
                         ),
                         html.Div(
                             [
