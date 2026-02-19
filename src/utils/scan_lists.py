@@ -160,7 +160,10 @@ def date_from_stem(stem: str) -> str:
     """Extract an ISO date string from a filename stem by trying each underscore-separated segment."""
     for part in reversed(stem.split("_")):
         try:
-            return pd.to_datetime(part, format="mixed").date().isoformat()
+            parsed = pd.to_datetime(part, format="mixed").date()
+            if parsed.year < 2000 or parsed.year > 2100:
+                continue
+            return parsed.isoformat()
         except ValueError:
             continue
     raise ValueError(f"No parseable date found in filename stem: {stem}")

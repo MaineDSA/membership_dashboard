@@ -1,6 +1,6 @@
 import dash
 import dash_bootstrap_components as dbc
-from dash import dcc, html
+from dash import dcc, html, Input, Output, callback
 
 from src.utils.scan_lists import MEMB_LISTS
 
@@ -35,7 +35,22 @@ def sidebar() -> html.Div:
                                     dbc.Col(dbc.Label(className="fa fa-moon", html_for="color-mode-switch")),
                                 ],
                                 className="g-0",
-                            )
+                            ),
+                            dbc.Row(
+                                dbc.Col(
+                                    [
+                                        dbc.Button(
+                                            "Fetch New List",
+                                            id="fetch-list-button",
+                                            size="sm",
+                                            color="secondary",
+                                            className="mt-1 w-100",
+                                        ),
+                                        html.Small(id="fetch-list-status", className="text-muted"),
+                                        dcc.Interval(id="fetch-list-poll", interval=1000, disabled=True),
+                                    ]
+                                ),
+                            ),
                         ],
                         width="auto",
                         align="center",
