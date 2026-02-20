@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
 DOWNLOAD_DIR = config.get("LIST")
 PERISCOPE_URL = config.get("PERISCOPE_URL")
-PERISCOPE_PASS= config.get("PERISCOPE_PASS")
+PERISCOPE_PASS = config.get("PERISCOPE_PASS")
+
 
 def fetch_list(download_dir: str | None = DOWNLOAD_DIR, periscope_url: str | None = PERISCOPE_URL, periscope_pass: str | None = PERISCOPE_PASS) -> None:
 
@@ -23,24 +24,30 @@ def fetch_list(download_dir: str | None = DOWNLOAD_DIR, periscope_url: str | Non
         msg = "Missing required environment variables."
         raise RuntimeError(msg)
 
-    #make sure the download dir exists
+    # make sure the download dir exists
     Path(download_dir).resolve().mkdir(parents=True, exist_ok=True)
 
     options = Options()
-    options.add_argument("--window-size=1920,1080") #set standard window size
-    options.add_argument(argument="--headless=new") #headless
-    options.add_experimental_option("prefs", {
-        "download.default_directory": download_dir,
-        "download.prompt_for_download": False,
-    })
+    options.add_argument("--window-size=1920,1080")  # set standard window size
+    options.add_argument(argument="--headless=new")  # headless
+    options.add_experimental_option(
+        "prefs",
+        {
+            "download.default_directory": download_dir,
+            "download.prompt_for_download": False,
+        },
+    )
 
     driver = webdriver.Chrome(options=options)
 
     # set download directory
-    driver.execute_cdp_cmd("Browser.setDownloadBehavior", {
-        "behavior": "allow",
-        "downloadPath": str(Path(download_dir).resolve()),
-    })
+    driver.execute_cdp_cmd(
+        "Browser.setDownloadBehavior",
+        {
+            "behavior": "allow",
+            "downloadPath": str(Path(download_dir).resolve()),
+        },
+    )
 
     wait = WebDriverWait(driver, 15)
 
@@ -73,13 +80,9 @@ def fetch_list(download_dir: str | None = DOWNLOAD_DIR, periscope_url: str | Non
     # waits for periscope to finish materializing the csv:
     # first wait for the loader to appear, then for it to disappear
     loader_css = ".widget-18183666 .loader.materializing"
-    WebDriverWait(driver, 30).until(
-        expected_conditions.presence_of_element_located((By.CSS_SELECTOR, loader_css))
-    )
+    WebDriverWait(driver, 30).until(expected_conditions.presence_of_element_located((By.CSS_SELECTOR, loader_css)))
     logger.info("Materializing...")
-    WebDriverWait(driver, 120).until(
-        expected_conditions.invisibility_of_element_located((By.CSS_SELECTOR, loader_css))
-    )
+    WebDriverWait(driver, 120).until(expected_conditions.invisibility_of_element_located((By.CSS_SELECTOR, loader_css)))
     logger.info("Materialization complete.")
 
     # wait for the .csv file to finish downloading
@@ -97,6 +100,7 @@ def fetch_list(download_dir: str | None = DOWNLOAD_DIR, periscope_url: str | Non
         logger.warning("Timed out waiting for download.")
 
     driver.quit()
+
 
 if __name__ == "__main__":
     fetch_list()

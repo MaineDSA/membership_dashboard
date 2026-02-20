@@ -155,6 +155,7 @@ def scan_memb_list_from_zip(zip_path: str, list_name: str) -> pd.DataFrame:
     with ZipFile(zip_path) as memb_list_zip, memb_list_zip.open(f"{list_name}.csv", "r") as memb_list_csv:
         return scan_memb_list_from_csv(memb_list_csv)
 
+
 def date_from_stem(stem: str) -> str:
     """Extract an ISO date string from a filename stem by trying each underscore-separated segment."""
     parts = stem.split("_")
@@ -184,6 +185,7 @@ def scan_all_zip_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     logger.info("Found %s zipped membership lists.", len(memb_lists))
     return memb_lists
 
+
 def scan_all_csv_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     """Scan all csv files and call scan_memb_list_from_csv on each, return results."""
     memb_lists = {}
@@ -199,8 +201,10 @@ def scan_all_csv_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     logger.info("Found %s csv membership lists.", len(memb_lists))
     return memb_lists
 
+
 def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     return scan_all_zip_membership_lists(list_name) | scan_all_csv_membership_lists(list_name)
+
 
 def branch_name_from_zip_code(zip_code: str, branch_zips: pd.DataFrame) -> str:
     """Check for provided zip_code in provided branch_zips and return relevant branch name if found."""

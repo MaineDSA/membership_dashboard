@@ -45,6 +45,7 @@ clientside_callback(
     Input(component_id="color-mode-switch", component_property="value"),
 )
 
+
 def _run_fetch() -> None:
     try:
         fetch_list()
@@ -64,7 +65,6 @@ def _run_fetch() -> None:
     Input("fetch-list-button", "n_clicks"),
     prevent_initial_call=True,
 )
-
 def start_fetch(n_clicks: int) -> tuple[bool, str]:  # noqa: ARG001
     with _fetch_lock:
         if _fetch_state["running"]:
@@ -81,7 +81,6 @@ def start_fetch(n_clicks: int) -> tuple[bool, str]:  # noqa: ARG001
     Input("fetch-list-poll", "n_intervals"),
     prevent_initial_call=True,
 )
-
 def poll_fetch_status(n_intervals: int) -> tuple[bool, str]:  # noqa: ARG001
     with _fetch_lock:
         running = _fetch_state["running"]
