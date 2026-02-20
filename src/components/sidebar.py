@@ -2,7 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
-import src.utils.scan_lists as scan_lists
+from src.utils import scan_lists
 
 
 def sidebar() -> html.Div:

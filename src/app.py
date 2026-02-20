@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 import dash_bootstrap_templates
 from dash import Dash, Input, Output, callback, clientside_callback, html
 
-import src.utils.scan_lists as scan_lists
+from src.utils import scan_lists
 from src.utils.fetch_list import fetch_list
 from src.utils.scan_lists import BRANCH_ZIPS_PATH, MEMBER_LIST_NAME, get_membership_lists
 
