@@ -10,7 +10,7 @@ from curl_cffi import requests  # for dealing with cloudflare
 logger = logging.getLogger(__name__)
 
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
-DOWNLOAD_DIR = config.get("LIST") or "membership_lists"
+DOWNLOAD_DIR = config.get("LIST") or "membership_list"
 PERISCOPE_URL = config.get("PERISCOPE_URL")
 PERISCOPE_PASS = config.get("PERISCOPE_PASS")
 
@@ -32,7 +32,7 @@ def _get_widget_hash(session: requests.Session, dashboard_token: str) -> str:
     )
     if not match:
         msg = f"Could not find widget '{_WIDGET_TITLE}' or its hash key in dashboard HTML."
-        raise RuntimeError(msg)
+        raise LookupError(msg)
     hash_key = match.group(1)
     logger.info("Found widget hash: %s", hash_key)
     return hash_key
@@ -49,7 +49,7 @@ def fetch_list(
 
     Path(download_dir).resolve().mkdir(parents=True, exist_ok=True)
 
-    session = requests.Session(impersonate="chrome")
+    session: requests.Session = requests.Session(impersonate="chrome")
 
     # extract the dashboard token from the URL (last path component before any query string)
     dashboard_token = periscope_url.rstrip("/").split("/")[-1]
@@ -66,8 +66,8 @@ def fetch_list(
     # get the widget hash from the dashboard token, which points us to the AllMembers table
     widget_hash = _get_widget_hash(session, dashboard_token)
 
-    today = datetime.now().astimezone().date().strftime("%-m-%-d-%Y")  # matches Periscope's format, e.g. 2-20-2026
-    title = f"AllMembers_{today}"
+    now = datetime.now().astimezone()
+    title = f"AllMembers_{now.strftime('%Y-%m-%d')}_{now.strftime('%H%M')}"  # e.g. AllMembers_2-20-2026_1102
     # generate download url for the csv
     download_url = f"{_BASE}/shared_dashboards/{dashboard_token}/download_csv/{widget_hash}?title={title}"
 

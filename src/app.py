@@ -5,7 +5,9 @@ import dash_bootstrap_components as dbc
 import dash_bootstrap_templates
 from dash import Dash, Input, Output, callback, clientside_callback, html
 
+import src.utils.scan_lists as scan_lists
 from src.utils.fetch_list import fetch_list
+from src.utils.scan_lists import BRANCH_ZIPS_PATH, MEMBER_LIST_NAME, get_membership_lists
 
 # shared state for the background fetch thread
 _fetch_state: dict = {"running": False, "status": ""}
@@ -49,8 +51,9 @@ clientside_callback(
 def _run_fetch() -> None:
     try:
         fetch_list()
+        scan_lists.MEMB_LISTS = get_membership_lists(MEMBER_LIST_NAME, BRANCH_ZIPS_PATH)
         with _fetch_lock:
-            _fetch_state["status"] = "Done."
+            _fetch_state["status"] = "Done. Reload to update dropdowns."
     except RuntimeError as e:
         with _fetch_lock:
             _fetch_state["status"] = f"Error: {e}"

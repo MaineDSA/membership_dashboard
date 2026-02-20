@@ -2,12 +2,11 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
-from src.utils.scan_lists import MEMB_LISTS
-
-member_list_keys = list(MEMB_LISTS.keys())
+import src.utils.scan_lists as scan_lists
 
 
 def sidebar() -> html.Div:
+    member_list_keys = list(scan_lists.MEMB_LISTS.keys())
     return html.Div(
         children=[
             dbc.Row(
