@@ -1,7 +1,17 @@
+import threading
+
 import dash
 import dash_bootstrap_components as dbc
 import dash_bootstrap_templates
-from dash import Dash, Input, Output, clientside_callback, html
+from dash import Dash, Input, Output, callback, clientside_callback, html
+
+from src.utils import scan_lists
+from src.utils.fetch_list import fetch_list
+from src.utils.scan_lists import BRANCH_ZIPS_PATH, MEMBER_LIST_NAME, get_membership_lists
+
+# shared state for the background fetch thread
+_fetch_state: dict = {"running": False, "status": ""}
+_fetch_lock = threading.Lock()
 
 FAVICON = {
     "rel": "icon",
@@ -36,6 +46,50 @@ clientside_callback(
     Output(component_id="color-mode-switch", component_property="id"),
     Input(component_id="color-mode-switch", component_property="value"),
 )
+
+
+def _run_fetch() -> None:
+    try:
+        fetch_list()
+        scan_lists.MEMB_LISTS = get_membership_lists(MEMBER_LIST_NAME, BRANCH_ZIPS_PATH)
+        with _fetch_lock:
+            _fetch_state["status"] = "Done. Reload to update dropdowns."
+    except RuntimeError as e:
+        with _fetch_lock:
+            _fetch_state["status"] = f"Error: {e}"
+    finally:
+        with _fetch_lock:
+            _fetch_state["running"] = False
+
+
+@callback(
+    Output("fetch-list-poll", "disabled"),
+    Output("fetch-list-status", "children"),
+    Input("fetch-list-button", "n_clicks"),
+    prevent_initial_call=True,
+)
+def start_fetch(n_clicks: int) -> tuple[bool, str]:  # noqa: ARG001
+    with _fetch_lock:
+        if _fetch_state["running"]:
+            return False, _fetch_state["status"]
+        _fetch_state["running"] = True
+        _fetch_state["status"] = "Fetching..."
+    threading.Thread(target=_run_fetch, daemon=True).start()
+    return False, "Fetching..."
+
+
+@callback(
+    Output("fetch-list-poll", "disabled", allow_duplicate=True),
+    Output("fetch-list-status", "children", allow_duplicate=True),
+    Input("fetch-list-poll", "n_intervals"),
+    prevent_initial_call=True,
+)
+def poll_fetch_status(n_intervals: int) -> tuple[bool, str]:  # noqa: ARG001
+    with _fetch_lock:
+        running = _fetch_state["running"]
+        status = _fetch_state["status"]
+    return running, status
+
 
 if __name__ == "__main__":
     app.run(debug=True)

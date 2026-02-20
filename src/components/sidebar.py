@@ -2,12 +2,11 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
-from src.utils.scan_lists import MEMB_LISTS
-
-member_list_keys = list(MEMB_LISTS.keys())
+from src.utils import scan_lists
 
 
 def sidebar() -> html.Div:
+    member_list_keys = list(scan_lists.MEMB_LISTS.keys())
     return html.Div(
         children=[
             dbc.Row(
@@ -35,7 +34,22 @@ def sidebar() -> html.Div:
                                     dbc.Col(dbc.Label(className="fa fa-moon", html_for="color-mode-switch")),
                                 ],
                                 className="g-0",
-                            )
+                            ),
+                            dbc.Row(
+                                dbc.Col(
+                                    [
+                                        dbc.Button(
+                                            "Fetch New List",
+                                            id="fetch-list-button",
+                                            size="sm",
+                                            color="secondary",
+                                            className="mt-1 w-100",
+                                        ),
+                                        html.Small(id="fetch-list-status", className="text-muted"),
+                                        dcc.Interval(id="fetch-list-poll", interval=1000, disabled=True),
+                                    ]
+                                ),
+                            ),
                         ],
                         width="auto",
                         align="center",
