@@ -20,19 +20,44 @@ dependencies = [
     "tqdm~=4.67"
 ]
 
-[project.optional-dependencies]
+[build-system]
+requires = [
+    "build>=1.4",
+    "setuptools>=82.0",
+]
+build-backend = "setuptools.build_meta"
+
+[dependency-groups]
 dev = [
-    "bandit[sarif]==1.9.3",
-    "coverage~=7.8",
-    "mypy~=1.16",
-    "pandas-stubs~=3.0",
-    "plotly-stubs~=0.0",
-    "pre-commit~=4.2",
+    {include-group = "lint"},
+    {include-group = "pre-commit"},
+    {include-group = "security"},
+    {include-group = "test-coverage"},
+    {include-group = "types"},
+]
+lint = [
+    "ruff==0.15.4",
+    "ssort==0.16.0",
+]
+pre-commit = [
+    "pre-commit~=4.5",
+]
+security = [
+    "bandit[sarif]==1.9.4",
+]
+test-coverage = [
+    "pytest-cov~=7.0.0",
+    {include-group = "test"},
+]
+test = [
     "pytest-cov~=7.0",
     "pytest-xdist~=3.7",
     "pytest~=9.0",
-    "ruff==0.15.1",
-    "ssort==0.16.0",
+]
+types = [
+    "mypy~=1.19",
+    "pandas-stubs~=2.2",
+    "plotly-stubs~=0.0",
     "types-ratelimit~=2.2",
     "types-tqdm~=4.67",
 ]
