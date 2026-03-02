@@ -4,11 +4,12 @@
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
 version: 2
+
 updates:
   - package-ecosystem: pip
     directory: /
     schedule:
-      interval: monthly
+      interval: quarterly
     ignore:
       - dependency-name: bandit
       - dependency-name: ruff
@@ -17,4 +18,4 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: monthly
+      interval: quarterly
