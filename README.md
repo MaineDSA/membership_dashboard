@@ -21,11 +21,7 @@ uv venv
 ```
 
 ```shell
-source .venv/bin/activate
-```
-
-```shell
-uv pip install .
+uv sync --no-dev
 ```
 
 ## Usage
