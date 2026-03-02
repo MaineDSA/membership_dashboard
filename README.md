@@ -36,7 +36,7 @@ uv sync
 6. Open a terminal and run the following command to start the dashboard:
 
     ```shell
-    uv run src.app
+    uv run src/app.py
     ```
 
 7. Open your browser and go to [http://localhost:8050](http://localhost:8050) to view the dashboard.
