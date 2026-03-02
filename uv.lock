@@ -759,7 +759,7 @@ requires-dist = [
     { name = "dash", specifier = "~=4.0" },
     { name = "dash-bootstrap-components", specifier = "~=2.0" },
     { name = "dash-bootstrap-templates", specifier = "~=2.1" },
-    { name = "mapbox", specifier = "~=0.18" },
+    { name = "mapbox", specifier = "~=0.18.1" },
     { name = "numpy", specifier = "~=2.3" },
     { name = "pandas", specifier = "~=3.0" },
     { name = "pandera", specifier = "~=0.25" },
