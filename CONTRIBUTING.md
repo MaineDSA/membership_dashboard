@@ -1,6 +1,6 @@
 ## Getting Started
 
-To run this code, you'll need to have Python 3.11, 3.12, or 3.13 installed on your machine. You'll also need to
+To run this code, you'll need to have Python 3.11, 3.12, 3.13, or 3.14 installed on your machine. You'll also need to
 install the required packages by running the following commands from inside the project folder:
 
 ```shell
@@ -8,23 +8,15 @@ pip install -U pip uv
 ```
 
 ```shell
-uv venv
+uv sync
 ```
 
 ```shell
-source .venv/bin/activate
+uv run pre-commit install
 ```
 
 ```shell
-uv pip install -e .[dev]
-```
-
-```shell
-pre-commit install
-```
-
-```shell
-python3 -m src.app
+uv run src/app.py
 ```
 
 ## Code Submissions
