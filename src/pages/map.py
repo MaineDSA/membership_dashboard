@@ -9,6 +9,7 @@ from dash import Input, Output, callback, dcc, html
 from plotly import express as px
 from plotly import graph_objects as go
 from plotly import io as pio
+from plotly.express._stubs_helpers import MapCenter
 
 from src.components import colors, sidebar, status_filter
 from src.utils import scan_lists, schema
@@ -121,7 +122,7 @@ def create_map(date_selected: str, selected_column: str, selected_statuses: list
         },
         color=selected_column,
         color_discrete_sequence=colors.COLORS,
-        center={"lat": lat_center, "lon": lon_center},
+        center=MapCenter(lat=lat_center, lon=lon_center),
         zoom=zoom,  # Set dynamic zoom
         height=1100,
         map_style="dark",
