@@ -203,7 +203,8 @@ def scan_all_csv_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
 
 
 def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
-    return scan_all_zip_membership_lists(list_name) | scan_all_csv_membership_lists(list_name)
+    all_lists = {**scan_all_zip_membership_lists(list_name), **scan_all_csv_membership_lists(list_name)}
+    return dict(sorted(all_lists.items()))
 
 
 def branch_name_from_zip_code(zip_code: str, branch_zips: pd.DataFrame) -> str:
