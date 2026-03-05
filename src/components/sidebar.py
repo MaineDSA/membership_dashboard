@@ -1,3 +1,5 @@
+import os
+
 import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html
@@ -7,6 +9,11 @@ from src.utils import scan_lists
 
 def sidebar() -> html.Div:
     member_list_keys = list(scan_lists.MEMB_LISTS.keys())
+
+    periscope_url = os.getenv("PERISCOPE_URL")
+    periscope_pass = os.getenv("PERISCOPE_PASS")
+    is_disabled = not (periscope_url and periscope_pass)
+
     return html.Div(
         children=[
             dbc.Row(
@@ -33,26 +40,41 @@ def sidebar() -> html.Div:
                                     ),
                                     dbc.Col(dbc.Label(className="fa fa-moon", html_for="color-mode-switch")),
                                 ],
-                                className="g-0",
+                                className="g-0 justify-content-center",
                             ),
                             dbc.Row(
                                 dbc.Col(
                                     [
-                                        dbc.Button(
-                                            "Fetch New List",
-                                            id="fetch-list-button",
-                                            size="sm",
-                                            color="secondary",
-                                            className="mt-1 w-100",
+                                        html.Span(
+                                            [
+                                                dbc.Button(
+                                                    "Fetch New List",
+                                                    id="fetch-list-button",
+                                                    size="sm",
+                                                    className="mt-1 w-100",
+                                                    disabled=is_disabled,
+                                                ),
+                                                html.Small(id="fetch-list-status", className="text-muted"),
+                                                dcc.Interval(id="fetch-list-poll", interval=1000, disabled=True),
+                                                dbc.Tooltip(
+                                                    "Missing PERISCOPE_URL or PERISCOPE_PASS in environment settings.",
+                                                    target="fetch-list-wrapper",
+                                                    placement="bottom",
+                                                )
+                                                if is_disabled
+                                                else None,
+                                            ],
+                                            id="fetch-list-wrapper",
+                                            className="d-block w-100",
                                         ),
-                                        html.Small(id="fetch-list-status", className="text-muted"),
-                                        dcc.Interval(id="fetch-list-poll", interval=1000, disabled=True),
-                                    ]
+                                    ],
+                                    width=12,
                                 ),
                             ),
                         ],
                         width="auto",
                         align="center",
+                        className="d-flex flex-column align-items-center",
                     ),
                 ]
             ),
