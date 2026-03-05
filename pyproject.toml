@@ -17,6 +17,7 @@ dependencies = [
     "plotly~=6.5.2",
     "python-dotenv~=1.2.2",
     "ratelimit~=2.2.1",
+    "curl-cffi~=0.7",
     "tqdm~=4.67.3"
 ]
 
