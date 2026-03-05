@@ -1,7 +1,7 @@
 import dash
 import dash_bootstrap_components as dbc
 import dash_bootstrap_templates
-from dash import Dash, Input, Output, clientside_callback, html
+from dash import Dash, html
 
 FAVICON = {
     "rel": "icon",
@@ -23,19 +23,6 @@ app = Dash(
 )
 app.layout = html.Div(dash.page_container)
 dash_bootstrap_templates.load_figure_template(TEMPLATES)
-
-clientside_callback(
-    """
-    (switchOn) => {
-       switchOn
-         ? document.documentElement.setAttribute("data-bs-theme", "dark")
-         : document.documentElement.setAttribute("data-bs-theme", "light")
-       return window.dash_clientside.no_update
-    }
-    """,
-    Output(component_id="color-mode-switch", component_property="id"),
-    Input(component_id="color-mode-switch", component_property="value"),
-)
 
 if __name__ == "__main__":
     app.run(debug=True)
