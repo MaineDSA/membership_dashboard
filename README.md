@@ -17,30 +17,29 @@ pip install -U pip uv
 ```
 
 ```shell
-uv venv
-```
-
-```shell
-uv sync --no-dev
+uv sync
 ```
 
 ## Usage
 
 1. Clone the repository and open the folder.
-2. Put the name of the membership lists you get from National DSA into a `.env` configuration file in the project folder
-   after the prefix `LIST=`. Here in Maine, we use `LIST=maine_membership_list`.
-3. Put a [MapBox](https://www.mapbox.com/) API token into the same file (on another line) after the
-   prefix `MAPBOX=`. [OPTIONAL]
-4. Put a CSV called `branch_zips.csv` containing zip codes matched with branch names in the project folder. [OPTIONAL]
-5. Create a folder with the same title as the membership lists you receive from National DSA.
-6. Add membership lists to the folder (see [notes](#notes) below).
-7. Open a terminal and run the following command to start the dashboard:
+2. Create a .env configuration file in the project folder
+   ```env
+   LIST=yourchapter_membership_list
+   MAPBOX=73v8whgw8ghc8w34m4
+   PERISCOPE_URL=https://yourperiscopeurl.com
+   PERISCOPE_PASS=sil73wvn3tha8w37ngtbh78awvm
+   ```
+3. Put a CSV called `branch_zips.csv` containing zip codes matched with branch names in the project folder. [OPTIONAL]
+4. Create a folder with the same title as the membership lists you receive from National DSA.
+5. Add membership lists to the folder (see [notes](#notes) below).
+6. Open a terminal and run the following command to start the dashboard:
 
     ```shell
-    python3 -m src.app
+    uv run src/app.py
     ```
 
-8. Open your browser and go to [http://localhost:8050](http://localhost:8050) to view the dashboard.
+7. Open your browser and go to [http://localhost:8050](http://localhost:8050) to view the dashboard.
 
 ## Features
 
