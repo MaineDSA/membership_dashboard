@@ -10,8 +10,8 @@ from plotly import express as px
 from plotly import graph_objects as go
 from plotly import io as pio
 
-from src.components import colors, sidebar, status_filter
-from src.utils import scan_lists, schema
+from src.components import colors, sidebar
+from src.utils import scan_lists
 
 MapKeys = Literal["map_fig"]
 MapFigures = dict[MapKeys, go.Figure]
@@ -27,9 +27,11 @@ membership_map = html.Div(
     children=[
         dbc.Row(
             [
-                status_filter.status_filter_col(),
                 dbc.Col(
-                    dcc.Dropdown(options=list(schema.schema.columns), value="membership_status", multi=False, id="selected-column"),
+                    dcc.Dropdown(options=[], multi=True, id="filtered-values"),
+                ),
+                dbc.Col(
+                    dcc.Dropdown(options=["membership_status"], value="membership_status", multi=False, id="selected-column"),
                 ),
             ],
             align="center",
@@ -58,20 +60,31 @@ def layout() -> dbc.Row:
     return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_map, width=10)], className="dbc", style={"margin": "1em"})
 
 
+def zoom_level(lat_span: float, lon_span: float) -> int:
+    max_span = max(lat_span, lon_span)
+    spec = {10: 4, 5: 5, 2: 6, 1: 7, 0.5: 8, 0.2: 9}
+    for limit, value in spec.items():
+        if max_span > limit:
+            return value
+    return 10
+
+
 @callback(
     output={"map_fig": Output(component_id="map", component_property="figure")},
     inputs={
         "date_selected": Input(component_id="list-selected", component_property="value"),
         "selected_column": Input(component_id="selected-column", component_property="value"),
-        "selected_statuses": Input(component_id="status-filter", component_property="value"),
+        "selected_values": Input(component_id="filtered-values", component_property="value"),
         "is_dark_mode": Input(component_id="color-mode-switch", component_property="value"),
     },
 )
-def create_map(date_selected: str, selected_column: str, selected_statuses: list[str], *, is_dark_mode: bool) -> MapFigures:
-    """Set up html data to show a map of Maine DSA members."""
-    df_map = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
-    df_map = df_map.loc[df_map["membership_status"].isin(selected_statuses)]
+def create_map(date_selected: str, selected_column: str, selected_values: list[str], *, is_dark_mode: bool) -> MapFigures:
+    """Set up html data to show a map of members."""
+    if not selected_column or not selected_values:
+        return {"map_fig": go.Figure()}
 
+    df_map = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
+    df_map = df_map.loc[df_map[selected_column].isin(selected_values)]
     lat_center, lon_center, zoom = 39.16, -96.32, 6
     if not df_map.empty and "lat" in df_map.columns and "lon" in df_map.columns:
         # Calculate bounds for auto-centering
@@ -85,21 +98,7 @@ def create_map(date_selected: str, selected_column: str, selected_statuses: list
             lon_span = df_clean["lon"].max() - df_clean["lon"].min()
 
             # Estimate zoom level based on data span
-            max_span = max(lat_span, lon_span)
-            if max_span > 10:  # noqa: PLR2004 Magic value used in comparison
-                zoom = 4
-            elif max_span > 5:  # noqa: PLR2004 Magic value used in comparison
-                zoom = 5
-            elif max_span > 2:  # noqa: PLR2004 Magic value used in comparison
-                zoom = 6
-            elif max_span > 1:
-                zoom = 7
-            elif max_span > 0.5:  # noqa: PLR2004 Magic value used in comparison
-                zoom = 8
-            elif max_span > 0.2:  # noqa: PLR2004 Magic value used in comparison
-                zoom = 9
-            else:
-                zoom = 10
+            zoom = zoom_level(lat_span, lon_span)
 
     map_figure = px.scatter_map(
         df_map.reset_index(drop=False),
