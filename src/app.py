@@ -3,7 +3,7 @@ import threading
 import dash
 import dash_bootstrap_components as dbc
 import dash_bootstrap_templates
-from dash import Dash, Input, Output, callback, clientside_callback, html
+from dash import Dash, Input, Output, callback, html
 
 from src.utils import scan_lists
 from src.utils.fetch_list import fetch_list
@@ -33,6 +33,7 @@ app = Dash(
 )
 app.layout = html.Div(dash.page_container)
 dash_bootstrap_templates.load_figure_template(TEMPLATES)
+
 
 def _run_fetch() -> None:
     try:
