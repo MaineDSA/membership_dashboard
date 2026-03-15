@@ -34,20 +34,6 @@ app = Dash(
 app.layout = html.Div(dash.page_container)
 dash_bootstrap_templates.load_figure_template(TEMPLATES)
 
-clientside_callback(
-    """
-    (switchOn) => {
-       switchOn
-         ? document.documentElement.setAttribute("data-bs-theme", "dark")
-         : document.documentElement.setAttribute("data-bs-theme", "light")
-       return window.dash_clientside.no_update
-    }
-    """,
-    Output(component_id="color-mode-switch", component_property="id"),
-    Input(component_id="color-mode-switch", component_property="value"),
-)
-
-
 def _run_fetch() -> None:
     try:
         fetch_list()
