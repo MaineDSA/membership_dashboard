@@ -9,7 +9,7 @@ urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
 dependencies = [
     "dash-bootstrap-components~=2.0.4",
     "dash-bootstrap-templates~=2.1.0",
-    "dash~=4.0.0",
+    "dash~=4.1.0",
     "mapbox~=0.18.1",
     "numpy~=2.4.2",
     "pandas~=3.0.1",
