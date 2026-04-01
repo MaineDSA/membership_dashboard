@@ -54,7 +54,7 @@ test = [
     "pytest~=9.0.2",
 ]
 types = [
-    "mypy~=1.19.1",
+    "mypy~=1.20.0",
     "pandas-stubs~=3.0.0.260204",
     "plotly-stubs~=0.1.2",
     "types-ratelimit~=2.2.0.20250501",
