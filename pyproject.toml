@@ -9,11 +9,11 @@ urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
 dependencies = [
     "dash-bootstrap-components~=2.0.4",
     "dash-bootstrap-templates~=2.1.0",
-    "dash~=4.0.0",
+    "dash~=4.1.0",
     "mapbox~=0.18.1",
     "numpy~=2.4.2",
     "pandas~=3.0.1",
-    "plotly~=6.5.2",
+    "plotly~=6.6.0",
     "python-dotenv~=1.2.2",
     "ratelimit~=2.2.1",
     "curl-cffi~=0.7",
@@ -46,16 +46,16 @@ security = [
     "bandit[sarif]==1.9.4",
 ]
 test-coverage = [
-    "pytest-cov~=7.0.0",
+    "pytest-cov~=7.1.0",
     {include-group = "test"},
 ]
 test = [
-    "pytest-cov~=7.0.0",
+    "pytest-cov~=7.1.0",
     "pytest-xdist~=3.8.0",
     "pytest~=9.0.2",
 ]
 types = [
-    "mypy~=1.19.1",
+    "mypy~=1.20.0",
     "pandas-stubs~=3.0.0.260204",
     "plotly-stubs~=0.1.2",
     "types-ratelimit~=2.2.0.20250501",
