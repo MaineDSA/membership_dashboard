@@ -1,12 +1,12 @@
 name: Python checks
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
   schedule:
-    - cron: 0 0 * * 1
+    - cron: '20 7 * * 2'
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions: read-all
