@@ -674,6 +674,11 @@ test = [
     { name = "pytest-cov" },
     { name = "pytest-xdist" },
 ]
+test-coverage = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-xdist" },
+]
 types = [
     { name = "pandas-stubs" },
     { name = "plotly-stubs" },
@@ -718,6 +723,11 @@ lint = [
 pre-commit = [{ name = "pre-commit", specifier = "~=4.6.0" }]
 security = [{ name = "bandit", extras = ["sarif"], specifier = "==1.9.4" }]
 test = [
+    { name = "pytest", specifier = "~=9.0.3" },
+    { name = "pytest-cov", specifier = "~=7.1.0" },
+    { name = "pytest-xdist", specifier = "~=3.8.0" },
+]
+test-coverage = [
     { name = "pytest", specifier = "~=9.0.3" },
     { name = "pytest-cov", specifier = "~=7.1.0" },
     { name = "pytest-xdist", specifier = "~=3.8.0" },

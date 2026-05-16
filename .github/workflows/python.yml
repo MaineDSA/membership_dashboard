@@ -14,6 +14,9 @@ permissions: read-all
 jobs:
   lint:
     uses: bmos/bmos/.github/workflows/python-lint.yml@main
+    with:
+      run_ty: true
+      run_mypy: false
     permissions:
       contents: write
       security-events: write
