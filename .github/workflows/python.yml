@@ -1,12 +1,12 @@
 name: Python checks
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
   schedule:
-    - cron: 0 0 * * 1
+    - cron: '20 7 * * 2'
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions: read-all
@@ -14,6 +14,9 @@ permissions: read-all
 jobs:
   lint:
     uses: bmos/bmos/.github/workflows/python-lint.yml@main
+    with:
+      run_ty: true
+      run_mypy: false
     permissions:
       contents: write
       security-events: write
