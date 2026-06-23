@@ -82,25 +82,3 @@ def update_column_options(date_selected: str) -> ColumnDicts:
         return {"options": [], "value": ""}
 
     return {"options": [{"label": i, "value": i} for i in cols], "value": "membership_status" if "membership_status" in cols else cols[0]}
-
-
-@callback(
-    output={
-        "options": Output("filtered-values", "options"),
-        "value": Output("filtered-values", "value"),
-    },
-    inputs={
-        "selected_column": Input("selected-column", "value"),
-        "date_selected": Input("list-selected", "value"),
-    },
-)
-def batch_options(selected_column: str, date_selected: str) -> FilterDicts:
-    df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
-
-    if df.empty or selected_column not in df.columns:
-        return {"options": [], "value": []}
-
-    unique_values = sorted(df[selected_column].dropna().unique().tolist())
-    options = [{"label": str(v), "value": v} for v in unique_values]
-
-    return {"options": options, "value": unique_values}

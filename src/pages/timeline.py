@@ -23,9 +23,6 @@ membership_timeline = html.Div(
                 dbc.Col(
                     dcc.Dropdown(options=["membership_status"], value="membership_status", multi=False, id="selected-column"),
                 ),
-                dbc.Col(
-                    dcc.Dropdown(options=[], multi=True, id="filtered-values"),
-                ),
             ],
             align="center",
         ),
@@ -59,15 +56,14 @@ def layout() -> dbc.Row:
         "date_selected": Input(component_id="list-selected", component_property="value"),
         "date_compare_selected": Input(component_id="list-compare", component_property="value"),
         "selected_column": Input(component_id="selected-column", component_property="value"),
-        "selected_values": Input(component_id="filtered-values", component_property="value"),
         "is_dark_mode": Input(component_id="color-mode-switch", component_property="value"),
     },
 )
 def create_timeline(
-    date_selected: scan_lists.ISODateStr, date_compare_selected: scan_lists.ISODateStr, selected_column: str, selected_values: list[str], *, is_dark_mode: bool
+    date_selected: scan_lists.ISODateStr, date_compare_selected: scan_lists.ISODateStr, selected_column: str, *, is_dark_mode: bool
 ) -> TimelineFigures:
     """Update the timeline plotting selected columns."""
-    if not selected_column or not selected_values:
+    if not selected_column:
         return {"timeline": go.Figure()}
 
     filtered_lists = scan_lists.MEMB_LISTS.items()
@@ -76,8 +72,7 @@ def create_timeline(
     if date_compare_selected:
         filtered_lists = [(date, ml) for date, ml in filtered_lists if date >= date_compare_selected]
 
-    membership_lists = {date: membership_list.loc[membership_list[selected_column].isin(selected_values)] for date, membership_list in filtered_lists}
-    membership_value_counts = value_filter.get_membership_list_metrics(membership_lists)
+    membership_value_counts = value_filter.get_membership_list_metrics(dict(filtered_lists))
     pivot_data = value_filter.pivot_with_summary(membership_value_counts[selected_column])
 
     fig = go.Figure(layout={"title": "Membership Trends Timeline", "yaxis_title": "Members"})
