@@ -9,7 +9,7 @@
 | src/components/\_\_init\_\_.py  |        0 |        0 |        0 |        0 |    100% |           |
 | src/components/colors.py        |        2 |        2 |        0 |        0 |      0% |      1-15 |
 | src/components/dark\_mode.py    |        9 |        9 |        2 |        0 |      0% |      1-14 |
-| src/components/sidebar.py       |        7 |        7 |        0 |        0 |      0% |      1-11 |
+| src/components/sidebar.py       |       14 |       14 |        2 |        0 |      0% |      1-95 |
 | src/components/value\_filter.py |       40 |       40 |       10 |        0 |      0% |     1-106 |
 | src/pages/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |    100% |           |
 | src/pages/counts.py             |       36 |       36 |        4 |        0 |      0% |     1-139 |
@@ -17,12 +17,12 @@
 | src/pages/list.py               |       29 |       29 |        2 |        0 |      0% |      1-91 |
 | src/pages/map.py                |       50 |       50 |       14 |        0 |      0% |     1-138 |
 | src/pages/retention.py          |       41 |       41 |        2 |        0 |      0% |     1-430 |
-| src/pages/timeline.py           |       27 |       27 |        2 |        0 |      0% |      1-92 |
+| src/pages/timeline.py           |       32 |       32 |        6 |        0 |      0% |     1-100 |
 | src/utils/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |    100% |           |
 | src/utils/geocoding.py          |       54 |       12 |        8 |        3 |     76% |24, 31, 48-58, 66, 71 |
 | src/utils/retention.py          |       26 |       26 |        0 |        0 |      0% |      3-81 |
 | src/utils/scan\_lists.py        |      109 |       12 |       10 |        1 |     89% |67, 79-80, 157-158, 167-172, 203 |
-| **TOTAL**                       |  **486** |  **347** |   **60** |    **4** | **28%** |           |
+| **TOTAL**                       |  **498** |  **359** |   **66** |    **4** | **27%** |           |
 
 
 ## Setup coverage badge
