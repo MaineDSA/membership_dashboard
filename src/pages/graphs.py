@@ -137,7 +137,7 @@ def create_graph(
         "is_dark_mode": Input("color-mode-switch", "value"),
     },
 )
-def create_graphs(date_selected: str, date_compare_selected: str, *, is_dark_mode: bool) -> GraphFigures:
+def create_graphs(date_selected: scan_lists.ISODateStr, date_compare_selected: scan_lists.ISODateStr, *, is_dark_mode: bool) -> GraphFigures:
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
         return {"status": go.Figure(), "m_type": go.Figure(), "union": go.Figure(), "length": go.Figure(), "race": go.Figure()}
