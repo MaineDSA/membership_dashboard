@@ -78,7 +78,7 @@ def zoom_level(lat_span: float, lon_span: float) -> int:
         "is_dark_mode": Input(component_id="color-mode-switch", component_property="value"),
     },
 )
-def create_map(date_selected: str, selected_column: str, selected_values: list[str], *, is_dark_mode: bool) -> MapFigures:
+def create_map(date_selected: scan_lists.ISODateStr, selected_column: str, selected_values: list[str], *, is_dark_mode: bool) -> MapFigures:
     """Set up html data to show a map of members."""
     if not selected_column or not selected_values:
         return {"map_fig": go.Figure()}

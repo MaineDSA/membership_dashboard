@@ -3,7 +3,7 @@
 import logging
 from io import TextIOWrapper
 from pathlib import Path, PurePath
-from typing import IO, ClassVar
+from typing import IO, Annotated, ClassVar
 from zipfile import ZipFile
 
 import dotenv
@@ -15,6 +15,8 @@ from src.utils.geocoding import add_coordinates
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
 BRANCH_ZIPS_PATH = Path(PurePath(__file__).parents[2], "branch_zips.csv")
 MEMBER_LIST_NAME: str = config.get("LIST") or "fake_membership_list"
+
+ISODateStr = Annotated[str, "Format: YYYY-MM-DD"]
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 logger = logging.getLogger(__name__)
