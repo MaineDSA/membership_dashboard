@@ -9,14 +9,14 @@ urls = { "GitHub" = "https://github.com/MaineDSA/membership_dashboard" }
 dependencies = [
     "dash-bootstrap-components~=2.0.4",
     "dash-bootstrap-templates~=2.1.0",
-    "dash~=4.1.0",
+    "dash~=4.3.0",
     "mapbox~=0.18.1",
     "numpy~=2.4.4",
     "pandas~=3.0.2",
-    "plotly~=6.7.0",
+    "plotly~=6.8.0",
     "python-dotenv~=1.2.2",
     "ratelimit~=2.2.1",
-    "tqdm~=4.67.3"
+    "tqdm~=4.68.3"
 ]
 
 [build-system]
