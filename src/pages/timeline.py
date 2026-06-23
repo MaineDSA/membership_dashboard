@@ -21,10 +21,10 @@ membership_timeline = html.Div(
         dbc.Row(
             [
                 dbc.Col(
-                    dcc.Dropdown(options=[], multi=True, id="filtered-values"),
+                    dcc.Dropdown(options=["membership_status"], value="membership_status", multi=False, id="selected-column"),
                 ),
                 dbc.Col(
-                    dcc.Dropdown(options=["membership_status"], value="membership_status", multi=False, id="selected-column"),
+                    dcc.Dropdown(options=[], multi=True, id="filtered-values"),
                 ),
             ],
             align="center",
