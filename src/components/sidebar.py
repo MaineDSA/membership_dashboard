@@ -1,10 +1,12 @@
+from datetime import date
+
 import dash
 import dash_bootstrap_components as dbc
-from dash import dcc, html
+from dash import Input, Output, callback, dcc, html
 
-from src.utils.scan_lists import MEMB_LISTS
+from src.utils import scan_lists
 
-member_list_keys = list(MEMB_LISTS.keys())
+member_list_keys = list(scan_lists.MEMB_LISTS.keys())
 
 
 def sidebar() -> html.Div:
@@ -58,22 +60,13 @@ def sidebar() -> html.Div:
                             persistence=True,
                             persistence_type="session",
                         ),
-                        html.Div(
-                            [
-                                html.P("Active List"),
-                            ],
-                        ),
+                        html.Div([html.P("Active List")]),
                         dcc.Dropdown(
-                            options=member_list_keys,
-                            id="list-compare",
+                            id="list-compare",  # Options are now handled by the callback below
                             persistence=True,
                             persistence_type="session",
                         ),
-                        html.Div(
-                            [
-                                html.P("Compare To"),
-                            ],
-                        ),
+                        html.Div([html.P("Compare To")]),
                         dbc.Nav(
                             [
                                 dbc.NavLink(
@@ -91,3 +84,12 @@ def sidebar() -> html.Div:
             ),
         ],
     )
+
+
+@callback(Output("list-compare", "options"), Input("list-selected", "value"))
+def update_compare_options(selected_list: scan_lists.ISODateStr) -> list[scan_lists.ISODateStr] | list[None]:
+    if not selected_list:
+        return []
+
+    selected_date = date.fromisoformat(selected_list)
+    return [key for key in member_list_keys if date.fromisoformat(key) < selected_date]
