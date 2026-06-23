@@ -28,9 +28,6 @@ membership_map = html.Div(
         dbc.Row(
             [
                 dbc.Col(
-                    dcc.Dropdown(options=[], multi=True, id="filtered-values"),
-                ),
-                dbc.Col(
                     dcc.Dropdown(options=["membership_status"], value="membership_status", multi=False, id="selected-column"),
                 ),
             ],
@@ -74,17 +71,15 @@ def zoom_level(lat_span: float, lon_span: float) -> int:
     inputs={
         "date_selected": Input(component_id="list-selected", component_property="value"),
         "selected_column": Input(component_id="selected-column", component_property="value"),
-        "selected_values": Input(component_id="filtered-values", component_property="value"),
         "is_dark_mode": Input(component_id="color-mode-switch", component_property="value"),
     },
 )
-def create_map(date_selected: scan_lists.ISODateStr, selected_column: str, selected_values: list[str], *, is_dark_mode: bool) -> MapFigures:
+def create_map(date_selected: scan_lists.ISODateStr, selected_column: str, *, is_dark_mode: bool) -> MapFigures:
     """Set up html data to show a map of members."""
-    if not selected_column or not selected_values:
+    if not selected_column:
         return {"map_fig": go.Figure()}
 
     df_map = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
-    df_map = df_map.loc[df_map[selected_column].isin(selected_values)]
     lat_center, lon_center, zoom = 39.16, -96.32, 6
     if not df_map.empty and "lat" in df_map.columns and "lon" in df_map.columns:
         # Calculate bounds for auto-centering
