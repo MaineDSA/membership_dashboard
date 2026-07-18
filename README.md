@@ -9,7 +9,7 @@
 | src/components/\_\_init\_\_.py  |        0 |        0 |        0 |        0 |    100% |           |
 | src/components/colors.py        |        2 |        2 |        0 |        0 |      0% |      1-15 |
 | src/components/dark\_mode.py    |        9 |        9 |        2 |        0 |      0% |      1-14 |
-| src/components/sidebar.py       |       14 |       14 |        2 |        0 |      0% |      1-95 |
+| src/components/sidebar.py       |       14 |       14 |        2 |        0 |      0% |     1-133 |
 | src/components/value\_filter.py |       32 |       32 |        8 |        0 |      0% |      1-84 |
 | src/pages/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |    100% |           |
 | src/pages/counts.py             |       36 |       36 |        4 |        0 |      0% |     1-139 |
