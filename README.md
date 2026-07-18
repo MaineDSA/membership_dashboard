@@ -57,7 +57,7 @@ The dashboard provides the following features:
   dropdown list.
 - List table displaying the active membership list with the option to export a CSV. If a compare list is selected, only
   the rows that changed are shown.
-- Metrics showing the number of constitutional members, members in good standing, expiring members, and lapsed members.
+- Metrics showing the number of constitutional members, members in good standing, and lapsed members.
 - Graphs displaying membership counts, dues, union membership, length of membership, and racial demographics.
 - Provides comprehensive retention data tracking based on join date, length of membership, and more.
 - Maps addresses to allow visualization of how membership metrics are distributed across the state.
