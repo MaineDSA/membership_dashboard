@@ -1,7 +1,7 @@
 from typing import Literal, get_args
 
 import dash
-import dash_bootstrap_components as dbc
+import dash_bootstrap_components._components as dbc
 import pandas as pd
 from dash import Input, Output, callback, dcc, html
 from plotly import graph_objects as go
