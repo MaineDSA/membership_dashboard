@@ -9,7 +9,7 @@ from src.utils import scan_lists
 member_list_keys = list(scan_lists.MEMB_LISTS.keys())
 
 
-def sidebar(*, compare_visible: bool = True) -> html.Div:
+def sidebar(*, compare: bool = True) -> html.Div:
     return html.Div(
         children=[
             dbc.Row(
@@ -74,7 +74,7 @@ def sidebar(*, compare_visible: bool = True) -> html.Div:
                                 ),
                                 html.Div([html.P("Compare To")]),
                             ],
-                            style={"display": "none" if not compare_visible else "block"},
+                            style={"display": "none" if not compare else "block"},
                         ),
                         dbc.Nav(
                             [

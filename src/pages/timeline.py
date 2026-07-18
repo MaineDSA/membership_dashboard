@@ -47,7 +47,7 @@ membership_timeline = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar.sidebar(compare_visible=False), width=2), dbc.Col(membership_timeline, width=10)], className="dbc", style={"margin": "1em"})
+    return dbc.Row([dbc.Col(sidebar.sidebar(compare=False), width=2), dbc.Col(membership_timeline, width=10)], className="dbc", style={"margin": "1em"})
 
 
 @callback(
