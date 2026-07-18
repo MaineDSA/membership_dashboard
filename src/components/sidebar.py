@@ -1,7 +1,7 @@
 from datetime import date
 
 import dash
-import dash_bootstrap_components as dbc
+import dash_bootstrap_components._components as dbc
 from dash import Input, Output, callback, dcc, html
 
 from src.utils import scan_lists
