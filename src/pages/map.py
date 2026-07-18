@@ -54,7 +54,7 @@ membership_map = html.Div(
 
 
 def layout() -> dbc.Row:
-    return dbc.Row([dbc.Col(sidebar.sidebar(), width=2), dbc.Col(membership_map, width=10)], className="dbc", style={"margin": "1em"})
+    return dbc.Row([dbc.Col(sidebar.sidebar(compare_visible=False), width=2), dbc.Col(membership_map, width=10)], className="dbc", style={"margin": "1em"})
 
 
 def zoom_level(lat_span: float, lon_span: float) -> int:
