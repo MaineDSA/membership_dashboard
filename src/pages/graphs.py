@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import Literal, get_args
 
 import dash
@@ -12,57 +13,28 @@ from src.utils import scan_lists
 GraphKeys = Literal["status", "m_type", "union", "length", "race"]
 GraphFigures = dict[GraphKeys, go.Figure]
 
+GRAPH_KEYS: tuple[GraphKeys, ...] = get_args(GraphKeys)
+
 dash.register_page(__name__, path="/graphs", title=f"Membership Dashboard: {__name__.title()}", order=3)
 
-membership_graphs = html.Div(
-    children=[
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="graph-membership-status",
-                        style={"height": "48svh"},
-                    ),
-                    md=4,
-                ),
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="graph-membership-type",
-                        style={"height": "48svh"},
-                    ),
-                    md=4,
-                ),
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="graph-union-member",
-                        style={"height": "48svh"},
-                    ),
-                    md=4,
-                ),
-            ],
-            align="center",
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="graph-membership-length",
-                        style={"height": "48svh"},
-                    ),
-                    md=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(figure=go.Figure(), id="graph-race", style={"height": "48svh"}),
-                    md=6,
-                ),
-            ],
-            align="center",
-        ),
+# list of rows containing (key, element_id, width)
+GRID_CONFIG = [
+    [
+        ("status", "graph-membership-status", 4),
+        ("m_type", "graph-membership-type", 4),
+        ("union", "graph-union-member", 4),
     ],
+    [
+        ("length", "graph-membership-length", 6),
+        ("race", "graph-race", 6),
+    ],
+]
+
+membership_graphs = html.Div(
+    [
+        dbc.Row([dbc.Col(dcc.Graph(figure=go.Figure(), id=graph_id, style={"height": "48svh"}), md=width) for _, graph_id, width in row], align="center")
+        for row in GRID_CONFIG
+    ]
 )
 
 
@@ -124,13 +96,7 @@ def create_graph(
 
 
 @callback(
-    output={
-        "status": Output("graph-membership-status", "figure"),
-        "m_type": Output("graph-membership-type", "figure"),
-        "union": Output("graph-union-member", "figure"),
-        "length": Output("graph-membership-length", "figure"),
-        "race": Output("graph-race", "figure"),
-    },
+    output={key: Output(graph_id, "figure") for row in GRID_CONFIG for key, graph_id, _ in row},
     inputs={
         "date_selected": Input("list-selected", "value"),
         "date_compare_selected": Input("list-compare", "value"),
@@ -140,7 +106,7 @@ def create_graph(
 def create_graphs(date_selected: scan_lists.ISODateStr, date_compare_selected: scan_lists.ISODateStr, *, is_dark_mode: bool) -> GraphFigures:
     """Update the graphs shown based on the selected membership list date and compare date (if applicable)."""
     if not date_selected:
-        return {"status": go.Figure(), "m_type": go.Figure(), "union": go.Figure(), "length": go.Figure(), "race": go.Figure()}
+        return {k: go.Figure() for k in GRAPH_KEYS}
 
     df = scan_lists.MEMB_LISTS.get(date_selected, pd.DataFrame())
     df_compare = scan_lists.MEMB_LISTS.get(date_compare_selected, pd.DataFrame())
@@ -149,47 +115,48 @@ def create_graphs(date_selected: scan_lists.ISODateStr, date_compare_selected: s
         """Split a character-separated list string into an iterable object."""
         return df_mc.assign(**{target_column: df_mc[target_column].str.split(separator)}).explode(target_column).reset_index(drop=True)
 
-    membersdf = df.query('membership_status != "lapsed" and membership_status != "expired"')
-    membersdf_compare = (
-        df_compare.query('membership_status != "lapsed" and membership_status != "expired"') if "membership_status" in df_compare else pd.DataFrame()
-    )
+    def _get_field(source_df: pd.DataFrame, col: str, transform: Callable | None = None) -> pd.Series | pd.DataFrame:
+        """Safely extract and optional transform a dataframe column if it exists."""
+        if col not in source_df:
+            return pd.DataFrame()
+        return transform(source_df) if transform else source_df[col]
+
+    # Filters
+    status_query = 'membership_status != "lapsed" and membership_status != "expired"'
+    membersdf = df.query(status_query) if "membership_status" in df else pd.DataFrame()
+    membersdf_compare = df_compare.query(status_query) if "membership_status" in df_compare else pd.DataFrame()
 
     charts = {
         "status": create_graph(
-            df["membership_status"] if "membership_status" in df else pd.DataFrame(),
-            df_compare["membership_status"] if "membership_status" in df_compare else pd.DataFrame(),
+            _get_field(df, "membership_status"),
+            _get_field(df_compare, "membership_status"),
             "Membership Counts",
             "Members",
         ),
         "m_type": create_graph(
-            df.loc[df["membership_status"] == "member in good standing"]["membership_type"] if "membership_status" in df else pd.DataFrame(),
-            df_compare.loc[df_compare["membership_status"] == "member in good standing"]["membership_type"]
-            if "membership_status" in df_compare
-            else pd.DataFrame(),
+            _get_field(df, "membership_status", lambda d: d.loc[d["membership_status"] == "member in good standing"]["membership_type"]),
+            _get_field(df_compare, "membership_status", lambda d: d.loc[d["membership_status"] == "member in good standing"]["membership_type"]),
             "Dues of Members in Good Standing",
             "Members",
         ),
         "union": create_graph(
-            membersdf["union_member"] if "union_member" in df else pd.DataFrame(),
-            membersdf_compare["union_member"] if "union_member" in df_compare else pd.DataFrame(),
+            _get_field(membersdf, "union_member"),
+            _get_field(membersdf_compare, "union_member"),
             "Union Membership of Constitutional Members",
             "Members",
         ),
         "length": create_graph(
-            membersdf["membership_length_years"].clip(upper=8) if "membership_length_years" in df else pd.DataFrame(),
-            membersdf_compare["membership_length_years"].clip(upper=8) if "membership_length_years" in membersdf_compare else pd.DataFrame(),
+            _get_field(membersdf, "membership_length_years", lambda d: d["membership_length_years"].clip(upper=8)),
+            _get_field(membersdf_compare, "membership_length_years", lambda d: d["membership_length_years"].clip(upper=8)),
             "Length of Membership of Constitutional Members (0 - 8+yrs)",
             "Members",
         ),
         "race": create_graph(
-            multiple_choice(membersdf, "race", ",")["race"] if "race" in df else pd.DataFrame(),
-            multiple_choice(membersdf_compare, "race", ",")["race"] if "race" in membersdf_compare else pd.DataFrame(),
+            _get_field(membersdf, "race", lambda d: multiple_choice(d, "race", ",")["race"]),
+            _get_field(membersdf_compare, "race", lambda d: multiple_choice(d, "race", ",")["race"]),
             "Racial Demographics of Constitutional Members",
             "Members",
         ),
     }
 
-    keys: tuple[GraphKeys, ...] = get_args(GraphKeys)
-    figures: GraphFigures = {k: dark_mode.with_template_if_dark(charts[k], is_dark_mode=is_dark_mode) for k in keys}
-
-    return figures
+    return {k: dark_mode.with_template_if_dark(charts[k], is_dark_mode=is_dark_mode) for k in GRAPH_KEYS}

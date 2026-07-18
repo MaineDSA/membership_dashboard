@@ -23,6 +23,19 @@ default_end_date = pd.to_datetime("today") - pd.tseries.offsets.DateOffset(month
 default_end_year = int(default_end_date.date().strftime("%Y"))
 years_between: dict[int, dict[str, str]] = {i: {"label": f"{i}"} for i in range(earliest_year, today_year, 4)}
 
+GRAPH_STYLE = {"height": "45svh"}
+
+
+def make_retention_graphs_row(id_left: str, id_right: str) -> dbc.Row:
+    return dbc.Row(
+        [
+            dbc.Col(dcc.Graph(figure=go.Figure(), id=id_left, style=GRAPH_STYLE), md=6),
+            dbc.Col(dcc.Graph(figure=go.Figure(), id=id_right, style=GRAPH_STYLE), md=6),
+        ],
+        align="center",
+    )
+
+
 membership_retention = html.Div(
     children=[
         dbc.Row(
@@ -38,112 +51,12 @@ membership_retention = html.Div(
                 ),
             ),
         ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="retention-count-years",
-                        style={"height": "45svh"},
-                    ),
-                    md=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="retention-count-months",
-                        style={"height": "45svh"},
-                    ),
-                    md=6,
-                ),
-            ],
-            align="center",
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="retention-percent-years",
-                        style={"height": "45svh"},
-                    ),
-                    md=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="retention-percent-months",
-                        style={"height": "45svh"},
-                    ),
-                    md=6,
-                ),
-            ],
-            align="center",
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="retention-nth-year",
-                        style={"height": "45svh"},
-                    ),
-                    md=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="retention-nth-quarter",
-                        style={"height": "45svh"},
-                    ),
-                    md=6,
-                ),
-            ],
-            align="center",
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="retention-yoy-year",
-                        style={"height": "45svh"},
-                    ),
-                    md=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="retention-yoy-month",
-                        style={"height": "45svh"},
-                    ),
-                    md=6,
-                ),
-            ],
-            align="center",
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="retention-tenure-member",
-                        style={"height": "45svh"},
-                    ),
-                    md=6,
-                ),
-                dbc.Col(
-                    dcc.Graph(
-                        figure=go.Figure(),
-                        id="retention-tenure-lapsed",
-                        style={"height": "45svh"},
-                    ),
-                    md=6,
-                ),
-            ],
-            align="center",
-        ),
-    ],
+        make_retention_graphs_row("retention-count-years", "retention-count-months"),
+        make_retention_graphs_row("retention-percent-years", "retention-percent-months"),
+        make_retention_graphs_row("retention-nth-year", "retention-nth-quarter"),
+        make_retention_graphs_row("retention-yoy-year", "retention-yoy-month"),
+        make_retention_graphs_row("retention-tenure-member", "retention-tenure-lapsed"),
+    ]
 )
 
 
