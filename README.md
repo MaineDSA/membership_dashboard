@@ -12,17 +12,17 @@
 | src/components/sidebar.py       |       14 |       14 |        2 |        0 |      0% |     1-133 |
 | src/components/value\_filter.py |       32 |       32 |        8 |        0 |      0% |      1-84 |
 | src/pages/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |    100% |           |
-| src/pages/counts.py             |       36 |       36 |        4 |        0 |      0% |     1-139 |
-| src/pages/graphs.py             |       45 |       45 |        6 |        0 |      0% |     1-195 |
+| src/pages/counts.py             |       36 |       36 |        4 |        0 |      0% |      1-89 |
+| src/pages/graphs.py             |       51 |       51 |        8 |        0 |      0% |     1-162 |
 | src/pages/list.py               |       29 |       29 |        2 |        0 |      0% |      1-91 |
 | src/pages/map.py                |       49 |       49 |       14 |        0 |      0% |     1-133 |
-| src/pages/retention.py          |       41 |       41 |        2 |        0 |      0% |     1-430 |
+| src/pages/retention.py          |       44 |       44 |        2 |        0 |      0% |     1-343 |
 | src/pages/timeline.py           |       31 |       31 |        6 |        0 |      0% |      1-95 |
 | src/utils/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |    100% |           |
 | src/utils/geocoding.py          |       54 |       12 |        8 |        3 |     76% |24, 31, 48-58, 66, 71 |
 | src/utils/retention.py          |       26 |       26 |        0 |        0 |      0% |      3-81 |
 | src/utils/scan\_lists.py        |      109 |       12 |       10 |        1 |     89% |67, 79-80, 157-158, 167-172, 203 |
-| **TOTAL**                       |  **488** |  **349** |   **64** |    **4** | **28%** |           |
+| **TOTAL**                       |  **497** |  **358** |   **66** |    **4** | **27%** |           |
 
 
 ## Setup coverage badge
