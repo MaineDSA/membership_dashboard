@@ -9,7 +9,7 @@ from src.utils import scan_lists
 member_list_keys = list(scan_lists.MEMB_LISTS.keys())
 
 
-def sidebar() -> html.Div:
+def sidebar(*, compare_visible: bool = True) -> html.Div:
     return html.Div(
         children=[
             dbc.Row(
@@ -53,20 +53,29 @@ def sidebar() -> html.Div:
                                 html.P("Membership Dashboard", className="lead"),
                             ],
                         ),
-                        dcc.Dropdown(
-                            options=member_list_keys,
-                            value=member_list_keys[0],
-                            id="list-selected",
-                            persistence=True,
-                            persistence_type="session",
+                        html.Div(
+                            [
+                                dcc.Dropdown(
+                                    options=member_list_keys,
+                                    value=member_list_keys[0],
+                                    id="list-selected",
+                                    persistence=True,
+                                    persistence_type="session",
+                                ),
+                                html.Div([html.P("Active List")]),
+                            ],
                         ),
-                        html.Div([html.P("Active List")]),
-                        dcc.Dropdown(
-                            id="list-compare",  # Options are now handled by the callback below
-                            persistence=True,
-                            persistence_type="session",
+                        html.Div(
+                            [
+                                dcc.Dropdown(
+                                    id="list-compare",  # Options are now handled by the callback below
+                                    persistence=True,
+                                    persistence_type="session",
+                                ),
+                                html.Div([html.P("Compare To")]),
+                            ],
+                            style={"display": "none" if not compare_visible else "block"},
                         ),
-                        html.Div([html.P("Compare To")]),
                         dbc.Nav(
                             [
                                 dbc.NavLink(
