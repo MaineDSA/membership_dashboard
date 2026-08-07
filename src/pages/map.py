@@ -20,8 +20,8 @@ dash.register_page(__name__, path="/map", title=f"Membership Dashboard: {__name_
 
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
 
-if "MAPBOX" in config:
-    px.set_mapbox_access_token(config.get("MAPBOX"))
+if "MAPBOX_API_KEY" in config:
+    px.set_mapbox_access_token(config.get("MAPBOX_API_KEY"))
 
 membership_map = html.Div(
     children=[
