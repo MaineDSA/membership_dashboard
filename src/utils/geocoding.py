@@ -80,7 +80,7 @@ def geocode_address(address: str) -> tuple[float, float]:
 @persist_to_file(Path(PurePath(__file__).parents[2]) / "geocoding.sqlite")
 def get_geocoding(address: str) -> tuple[float, float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or geocoder."""
-    if not geolocator or not isinstance(address, str):
+    if not geolocator or not isinstance(address, str) or not address.strip():
         return (0, 0)
     return geocode_address(address)
 
@@ -89,8 +89,10 @@ def add_coordinates(df: pd.DataFrame) -> pd.DataFrame:
     if not geolocator or ("lat" in df and "lon" in df):
         return df
 
-    df[["lon", "lat"]] = pd.DataFrame(
-        (df.address1 + ", " + df.city + ", " + df.state + " " + df.zip).progress_apply(get_geocoding).tolist(),
+    addresses = df.address1.fillna("") + ", " + df.city.fillna("") + ", " + df.state.fillna("") + " " + df.zip.fillna("")
+
+    df[["lat", "lon"]] = pd.DataFrame(
+        addresses.apply(get_geocoding).tolist(),
         index=df.index,
     )
     return df
