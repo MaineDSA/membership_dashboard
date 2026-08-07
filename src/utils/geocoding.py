@@ -13,18 +13,20 @@ import geopy
 import geopy.geocoders
 import pandas as pd
 import ratelimit
+from geopy.geocoders.base import Geocoder
 from tqdm import tqdm
 
 if TYPE_CHECKING:
     from geopy.location import Location
 
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
+geolocator = None
 if config.get("GEOCODER"):
     metadata = importlib.metadata.metadata("membership_dashboard")
     project_urls = dict(item.split(", ", 1) for item in metadata.get_all("Project-URL", []))
     source_url = project_urls.get("source", "No Project URL Defined")
     geopy.geocoders.options.default_user_agent = f"{metadata.get('name')}/{metadata.get('version')}; +{source_url}"  # type: ignore[ty:invalid-assignment]
-    geolocator = geopy.get_geocoder_for_service(config.get("GEOCODER"))(api_key=config.get("GEOCODER_API_KEY"))
+    geolocator: Geocoder | None = geopy.get_geocoder_for_service(config.get("GEOCODER"))(api_key=config.get("GEOCODER_API_KEY"))
 
 tqdm.pandas(unit="comrades", leave=False, position=1, desc="Geocoding")
 
@@ -68,7 +70,7 @@ def persist_to_file(file_name: Path) -> Callable:
 @ratelimit.limits(calls=600, period=60)
 def geocode_address(address: str) -> tuple[float, float]:
     """Return a list of lat and long coordinates from a supplied address string, using a geocoder API."""
-    location: Location | None = geolocator.geocode(address)
+    location: Location | None = geolocator.geocode(address) if geolocator else None  # type: ignore[ty:unresolved-attribute]  # pyright: ignore[reportAttributeAccessIssue]
     if not location:
         logger.warning("Could not geocode address: %s", address)
         return (0, 0)
