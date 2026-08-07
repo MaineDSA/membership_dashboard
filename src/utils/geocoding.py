@@ -40,7 +40,7 @@ def persist_to_file(file_name: Path) -> Callable:
 
     def decorator(original_func: Callable) -> Callable:
         @functools.wraps(original_func)
-        def new_func(param: str) -> list[float]:
+        def new_func(param: str) -> tuple[float, float]:
             if not isinstance(param, str):
                 return original_func(param)
             param_hash = hashlib.sha256(param.encode("utf-8")).hexdigest()
