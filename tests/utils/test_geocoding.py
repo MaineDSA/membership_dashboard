@@ -21,6 +21,7 @@ def patched_geocoder(address: str) -> Location:
 
 
 def test_get_geocoding(mocker: MockerFixture) -> None:
-    """Check whether get_geocoding calls gets the expected lat/lon coordinates."""
+    """Check that get_geocoding results in call to geolocator.geocode."""
+    mocker.patch("src.utils.geocoding.geolocator")
     mocker.patch("src.utils.geocoding.geolocator.geocode", new=patched_geocoder)
     assert get_geocoding.__wrapped__("389 Congress St, Portland, ME 04101") == (45.523063, -122.676483)  # pyright: ignore[reportFunctionMemberAccess]
