@@ -202,7 +202,8 @@ def update_membership_lists(list_name: str, branch_lookup_path: Path) -> None:
     scanned_lists = _scan_all_membership_lists(list_name)
     logger.info("Cleaning and standardizing data for %s lists.", len(scanned_lists))
     memb_lists = {
-        k_date: data_cleaning(memb_list) for k_date, memb_list in tqdm(scanned_lists.items(), unit="list", leave=False, position=0, desc="Scanning Zip Files")
+        k_date: data_cleaning(memb_list)
+        for k_date, memb_list in tqdm(scanned_lists.items(), unit="list", leave=False, position=0, dynamic_ncols=True, desc="Scanning Zip Files")
     }
     if BRANCH_ZIPS_PATH.is_file():
         logger.info("Tagging each membership list based on current branch zip code assignments.")
