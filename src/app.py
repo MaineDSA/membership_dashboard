@@ -32,6 +32,6 @@ app.layout = html.Div(dash.page_container)
 dash_bootstrap_templates.load_figure_template(TEMPLATES)  # pyright: ignore[reportArgumentType]
 
 if __name__ == "__main__":
-    config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
+    config = dotenv.dotenv_values(Path(PurePath(__file__).parents[1], ".env"))
     is_debug = config.get("DEBUG") == "TRUE" if config.get("DEBUG") else False
     app.run(debug=is_debug)
