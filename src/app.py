@@ -1,6 +1,9 @@
+from pathlib import Path, PurePath
+
 import dash
 import dash_bootstrap_components as dbc
 import dash_bootstrap_templates
+import dotenv
 from dash import Dash, html
 
 from src.utils.scan_lists import BRANCH_ZIPS_PATH, MEMBER_LIST_NAME, update_membership_lists
@@ -29,4 +32,6 @@ app.layout = html.Div(dash.page_container)
 dash_bootstrap_templates.load_figure_template(TEMPLATES)  # pyright: ignore[reportArgumentType]
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
+    is_debug = config.get("DEBUG") == "TRUE" if config.get("DEBUG") else False
+    app.run(debug=is_debug)
