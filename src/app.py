@@ -26,7 +26,7 @@ app = Dash(
     use_pages=True,
 )
 app.layout = html.Div(dash.page_container)
-dash_bootstrap_templates.load_figure_template(TEMPLATES)
+dash_bootstrap_templates.load_figure_template(TEMPLATES)  # pyright: ignore[reportArgumentType]
 
 if __name__ == "__main__":
     app.run(debug=True)
