@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.utils.scan_lists import branch_name_from_zip_code, tagged_with_branches
+from src.utils.scan_lists import _tagged_with_branches, branch_name_from_zip_code
 
 TEST_BRANCH_ZIP_CSV = Path("tests/utils/assets/fake_branch_zips.csv")
 
@@ -18,9 +18,9 @@ def test_branch_name_from_zip_code() -> None:
 
 def test_branch_zip_tagging(late_2023_list_clean: pd.DataFrame) -> None:
     """Load a branch_zips file and attempt to apply it to test data, including for members whose zips are +4."""
-    tagged_list = tagged_with_branches({"2024-01-01": late_2023_list_clean}, TEST_BRANCH_ZIP_CSV)
-    assert tagged_list["2024-01-01"].loc[222251]["branch"] == "Central"
-    assert tagged_list["2024-01-01"].loc[522481]["branch"] == "Portland"
+    tagged_list = _tagged_with_branches({"2024-01-01": late_2023_list_clean}, TEST_BRANCH_ZIP_CSV)
+    assert str(tagged_list["2024-01-01"].loc[222251]["branch"]) == "Central"
+    assert str(tagged_list["2024-01-01"].loc[522481]["branch"]) == "Portland"
 
 
 # leading zero padding check is done in test_data_cleaning.py

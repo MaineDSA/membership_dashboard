@@ -1,5 +1,6 @@
 """Parse all membership lists into pandas dataframes for display on dashboard."""
 
+import datetime
 import logging
 from io import TextIOWrapper
 from pathlib import Path, PurePath
@@ -20,6 +21,9 @@ ISODateStr = Annotated[str, "Format: YYYY-MM-DD"]
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 logger = logging.getLogger(__name__)
+
+
+MEMB_LISTS: dict[str, pd.DataFrame] = {datetime.datetime.now(tz=datetime.UTC).strftime("%Y-%m-%d"): pd.DataFrame()}
 
 
 class ListColumnRules:
@@ -152,13 +156,13 @@ def scan_memb_list_from_csv(csv_file_data: TextIOWrapper | IO[bytes]) -> pd.Data
     return pd.read_csv(csv_file_data, dtype={"zip": str}, header=0)
 
 
-def scan_memb_list_from_zip(zip_path: str, list_name: str) -> pd.DataFrame:
+def _scan_memb_list_from_zip(zip_path: str, list_name: str) -> pd.DataFrame:
     """Scan a zip file containing a csv and return the output of scan_memb_list_from_csv from the csv if the zip file name contains a date."""
     with ZipFile(zip_path) as memb_list_zip, memb_list_zip.open(f"{list_name}.csv", "r") as memb_list_csv:
         return scan_memb_list_from_csv(memb_list_csv)
 
 
-def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
+def _scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
     """Scan all zip files and call scan_memb_list_from_zip on each, returning the results."""
     memb_lists = {}
     logger.info("Scanning zipped membership lists in %s/.", list_name)
@@ -168,7 +172,7 @@ def scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
         try:
             date_from_filename = str(PurePath(filename).stem).split("_")[-1]
             list_date_iso = pd.to_datetime(date_from_filename, format="%Y%m%d").date().isoformat()
-            memb_lists[list_date_iso] = scan_memb_list_from_zip(str(Path(zip_file).absolute()), list_name)
+            memb_lists[list_date_iso] = _scan_memb_list_from_zip(str(Path(zip_file).absolute()), list_name)
         except (IndexError, ValueError):
             logger.warning("Could not extract list from %s. Skipping file.", filename)
     logger.info("Found %s zipped membership lists.", len(memb_lists))
@@ -181,7 +185,7 @@ def branch_name_from_zip_code(zip_code: str, branch_zips: pd.DataFrame) -> str:
     return str(branch_zips.loc[cleaned_zip_code, "branch"]) if cleaned_zip_code in branch_zips.index else ""
 
 
-def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: Path) -> dict[str, pd.DataFrame]:
+def _tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: Path) -> dict[str, pd.DataFrame]:
     """Add branch column to each membership list, filling with data cross-referenced from a provided csv via branch_name_from_zip_code()."""
     branch_zips = pd.read_csv(branch_zip_path, dtype={"zip": str}, index_col="zip")
     for date, memb_list in memb_lists.items():
@@ -193,17 +197,15 @@ def tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: P
     return memb_lists
 
 
-def get_membership_lists(list_name: str, branch_lookup_path: Path) -> dict[str, pd.DataFrame]:
-    """Return all membership lists, preferring pickled lists for speed."""
-    scanned_lists = scan_all_membership_lists(list_name)
+def update_membership_lists(list_name: str, branch_lookup_path: Path) -> None:
+    """Update all membership lists."""
+    scanned_lists = _scan_all_membership_lists(list_name)
     logger.info("Cleaning and standardizing data for %s lists.", len(scanned_lists))
     memb_lists = {
         k_date: data_cleaning(memb_list) for k_date, memb_list in tqdm(scanned_lists.items(), unit="list", leave=False, position=0, desc="Scanning Zip Files")
     }
     if BRANCH_ZIPS_PATH.is_file():
         logger.info("Tagging each membership list based on current branch zip code assignments.")
-        memb_lists = tagged_with_branches(memb_lists, branch_lookup_path)
-    return memb_lists
-
-
-MEMB_LISTS = get_membership_lists(MEMBER_LIST_NAME, BRANCH_ZIPS_PATH)
+        memb_lists = _tagged_with_branches(memb_lists, branch_lookup_path)
+    global MEMB_LISTS  # noqa: PLW0603 global-statement
+    MEMB_LISTS = memb_lists
