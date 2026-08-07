@@ -1,3 +1,4 @@
+import functools
 import hashlib
 import importlib.metadata
 import json
@@ -31,14 +32,14 @@ logger = logging.getLogger(__name__)
 
 
 def persist_to_file(file_name: Path) -> Callable:
+    try:
+        with file_name.open() as f:
+            cache = json.load(f)
+    except (OSError, ValueError):
+        cache = {}
+
     def decorator(original_func: Callable) -> Callable:
-        try:
-            with file_name.open() as f:
-                cache = json.load(f)
-
-        except (OSError, ValueError):
-            cache = {}
-
+        @functools.wraps(original_func)
         def new_func(param: str) -> list[float]:
             if not isinstance(param, str):
                 return original_func(param)
