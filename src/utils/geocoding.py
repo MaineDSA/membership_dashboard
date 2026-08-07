@@ -25,7 +25,7 @@ if config.get("GEOCODER"):
     geopy.geocoders.options.default_user_agent = f"{metadata.get('name')}/{metadata.get('version')}; +{source_url}"  # type: ignore[ty:invalid-assignment]
     geolocator = geopy.get_geocoder_for_service(config.get("GEOCODER"))(api_key=config.get("GEOCODER_API_KEY"))
 
-tqdm.pandas(unit="comrades", leave=False, desc="Geocoding")
+tqdm.pandas(unit="comrades", leave=False, position=1, desc="Geocoding")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
