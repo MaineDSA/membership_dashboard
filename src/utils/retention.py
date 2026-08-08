@@ -20,7 +20,7 @@ class Columns(Enum):
 
 
 def retention_pivot(df: pd.DataFrame, join_interval: Columns, membership_length: Columns) -> pd.DataFrame:
-    """Return the transposed pivot table to be used in other retention functions."""
+    """Construct a transposed pivot table with join interval as index and membership length as columns."""
     return df.pivot_table(
         index=[join_interval.value],
         columns=[membership_length.value],

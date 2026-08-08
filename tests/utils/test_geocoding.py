@@ -26,7 +26,7 @@ TEST_ADDRESSES = {
 
 
 def patched_geocoder(address: str) -> Location:
-    """Return a Location object containing the correct lat/lon if correct test address is provided."""
+    """Construct a Location object containing the correct lat/lon if known test address is provided."""
     location: Location | None = None
     if address in TEST_ADDRESSES:
         location = Location(address=address, point=TEST_ADDRESSES[address], raw={})

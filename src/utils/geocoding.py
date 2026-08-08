@@ -39,15 +39,25 @@ DB_DIR = Path(PurePath(__file__).parents[2])
 
 
 def persist_to_file(file_name: str) -> Callable:
+    """
+    Cache input/output in a sqlite database.
+
+    Used as decorator on another function.
+    Decorator takes a single arg specifying
+    the file name of the database.
+
+    Decorated function must take a single string
+    as input and return a tuple[float, float].
+
+    """
+
     def decorator(original_func: Callable) -> Callable:
+        """Maintains :class:`sqlite3.Connection` across calls."""
         conn: sqlite3.Connection | None = None
 
         @functools.wraps(original_func)
         def new_func(param: str) -> tuple[float, float]:
-            if not isinstance(param, str):
-                err_msg = f"Expected str, got {type(param).__name__}"
-                raise TypeError(err_msg)
-
+            """Save input/output to sqlite database."""
             nonlocal conn
             if conn is None:
                 conn = sqlite3.connect(DB_DIR / file_name)
@@ -75,7 +85,7 @@ def persist_to_file(file_name: str) -> Callable:
 
 
 def geocode_address(address: str) -> tuple[float, float]:
-    """Return a list of lat and long coordinates from a supplied address string, using a geocoder API."""
+    """Get lat and long coordinates from a supplied address string, using a configured geocoder API."""
     min_delay = float(CONFIG.get("GEOCODER_DELAY") or 1.0)
     active_delay = min_delay
     max_retries = int(CONFIG.get("GEOCODER_RETRIES") or 4)
@@ -102,13 +112,24 @@ def geocode_address(address: str) -> tuple[float, float]:
 
 @persist_to_file("geocoding.sqlite")
 def get_geocoding(address: str) -> tuple[float, float]:
-    """Return a list of lat and long coordinates from a supplied address string, either from cache or geocoder."""
+    """Get lat and long coordinates from a supplied address string, preferring values saved in cache."""
     if not geolocator or not isinstance(address, str) or not address.strip():
         return (0, 0)
     return geocode_address(address)
 
 
 def add_coordinates(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add lat/lon coordinates to a :class:`pd.DataFrame`.
+
+    Arg:
+        df:
+            Input DataFrame containing at least ``address1``, ``city``, ``state``, and ``zip`` columns.
+
+    Returns:
+        Updated DataFrame with coordinates added to new ``lat`` and ``lon`` columns.
+
+    """
     if not geolocator or ("lat" in df and "lon" in df):
         return df
 

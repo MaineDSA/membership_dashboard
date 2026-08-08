@@ -43,7 +43,7 @@ def layout() -> dbc.Row:
 
 
 def get_positive_sign(num: float) -> str:
-    """Return a string indicating if a number is positive."""
+    """Indicate whether a number is positive."""
     return "+" if num > 0 else ""
 
 
