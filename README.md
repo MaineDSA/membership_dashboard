@@ -19,10 +19,10 @@
 | src/pages/retention.py          |       44 |       44 |        2 |        0 |      0% |     1-343 |
 | src/pages/timeline.py           |       31 |       31 |        6 |        0 |      0% |     1-100 |
 | src/utils/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |    100% |           |
-| src/utils/geocoding.py          |       80 |       10 |       14 |        3 |     86% |31, 48-49, 89, 92-100 |
+| src/utils/geocoding.py          |       77 |        8 |       12 |        2 |     89% |31, 99, 102-110 |
 | src/utils/retention.py          |       26 |       26 |        0 |        0 |      0% |      3-81 |
-| src/utils/scan\_lists.py        |      112 |       22 |       12 |        1 |     80% |71, 83-84, 161-162, 167-179, 202-214 |
-| **TOTAL**                       |  **528** |  **368** |   **72** |    **4** | **30%** |           |
+| src/utils/scan\_lists.py        |      112 |       21 |       12 |        1 |     81% |83-84, 161-162, 167-179, 202-214 |
+| **TOTAL**                       |  **525** |  **365** |   **70** |    **3** | **30%** |           |
 
 
 ## Setup coverage badge
