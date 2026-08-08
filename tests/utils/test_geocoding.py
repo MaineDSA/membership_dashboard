@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import importlib.metadata
 from typing import TYPE_CHECKING
 
+import geopy.geocoders
 import pytest
 from geopy.location import Location, Point
 
@@ -69,3 +71,15 @@ def test_add_coordinates_disabled_does_nothing(mocker: MockerFixture, late_2023_
     """Check that get_geocoding results in call to geolocator.geocode."""
     mocker.patch("src.utils.geocoding.geolocator", new=None)
     assert add_coordinates(late_2023_list) is late_2023_list
+
+
+def test_user_agent_creation(mocker: MockerFixture) -> None:
+    """Check that get_geocoding results in call to geolocator.geocode."""
+    mocker.patch.dict("src.utils.geocoding.config", {"GEOCODER": "nominatim"})
+    metadata = importlib.metadata.metadata("membership_dashboard")
+    project_urls = dict(item.split(", ", 1) for item in metadata.get_all("Project-URL", []))
+    source_url = project_urls.get("source", "No Project URL Defined")
+
+    user_agent = f"{metadata.get('name')}/{metadata.get('version')}; +{source_url}"
+
+    assert geopy.geocoders.options.default_user_agent == user_agent

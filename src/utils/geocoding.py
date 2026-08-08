@@ -21,11 +21,12 @@ if TYPE_CHECKING:
     from geopy.location import Location
 
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
+metadata = importlib.metadata.metadata("membership_dashboard")
+project_urls = dict(item.split(", ", 1) for item in metadata.get_all("Project-URL", []))
+source_url = project_urls.get("source", "No Project URL Defined")
+
 geolocator = None
 if config.get("GEOCODER"):
-    metadata = importlib.metadata.metadata("membership_dashboard")
-    project_urls = dict(item.split(", ", 1) for item in metadata.get_all("Project-URL", []))
-    source_url = project_urls.get("source", "No Project URL Defined")
     geopy.geocoders.options.default_user_agent = f"{metadata.get('name')}/{metadata.get('version')}; +{source_url}"  # type: ignore[ty:invalid-assignment]
     geolocator: Geocoder | None = geopy.get_geocoder_for_service(config.get("GEOCODER"))(api_key=config.get("GEOCODER_API_KEY"))
 
