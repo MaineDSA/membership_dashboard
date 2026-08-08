@@ -27,6 +27,14 @@ def test_old_address_column_name_renaming(early_2020_list: pd.DataFrame) -> None
     assert str(person["address2"]) == "Apt3"
 
 
+def test_family_members_conversion(early_2020_list: pd.DataFrame) -> None:
+    """Check whether ``family_first_name`` and ``family_last_name`` columns are combined into new ``family_members`` column."""
+    early_2020_list["family_first_name"] = ["Karl"]
+    early_2020_list["family_last_name"] = ["Marx"]
+    person = data_cleaning(early_2020_list).loc[222251]
+    assert str(person["family_members"]) == "Karl Marx"
+
+
 def test_annual_to_yearly_dues_renaming(late_2022_list: pd.DataFrame) -> None:
     """Check whether annual dues status of pre-2023 lists is converted to yearly dues status."""
     person = data_cleaning(late_2022_list).loc[178705]
