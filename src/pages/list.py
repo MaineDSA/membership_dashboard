@@ -15,6 +15,13 @@ ListFigures = dict[ListKeys, tuple[list[dict], list, list]]
 dash.register_page(__name__, path="/list", title=f"Membership Dashboard: {__name__.title()}", order=1)
 
 membership_list = html.Div(
+    style={
+        "display": "flex",
+        "flexDirection": "column",
+        "height": "91svh",
+        "padding-right": "0rem",
+        "padding-bottom": "1rem",
+    },
     children=[
         DataTable(
             data=[],
@@ -29,10 +36,10 @@ membership_list = html.Div(
             export_format="csv",
             page_size=20,
             style_table={
-                "display": "inline-block",
-                "height": "86svh",
                 "overflowY": "auto",
                 "overflowX": "auto",
+                "height": "99%",
+                "width": "100%",
             },
             id="list",
         ),

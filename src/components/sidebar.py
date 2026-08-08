@@ -14,7 +14,7 @@ def sidebar(*, compare: bool = True) -> html.Div:
         style={
             "display": "flex",
             "flexDirection": "column",
-            "height": "100vh",
+            "height": "96vh",
             "padding-left": "0rem",
             "padding-bottom": "1rem",
         },

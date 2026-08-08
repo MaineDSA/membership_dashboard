@@ -20,10 +20,14 @@ dash.register_page(__name__, path="/map", title=f"Membership Dashboard: {__name_
 
 config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
 
-if "MAPBOX" in config:
-    px.set_mapbox_access_token(config.get("MAPBOX"))
-
 membership_map = html.Div(
+    style={
+        "display": "flex",
+        "flexDirection": "column",
+        "height": "91svh",
+        "padding-right": "0rem",
+        "padding-bottom": "1rem",
+    },
     children=[
         dbc.Row(
             [
@@ -38,16 +42,15 @@ membership_map = html.Div(
                 dcc.Graph(
                     figure=go.Figure(),
                     id="map",
+                    config={"responsive": True},
                     style={
-                        "display": "inline-block",
-                        "height": "91svh",
+                        "padding-top": "1rem",
+                        "height": "99%",
                         "width": "100%",
-                        "padding-left": "-1em",
-                        "padding-right": "-1em",
-                        "padding-bottom": "-1em",
                     },
                 ),
             ),
+            style={"flex": "1", "display": "flex"},
         ),
     ],
 )

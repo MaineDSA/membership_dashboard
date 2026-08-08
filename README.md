@@ -9,7 +9,7 @@ It uses web frameworks to create browser-based data visualizations.
 
 ## Getting Started
 
-To run this code, you'll need to have Python 3.11, 3.12, 3.13, or 3.14 installed on your machine. You'll also need to
+To run this code, you'll need to have Python 3.12, 3.13, or 3.14 installed on your machine. You'll also need to
 install the required packages by running the following commands from inside the project folder:
 
 ```shell
@@ -29,8 +29,9 @@ uv sync --no-dev
 1. Clone the repository and open the folder.
 2. Put the name of the membership lists you get from National DSA into a `.env` configuration file in the project folder
    after the prefix `LIST=`. Here in Maine, we use `LIST=maine_membership_list`.
-3. Put a [MapBox](https://www.mapbox.com/) API token into the same file (on another line) after the
-   prefix `MAPBOX=`. [OPTIONAL]
+3. To use the geocoding feature, select the geopy geocoder you want to use by putting the geocoder name into the same file (on another line) after the
+   prefix `GEOCODER=`. Then, put an API token for that service into the same file (on another line) after the
+   prefix `GEOCODER_API_KEY=`. [OPTIONAL]
 4. Put a CSV called `branch_zips.csv` containing zip codes matched with branch names in the project folder. [OPTIONAL]
 5. Create a folder with the same title as the membership lists you receive from National DSA.
 6. Add membership lists to the folder (see [notes](#notes) below).

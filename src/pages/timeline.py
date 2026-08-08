@@ -17,6 +17,13 @@ dash.register_page(__name__, path="/", title=f"Membership Dashboard: {__name__.t
 logger = logging.getLogger(__name__)
 
 membership_timeline = html.Div(
+    style={
+        "display": "flex",
+        "flexDirection": "column",
+        "height": "91svh",
+        "padding-right": "0rem",
+        "padding-bottom": "1rem",
+    },
     children=[
         dbc.Row(
             [
@@ -32,15 +39,13 @@ membership_timeline = html.Div(
                     figure={},
                     id="timeline",
                     style={
-                        "display": "inline-block",
-                        "height": "91svh",
+                        "padding-top": "1rem",
+                        "height": "99%",
                         "width": "100%",
-                        "padding-left": "-1em",
-                        "padding-right": "-1em",
-                        "padding-bottom": "-1em",
                     },
                 ),
             ),
+            style={"flex": "1", "display": "flex"},
         ),
     ],
 )
