@@ -5,7 +5,7 @@
 | Name                            |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |-------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
 | src/\_\_init\_\_.py             |        0 |        0 |        0 |        0 |    100% |           |
-| src/app.py                      |       11 |       11 |        0 |        0 |      0% |      1-25 |
+| src/app.py                      |       15 |       15 |        0 |        0 |      0% |      1-32 |
 | src/components/\_\_init\_\_.py  |        0 |        0 |        0 |        0 |    100% |           |
 | src/components/colors.py        |        2 |        2 |        0 |        0 |      0% |      1-15 |
 | src/components/dark\_mode.py    |        9 |        9 |        2 |        0 |      0% |      1-14 |
@@ -14,15 +14,15 @@
 | src/pages/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |    100% |           |
 | src/pages/counts.py             |       36 |       36 |        4 |        0 |      0% |      1-89 |
 | src/pages/graphs.py             |       51 |       51 |        8 |        0 |      0% |     1-162 |
-| src/pages/list.py               |       29 |       29 |        2 |        0 |      0% |      1-91 |
-| src/pages/map.py                |       49 |       49 |       14 |        0 |      0% |     1-133 |
+| src/pages/list.py               |       29 |       29 |        2 |        0 |      0% |      1-98 |
+| src/pages/map.py                |       47 |       47 |       12 |        0 |      0% |     1-136 |
 | src/pages/retention.py          |       44 |       44 |        2 |        0 |      0% |     1-343 |
-| src/pages/timeline.py           |       31 |       31 |        6 |        0 |      0% |      1-95 |
+| src/pages/timeline.py           |       31 |       31 |        6 |        0 |      0% |     1-100 |
 | src/utils/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |    100% |           |
-| src/utils/geocoding.py          |       54 |       12 |        8 |        3 |     76% |24, 31, 48-58, 66, 71 |
+| src/utils/geocoding.py          |       66 |       22 |       10 |        3 |     62% |25-29, 45-62, 76, 84, 92-98 |
 | src/utils/retention.py          |       26 |       26 |        0 |        0 |      0% |      3-81 |
-| src/utils/scan\_lists.py        |      109 |       12 |       10 |        1 |     89% |67, 79-80, 157-158, 167-172, 203 |
-| **TOTAL**                       |  **497** |  **358** |   **66** |    **4** | **27%** |           |
+| src/utils/scan\_lists.py        |      110 |       20 |       10 |        1 |     82% |71, 83-84, 161-162, 167-179, 202-212 |
+| **TOTAL**                       |  **512** |  **378** |   **66** |    **4** | **25%** |           |
 
 
 ## Setup coverage badge
