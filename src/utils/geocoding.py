@@ -20,33 +20,39 @@ from tqdm import tqdm
 if TYPE_CHECKING:
     from geopy.location import Location
 
-config = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
-metadata = importlib.metadata.metadata("membership_dashboard")
-project_urls = dict(item.split(", ", 1) for item in metadata.get_all("Project-URL", []))
-source_url = project_urls.get("source", "No Project URL Defined")
+CONFIG = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
+METADATA = importlib.metadata.metadata("membership_dashboard")
+PROJECT_URLS = dict(item.split(", ", 1) for item in METADATA.get_all("Project-URL", []))
+REPO_URL = PROJECT_URLS.get("source", "No Repo URL Defined")
 
 geolocator = None
-if config.get("GEOCODER"):
-    geopy.geocoders.options.default_user_agent = f"{metadata.get('name')}/{metadata.get('version')}; +{source_url}"  # type: ignore[ty:invalid-assignment]
-    geolocator: Geocoder | None = geopy.get_geocoder_for_service(config.get("GEOCODER"))(api_key=config.get("GEOCODER_API_KEY"))
+if CONFIG.get("GEOCODER"):
+    geopy.geocoders.options.default_user_agent = f"{METADATA.get('name')}/{METADATA.get('version')}; +{REPO_URL}"  # type: ignore[ty:invalid-assignment]
+    geolocator: Geocoder | None = geopy.get_geocoder_for_service(CONFIG.get("GEOCODER"))(api_key=CONFIG.get("GEOCODER_API_KEY"))
 
 tqdm.pandas(unit="comrades", leave=False, position=1, dynamic_ncols=True, desc="Geocoding")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+DB_DIR = Path(PurePath(__file__).parents[2])
 
-def persist_to_file(file_name: Path) -> Callable:
-    conn = sqlite3.connect(file_name)
-    conn.execute("CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, value TEXT)")
-    conn.commit()
 
+def persist_to_file(file_name: str) -> Callable:
     def decorator(original_func: Callable) -> Callable:
+        conn: sqlite3.Connection | None = None
+
         @functools.wraps(original_func)
         def new_func(param: str) -> tuple[float, float]:
             if not isinstance(param, str):
                 err_msg = f"Expected str, got {type(param).__name__}"
                 raise TypeError(err_msg)
+
+            nonlocal conn
+            if conn is None:
+                conn = sqlite3.connect(DB_DIR / file_name)
+                conn.execute("CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, value TEXT)")
+                conn.commit()
 
             param_hash = hashlib.sha256(param.encode("utf-8")).hexdigest()
 
@@ -70,9 +76,9 @@ def persist_to_file(file_name: Path) -> Callable:
 
 def geocode_address(address: str) -> tuple[float, float]:
     """Return a list of lat and long coordinates from a supplied address string, using a geocoder API."""
-    min_delay = float(config.get("GEOCODER_DELAY") or 1.0)
+    min_delay = float(CONFIG.get("GEOCODER_DELAY") or 1.0)
     active_delay = min_delay
-    max_retries = int(config.get("GEOCODER_RETRIES") or 4)
+    max_retries = int(CONFIG.get("GEOCODER_RETRIES") or 4)
 
     for attempt in range(max_retries):
         try:
@@ -94,7 +100,7 @@ def geocode_address(address: str) -> tuple[float, float]:
     return (0, 0)
 
 
-@persist_to_file(Path(PurePath(__file__).parents[2]) / "geocoding.sqlite")
+@persist_to_file("geocoding.sqlite")
 def get_geocoding(address: str) -> tuple[float, float]:
     """Return a list of lat and long coordinates from a supplied address string, either from cache or geocoder."""
     if not geolocator or not isinstance(address, str) or not address.strip():

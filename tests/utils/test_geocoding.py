@@ -75,7 +75,7 @@ def test_add_coordinates_disabled_does_nothing(mocker: MockerFixture, late_2023_
 
 def test_user_agent_creation(mocker: MockerFixture) -> None:
     """Check that get_geocoding results in call to geolocator.geocode."""
-    mocker.patch.dict("src.utils.geocoding.config", {"GEOCODER": "nominatim"})
+    mocker.patch.dict("src.utils.geocoding.CONFIG", {"GEOCODER": "nominatim"})
     metadata = importlib.metadata.metadata("membership_dashboard")
     project_urls = dict(item.split(", ", 1) for item in metadata.get_all("Project-URL", []))
     source_url = project_urls.get("source", "No Project URL Defined")
