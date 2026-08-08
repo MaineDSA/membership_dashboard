@@ -5,11 +5,11 @@ from __future__ import annotations
 import importlib.metadata
 from typing import TYPE_CHECKING
 
-import geopy.geocoders
 import pytest
+from geopy.geocoders.base import Geocoder
 from geopy.location import Location, Point
 
-from src.utils.geocoding import add_coordinates, get_geocoding
+from src.utils.geocoding import METADATA, add_coordinates, get_geocoding
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -94,13 +94,11 @@ def test_add_coordinates_disabled_does_nothing(mocker: MockerFixture, late_2023_
     assert add_coordinates(late_2023_list) is late_2023_list
 
 
-def test_user_agent_creation(mocker: MockerFixture) -> None:
-    """Check that get_geocoding results in call to geolocator.geocode."""
-    mocker.patch.dict("src.utils.geocoding.CONFIG", {"GEOCODER": "nominatim"})
-    metadata = importlib.metadata.metadata("membership_dashboard")
-    project_urls = dict(item.split(", ", 1) for item in metadata.get_all("Project-URL", []))
-    source_url = project_urls.get("source", "No Project URL Defined")
+def test_user_agent_creation() -> None:
+    """Check that user agent is created and set correctly."""
+    project_urls = dict(item.split(", ", 1) for item in METADATA.get_all("Project-URL", []))
+    source_url = project_urls.get("source", "No Repo URL Defined")
+    user_agent = f"{METADATA.get('name')}/{METADATA.get('version')}; +{source_url}"
 
-    user_agent = f"{metadata.get('name')}/{metadata.get('version')}; +{source_url}"
-
-    assert geopy.geocoders.options.default_user_agent == user_agent
+    geolocator = Geocoder()
+    assert geolocator.headers["User-Agent"] == user_agent

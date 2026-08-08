@@ -24,10 +24,10 @@ CONFIG = dotenv.dotenv_values(Path(PurePath(__file__).parents[2], ".env"))
 METADATA = importlib.metadata.metadata("membership_dashboard")
 PROJECT_URLS = dict(item.split(", ", 1) for item in METADATA.get_all("Project-URL", []))
 REPO_URL = PROJECT_URLS.get("source", "No Repo URL Defined")
+geopy.geocoders.options.default_user_agent = f"{METADATA.get('name')}/{METADATA.get('version')}; +{REPO_URL}"  # type: ignore[ty:invalid-assignment]
 
 geolocator = None
 if CONFIG.get("GEOCODER"):
-    geopy.geocoders.options.default_user_agent = f"{METADATA.get('name')}/{METADATA.get('version')}; +{REPO_URL}"  # type: ignore[ty:invalid-assignment]
     geolocator: Geocoder | None = geopy.get_geocoder_for_service(CONFIG.get("GEOCODER"))(api_key=CONFIG.get("GEOCODER_API_KEY"))
 
 tqdm.pandas(unit="comrades", leave=False, position=1, dynamic_ncols=True, desc="Geocoding")
