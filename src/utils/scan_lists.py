@@ -120,7 +120,7 @@ def process_dates(df: pd.DataFrame) -> pd.DataFrame:
 
 def calculate_membership_length(df: pd.DataFrame) -> pd.DataFrame:
     df["membership_length_months"] = membership_length_months(df.join_date, df.xdate)
-    df["membership_length_years"] = df.membership_length_months // 12
+    df["membership_length_years"] = membership_length_years(df.join_date, df.xdate)
     return df
 
 
