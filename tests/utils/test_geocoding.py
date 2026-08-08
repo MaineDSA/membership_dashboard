@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 TEST_ADDRESSES = {
-    "389 Congress St, Portland, ME 04101": Point(45.523063, -122.676483),
+    "389 Congress St, Portland, ME 04101": Point(43.6592404, -70.2573592),
     "PO Box 13, Turner, ME 04282-0013": Point(44.164922, -70.233281),
     "746 Forest Ave, Portland, ME 04102": Point(43.673720, -70.285727),
 }
