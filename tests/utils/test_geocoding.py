@@ -58,8 +58,8 @@ def test_add_coordinates_calls_get_geocoding_on_each(mocker: MockerFixture, late
 
     geocoded_df = add_coordinates(late_2023_list)
 
-    assert "lat" in late_2023_list.columns
-    assert "lon" in late_2023_list.columns
+    assert "lat" in geocoded_df.columns
+    assert "lon" in geocoded_df.columns
 
     for member_data in geocoded_df.itertuples():
         address = str(member_data.address1) + ", " + str(member_data.city) + ", " + str(member_data.state) + " " + str(member_data.zip)
