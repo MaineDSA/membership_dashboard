@@ -12,6 +12,8 @@ from geopy.location import Location, Point
 from src.utils.geocoding import add_coordinates, get_geocoding
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     import pandas as pd
     from pytest_mock import MockerFixture
 
@@ -39,6 +41,25 @@ def test_get_geocoding(mocker: MockerFixture, address: str, point: Point) -> Non
     mocker.patch("src.utils.geocoding.geolocator")
     mocker.patch("src.utils.geocoding.geolocator.geocode", new=patched_geocoder)
     assert get_geocoding.__wrapped__(address) == (point.latitude, point.longitude)  # pyright: ignore[reportFunctionMemberAccess]
+
+
+def test_get_geocoding_cache(mocker: MockerFixture, tmp_path: Path) -> None:
+    """Check that identical src.utils.geocoding.get_geocoding calls only result in one call to geolocator.geocode."""
+    address = "389 Congress St, Portland, ME 04101"
+    point = Point(43.6592404, -70.2573592)
+
+    import src.utils.geocoding as gc  # noqa: PLC0415 import-outside-top-level
+
+    importlib.reload(gc)
+
+    mocker.patch("src.utils.geocoding.DB_DIR", tmp_path)
+    mocker.patch("src.utils.geocoding.geolocator")
+    spy = mocker.patch("src.utils.geocoding.geolocator.geocode", side_effect=patched_geocoder)
+
+    assert gc.get_geocoding(address) == (point.latitude, point.longitude)
+    assert spy.call_count == 1
+    assert gc.get_geocoding(address) == (point.latitude, point.longitude)
+    assert spy.call_count == 1
 
 
 @pytest.mark.parametrize("address", TEST_ADDRESSES.keys())
