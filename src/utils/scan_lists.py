@@ -208,5 +208,7 @@ def update_membership_lists(list_name: str, branch_lookup_path: Path) -> None:
     if BRANCH_ZIPS_PATH.is_file():
         logger.info("Tagging each membership list based on current branch zip code assignments.")
         memb_lists = _tagged_with_branches(memb_lists, branch_lookup_path)
+    if not memb_lists:
+        return
     global MEMB_LISTS  # noqa: PLW0603 global-statement
     MEMB_LISTS = memb_lists
