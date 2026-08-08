@@ -570,7 +570,6 @@ dependencies = [
     { name = "pandas" },
     { name = "plotly" },
     { name = "python-dotenv" },
-    { name = "ratelimit" },
     { name = "tqdm" },
 ]
 
@@ -587,7 +586,6 @@ dev = [
     { name = "ruff" },
     { name = "ssort" },
     { name = "ty" },
-    { name = "types-ratelimit" },
     { name = "types-tqdm" },
 ]
 lint = [
@@ -602,7 +600,6 @@ pre-commit = [
     { name = "ruff" },
     { name = "ssort" },
     { name = "ty" },
-    { name = "types-ratelimit" },
     { name = "types-tqdm" },
 ]
 security = [
@@ -624,7 +621,6 @@ types = [
     { name = "pandas-stubs" },
     { name = "plotly-stubs" },
     { name = "ty" },
-    { name = "types-ratelimit" },
     { name = "types-tqdm" },
 ]
 
@@ -638,7 +634,6 @@ requires-dist = [
     { name = "pandas", specifier = "~=3.0.3" },
     { name = "plotly", specifier = "~=6.9.0" },
     { name = "python-dotenv", specifier = "~=1.2.2" },
-    { name = "ratelimit", specifier = "~=2.2.1" },
     { name = "tqdm", specifier = "~=4.68.3" },
 ]
 
@@ -655,7 +650,6 @@ dev = [
     { name = "ruff", specifier = "==0.16.1" },
     { name = "ssort", specifier = "==0.17.0" },
     { name = "ty", specifier = "~=0.0.61" },
-    { name = "types-ratelimit", specifier = "~=2.2.0.20260508" },
     { name = "types-tqdm", specifier = "~=4.68.0.20260608" },
 ]
 lint = [
@@ -670,7 +664,6 @@ pre-commit = [
     { name = "ruff", specifier = "==0.16.1" },
     { name = "ssort", specifier = "==0.17.0" },
     { name = "ty", specifier = "~=0.0.61" },
-    { name = "types-ratelimit", specifier = "~=2.2.0.20260508" },
     { name = "types-tqdm", specifier = "~=4.68.0.20260608" },
 ]
 security = [{ name = "bandit", extras = ["sarif"], specifier = "==1.9.4" }]
@@ -690,7 +683,6 @@ types = [
     { name = "pandas-stubs", specifier = "~=3.0.3.260530" },
     { name = "plotly-stubs", specifier = "~=0.1.3" },
     { name = "ty", specifier = "~=0.0.61" },
-    { name = "types-ratelimit", specifier = "~=2.2.0.20260508" },
     { name = "types-tqdm", specifier = "~=4.68.0.20260608" },
 ]
 
@@ -1160,12 +1152,6 @@ wheels = [
 ]
 
 [[package]]
-name = "ratelimit"
-version = "2.2.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ab/38/ff60c8fc9e002d50d48822cc5095deb8ebbc5f91a6b8fdd9731c87a147c9/ratelimit-2.2.1.tar.gz", hash = "sha256:af8a9b64b821529aca09ebaf6d8d279100d766f19e90b5059ac6a718ca6dee42", size = 5251, upload-time = "2018-12-17T18:55:49.675Z" }
-
-[[package]]
 name = "requests"
 version = "2.34.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1314,15 +1300,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/e4/43/78a658d18b2a4ccf35b053392f2213bf12e3c63b2abea512d3b6751d1f4c/ty-0.0.69-py3-none-win32.whl", hash = "sha256:ec460e01586b1eb91894c4a8403bee3e045a47e7a4ada943cc27ce8e348e88cf", size = 11787774, upload-time = "2026-08-06T10:04:18.622Z" },
     { url = "https://files.pythonhosted.org/packages/3a/5e/88db1f674403f2b81316a853a44a81ed220621fa96f8f7ae586fb6ca7513/ty-0.0.69-py3-none-win_amd64.whl", hash = "sha256:18976ca26a4e28fc3249477f79a695d5502e670803f2e080d89ac905baef3c6e", size = 12864038, upload-time = "2026-08-06T10:04:20.748Z" },
     { url = "https://files.pythonhosted.org/packages/4d/7b/6fc6efd00c69103d70f2bdbe824343089cd70b17b3079170057d3e5a3ac0/ty-0.0.69-py3-none-win_arm64.whl", hash = "sha256:7d4ca3bb74d91cb9947ba3f3b4cb131ad6a2b3ecc76d34040c4ec6092d2e411d", size = 12196693, upload-time = "2026-08-06T10:04:22.902Z" },
-]
-
-[[package]]
-name = "types-ratelimit"
-version = "2.2.0.20260508"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/75/76/e523a029c54ea16b331001652834be88cc05da9968389f1ffe0d538678fd/types_ratelimit-2.2.0.20260508.tar.gz", hash = "sha256:436a7563952e3f1f725e32c93b1a682d4fb713dc0d45508ca2c7c869e6085eac", size = 7196, upload-time = "2026-05-08T04:46:41.38Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/39/11/17d00f617bf6974cdbed1954391be2e5ae1385266989f98541b24de12f0d/types_ratelimit-2.2.0.20260508-py3-none-any.whl", hash = "sha256:6b0e11773b76844585f8073ffe2703d62a315296cc78042f8f8fb5de6182dd25", size = 8034, upload-time = "2026-05-08T04:46:40.29Z" },
 ]
 
 [[package]]

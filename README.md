@@ -29,9 +29,13 @@ uv sync --no-dev
 1. Clone the repository and open the folder.
 2. Put the name of the membership lists you get from National DSA into a `.env` configuration file in the project folder
    after the prefix `LIST=`. Here in Maine, we use `LIST=maine_membership_list`.
-3. To use the geocoding feature, select the geopy geocoder you want to use by putting the geocoder name into the same file (on another line) after the
-   prefix `GEOCODER=`. Then, put an API token for that service into the same file (on another line) after the
-   prefix `GEOCODER_API_KEY=`. [OPTIONAL]
+3. To use the geocoding feature, select the geopy geocoder you want to use by putting the geocoder name into
+   the same file (on another line) after the prefix `GEOCODER=`.
+   Then, put an API token for that service into the same file (on another line) after the prefix `GEOCODER_API_KEY=`.
+   It's recommended that you also configure the appropriate rate limit for your geocoding service,
+   via the `GEOCODER_DELAY=` (float) and `GEOCODER_RETRIES=` (int) environment variables.
+   Default values if not set are `1.0` and `4`, respectively. If ratelimit errors are encountered,
+   a progressive backoff strategy is attempted (`timeout * 2`, `timeout * 4`, `timeout * 8`...). [OPTIONAL]
 4. Put a CSV called `branch_zips.csv` containing zip codes matched with branch names in the project folder. [OPTIONAL]
 5. Create a folder with the same title as the membership lists you receive from National DSA.
 6. Add membership lists to the folder (see [notes](#notes) below).
@@ -68,8 +72,6 @@ The dashboard provides the following features:
 - The membership lists should be in the form of zipped CSV files (as provided by National DSA).
 - The membership list zip files should have the list date appended to the zip file name (as `name_<YYYYMMDD>.zip`) and
   contain a single csv file.
-- The project folder contains the submodule `fake_membership_list` for testing/demonstration purposes. It contains no
-  real member information.
 
 Feel free to explore the code and modify it according to your needs!
 

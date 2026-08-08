@@ -4,6 +4,7 @@ import importlib.metadata
 import json
 import logging
 import sqlite3
+import time
 from collections.abc import Callable
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING
@@ -12,7 +13,7 @@ import dotenv
 import geopy
 import geopy.geocoders
 import pandas as pd
-import ratelimit
+from geopy.exc import GeocoderServiceError, GeocoderTimedOut
 from geopy.geocoders.base import Geocoder
 from tqdm import tqdm
 
@@ -66,15 +67,30 @@ def persist_to_file(file_name: Path) -> Callable:
     return decorator
 
 
-@ratelimit.sleep_and_retry
-@ratelimit.limits(calls=600, period=60)
 def geocode_address(address: str) -> tuple[float, float]:
     """Return a list of lat and long coordinates from a supplied address string, using a geocoder API."""
-    location: Location | None = geolocator.geocode(address) if geolocator else None  # type: ignore[ty:unresolved-attribute]  # pyright: ignore[reportAttributeAccessIssue]
-    if not location:
-        logger.warning("Could not geocode address: %s", address)
-        return (0, 0)
-    return (location.latitude, location.longitude)
+    min_delay = float(config.get("GEOCODER_DELAY") or 1.0)
+    active_delay = min_delay
+    max_retries = int(config.get("GEOCODER_RETRIES") or 4)
+
+    for attempt in range(max_retries):
+        try:
+            location: Location | None = geolocator.geocode(address) if geolocator else None  # type: ignore[ty:unresolved-attribute]  # pyright: ignore[reportAttributeAccessIssue]
+            time.sleep(min_delay)
+            if not location:
+                logger.warning("Could not geocode address: %s", address)
+                return (0, 0)
+            return (location.latitude, location.longitude)
+
+        except (GeocoderServiceError, GeocoderTimedOut) as e:
+            if attempt == max_retries - 1:
+                raise
+
+            logger.warning("Service limit hit (%s). Backing off for %s seconds...", e, active_delay)
+            time.sleep(active_delay)
+            active_delay *= 2.0
+
+    return (0, 0)
 
 
 @persist_to_file(Path(PurePath(__file__).parents[2]) / "geocoding.sqlite")
