@@ -21,7 +21,7 @@ uv venv
 ```
 
 ```shell
-uv sync --no-dev
+uv pip install .
 ```
 
 ## Usage
