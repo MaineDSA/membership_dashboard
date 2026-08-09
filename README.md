@@ -21,6 +21,10 @@ uv venv
 ```
 
 ```shell
+source .venv/bin/activate
+```
+
+```shell
 uv pip install .
 ```
 
