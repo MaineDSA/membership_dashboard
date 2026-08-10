@@ -162,19 +162,18 @@ def _scan_memb_list_from_zip(zip_path: str, list_name: str) -> pd.DataFrame:
         return scan_memb_list_from_csv(memb_list_csv)
 
 
-def _scan_all_membership_lists(list_name: str) -> dict[str, pd.DataFrame]:
+def _scan_all_membership_lists(list_name: str, dir_location: Path = Path(__file__).parents[2]) -> dict[str, pd.DataFrame]:
     """Scan all zip files and call scan_memb_list_from_zip on each, returning the results."""
     memb_lists = {}
     logger.info("Scanning zipped membership lists in %s/.", list_name)
-    files = sorted((Path(__file__).parents[2] / list_name).glob("**/*.zip"), reverse=True)
+    files = sorted((dir_location / list_name).glob("**/*.zip"), reverse=True)
     for zip_file in files:
-        filename = Path(zip_file).name
         try:
-            date_from_filename = str(PurePath(filename).stem).split("_")[-1]
+            date_from_filename = Path(zip_file).stem.removeprefix(f"{list_name}_").replace("_", "").replace("-", "")
             list_date_iso = pd.to_datetime(date_from_filename, format="%Y%m%d").date().isoformat()
             memb_lists[list_date_iso] = _scan_memb_list_from_zip(str(Path(zip_file).absolute()), list_name)
         except (IndexError, ValueError):
-            logger.warning("Could not extract list from %s. Skipping file.", filename)
+            logger.warning("Could not extract list from %s. Skipping file.", Path(zip_file).name)
     logger.info("Found %s zipped membership lists.", len(memb_lists))
     return memb_lists
 
