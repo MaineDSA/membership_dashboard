@@ -38,7 +38,7 @@ lint = [
     "ssort==0.17.0",
 ]
 pre-commit = [
-    "pre-commit~=4.6.0",
+    "pre-commit~=4.6.1",
     {include-group = "lint"},
     {include-group = "security"},
     {include-group = "types"},
