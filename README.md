@@ -20,8 +20,8 @@
 | src/pages/timeline.py           |       31 |       31 |        6 |        0 |      0% |     1-100 |
 | src/utils/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |    100% |           |
 | src/utils/geocoding.py          |       77 |        8 |       12 |        2 |     89% |31, 99, 102-110 |
-| src/utils/retention.py          |       26 |       26 |        0 |        0 |      0% |      3-81 |
-| src/utils/scan\_lists.py        |      111 |        8 |       12 |        0 |     92% |175, 201-213 |
+| src/utils/retention.py          |       26 |       26 |        0 |        0 |      0% |      3-83 |
+| src/utils/scan\_lists.py        |      111 |        8 |       12 |        0 |     92% |186, 214-229 |
 | **TOTAL**                       |  **524** |  **352** |   **70** |    **2** | **32%** |           |
 
 
