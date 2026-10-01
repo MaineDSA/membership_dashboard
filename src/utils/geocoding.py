@@ -122,7 +122,7 @@ def add_coordinates(df: pd.DataFrame) -> pd.DataFrame:
     """
     Add lat/lon coordinates to a :class:`pd.DataFrame`.
 
-    Arg:
+    Args:
         df:
             Input DataFrame containing at least ``address1``, ``city``, ``state``, and ``zip`` columns.
 

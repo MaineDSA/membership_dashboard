@@ -71,12 +71,8 @@ def membership_length_years(join_date: pd.Series, xdate: pd.Series) -> pd.Series
     return membership_length_months(join_date, xdate) // 12
 
 
-def format_zip_code(zip_code: str | int) -> str:
-    """Format zip code to 5 characters, zero-pad if necessary."""
-    return str(zip_code).zfill(5)
-
-
 def add_family_members(df: pd.DataFrame) -> pd.DataFrame:
+    """Add a 'family_members' column to the dataframe by concatenating 'family_first_name' and 'family_last_name'."""
     if "family_first_name" not in df.columns:
         return df
 
@@ -85,22 +81,32 @@ def add_family_members(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def update_fields(df: pd.DataFrame, field_upgrade_pairs: dict[str, str], field_drop: list[str]) -> pd.DataFrame:
+    """Rename fields according to `field_upgrade_pairs` and drop fields listed in `field_drop`."""
     for old_name, new_name in field_upgrade_pairs.items():
         if new_name not in df.columns and old_name in df.columns:
             df[new_name] = df[old_name]
         df.drop(columns=old_name, inplace=True, errors="ignore")
+
     for field_name in field_drop:
         df.drop(columns=field_name, inplace=True, errors="ignore")
+
     return df
 
 
+def format_zip_code(zip_code: str | int) -> str:
+    """Format zip code to 5 characters, zero-pad if necessary."""
+    return str(zip_code).zfill(5)
+
+
 def format_fields(df: pd.DataFrame) -> pd.DataFrame:
+    """Format ``zip`` and ``city`` fields consistently."""
     df["zip"] = df.zip.apply(format_zip_code)
     df["city"] = df.city.str.title()
     return df
 
 
 def handle_union_member(df: pd.DataFrame) -> pd.DataFrame:
+    """Handle ``union_member`` field, replacing old integer values with new human-readable labels."""
     if "union_member" not in df.columns:
         return df
 
@@ -111,6 +117,7 @@ def handle_union_member(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def process_dates(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert ``join_date`` and ``xdate`` to datetime and extract year/quarter."""
     df["join_date"] = pd.to_datetime(df.join_date, format="mixed")
     df["join_year"] = pd.PeriodIndex(df.join_date, freq="Y").to_timestamp()
     df["join_quarter"] = pd.PeriodIndex(df.join_date, freq="Q").to_timestamp()
@@ -119,24 +126,28 @@ def process_dates(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def calculate_membership_length(df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate membership length in months and years based on ``join_date`` and ``xdate``."""
     df["membership_length_months"] = membership_length_months(df.join_date, df.xdate)
     df["membership_length_years"] = membership_length_years(df.join_date, df.xdate)
     return df
 
 
 def format_membership_status(df: pd.DataFrame) -> pd.DataFrame:
+    """Replace '`expired`' with '`lapsed`', convert ``membership_status`` to lowercase, and fill ``memb_status_letter`` based on ``membership_status``."""
     df["membership_status"] = df.membership_status.replace("expired", "lapsed").str.lower()
     df["memb_status_letter"] = df.membership_status.replace({"member in good standing": "M", "member": "M", "lapsed": "L"})
     return df
 
 
 def format_membership_type(df: pd.DataFrame) -> pd.DataFrame:
+    """Replace 'annual' with 'yearly' and 'lifetime' where xdate is ``2099-11-01``."""
     df["membership_type"] = df.membership_type.replace("annual", "yearly").str.lower()
     df["membership_type"] = df.membership_type.where(df.xdate != "2099-11-01", "lifetime")
     return df
 
 
 def data_cleaning(df: pd.DataFrame) -> pd.DataFrame:
+    """Orchestrate calls to data cleaning functions on the input dataframe."""
     df.columns = df.columns.str.lower()
     df = add_family_members(df)
     df = update_fields(df, ListColumnRules.FIELD_UPGRADE_PAIRS, ListColumnRules.FIELD_DROP)
@@ -174,6 +185,7 @@ def _scan_all_membership_lists(list_name: str, dir_location: Path = Path(__file_
             memb_lists[list_date_iso] = _scan_memb_list_from_zip(str(Path(zip_file).absolute()), list_name)
         except (IndexError, ValueError):
             logger.warning("Could not extract list from %s. Skipping file.", Path(zip_file).name)
+
     logger.info("Found %s zipped membership lists.", len(memb_lists))
     return memb_lists
 
@@ -193,6 +205,7 @@ def _tagged_with_branches(memb_lists: dict[str, pd.DataFrame], branch_zip_path: 
             date,
         )
         memb_list["branch"] = memb_list["zip"].apply(branch_name_from_zip_code, branch_zips=branch_zips)
+
     return memb_lists
 
 
@@ -204,10 +217,13 @@ def update_membership_lists(list_name: str, branch_lookup_path: Path) -> None:
         k_date: data_cleaning(memb_list)
         for k_date, memb_list in tqdm(scanned_lists.items(), unit="list", leave=False, position=0, dynamic_ncols=True, desc="Scanning Zip Files")
     }
+
     if BRANCH_ZIPS_PATH.is_file():
         logger.info("Tagging each membership list based on current branch zip code assignments.")
         memb_lists = _tagged_with_branches(memb_lists, branch_lookup_path)
+
     if not memb_lists:
         return
+
     global MEMB_LISTS  # noqa: PLW0603 global-statement
     MEMB_LISTS = memb_lists

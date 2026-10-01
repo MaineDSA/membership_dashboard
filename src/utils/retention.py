@@ -34,10 +34,11 @@ def retention_origin(df: pd.DataFrame, join_year: Columns, length: Columns) -> p
     """
     Construct a dataframe of membership data showing the number of members who joined each year who are still in good standing.
 
-    Params:
+    Args:
         df: a dataframe containing a membership list
         join_year: the title of a dataframe column containing the year that each member joined
         length: the title of a dataframe column containing an integer representing the length of membership
+
     """
     return retention_pivot(df, join_year, length).cumsum()[::-1].transpose().replace(to_replace=0, value=None)
 
@@ -56,10 +57,11 @@ def retention_pct_origin(df: pd.DataFrame, join_year: Columns, length: Columns) 
     """
     Construct a dataframe of membership data showing the percentage of members who joined each year who are still in good standing.
 
-    Params:
+    Args:
         df: a dataframe containing a membership list
         join_year: the title of a dataframe column containing the year that each member joined
         length: the title of a dataframe column containing an integer representing the length of membership
+
     """
     pivot = retention_pivot(df, join_year, length)
     return (pivot.cumsum() / pivot.sum())[::-1].transpose().replace(to_replace=0, value=None)
