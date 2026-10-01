@@ -17,15 +17,7 @@ pip install -U pip uv
 ```
 
 ```shell
-uv venv
-```
-
-```shell
-source .venv/bin/activate
-```
-
-```shell
-uv pip install .
+uv sync
 ```
 
 ## Usage
