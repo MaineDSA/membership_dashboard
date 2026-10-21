@@ -1,6 +1,6 @@
 """Parse all membership lists into pandas dataframes for display on dashboard."""
 
-import datetime
+import datetime as dt
 import logging
 from io import TextIOWrapper
 from pathlib import Path, PurePath
@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s :
 logger = logging.getLogger(__name__)
 
 
-MEMB_LISTS: dict[str, pd.DataFrame] = {datetime.datetime.now(tz=datetime.UTC).strftime("%Y-%m-%d"): pd.DataFrame()}
+MEMB_LISTS: dict[str, pd.DataFrame] = {dt.datetime.now(tz=dt.UTC).strftime("%Y-%m-%d"): pd.DataFrame()}
 
 
 class ListColumnRules:
